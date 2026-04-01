@@ -1,0 +1,36 @@
+# Python caches and local build/distribution metadata
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+
+
+# Alternative local env names and bootstrap scratch space
+.conda/
+.tmp/
+venv/
+env/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+.venv/
+
+# IDE / editor state
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Operating system noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log

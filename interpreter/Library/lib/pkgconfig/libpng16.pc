@@ -1,0 +1,12 @@
+prefix=c:/Users/gabri/miniconda3/Library
+exec_prefix=c:/Users/gabri/miniconda3/Library
+libdir=c:/Users/gabri/miniconda3/Library/lib
+includedir=c:/Users/gabri/miniconda3/Library/include/libpng16
+
+Name: libpng
+Description: Loads and saves PNG files
+Version: 1.6.55
+Requires.private: zlib
+Libs: -L${libdir} -lpng16
+Libs.private: -lz
+Cflags: -I${includedir}

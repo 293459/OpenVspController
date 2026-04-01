@@ -1,0 +1,9 @@
+libdir=C:/Users/gabri/miniconda3/Library/lib
+includedir=C:/Users/gabri/miniconda3/Library/include
+
+Name: libsolvext
+Description: Library for reading repositories
+Version: 0.7.30
+Requires: libsolv
+Libs: -L${libdir} -lsolvext
+Cflags: -I${includedir}
