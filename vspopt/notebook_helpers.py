@@ -14,6 +14,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from typing import Any, Optional
 import logging
+import plotly.express as px
+import plotly.graph_objects as go
 
 logger = logging.getLogger(__name__)
 
@@ -297,3 +299,390 @@ def print_results_diagnostic(results) -> None:
         print(f"\n✓ All data validation checks passed.")
 
     print("="*70 + "\n")
+
+
+# ============================================================================
+# Model parameter visualization helpers for Jupyter notebooks
+# ============================================================================
+
+def create_complete_parameters_table(model_wrapper) -> pd.DataFrame:
+    """
+    Create a complete table of all aircraft model parameters.
+
+    Parameters
+    ----------
+    model_wrapper : VSPWrapper
+        The loaded VSP wrapper containing the aircraft model
+
+    Returns
+    -------
+    df : pd.DataFrame
+        DataFrame with columns: Component, Group, Parameter, Value
+    """
+    all_params_data = []
+    
+    for component in model_wrapper.geom_names:
+        try:
+            all_obj_params = model_wrapper.get_all_params(component)
+            for param_path, value in all_obj_params.items():
+                if "/" in param_path:
+                    group, param = param_path.split("/", 1)
+                else:
+                    group, param = param_path, ""
+                
+                all_params_data.append({
+                    "Component": component,
+                    "Group": group,
+                    "Parameter": param,
+                    "Value": value,
+                })
+        except Exception as e:
+            logger.warning(f"Could not read parameters from {component}: {e}")
+    
+    return pd.DataFrame(all_params_data)
+
+
+def create_hierarchical_treemap(model_wrapper):
+    """
+    Create an interactive hierarchical treemap of aircraft parameters.
+
+    Parameters
+    ----------
+    model_wrapper : VSPWrapper
+        The loaded VSP wrapper containing the aircraft model
+
+    Returns
+    -------
+    fig : plotly.graph_objects.Figure
+        Interactive treemap visualization
+    """
+    treemap_data = []
+    root_name = "Aircraft"
+    
+    for component in model_wrapper.geom_names:
+        try:
+            all_obj_params = model_wrapper.get_all_params(component)
+            
+            # Add parameter nodes
+            for param_path, value in all_obj_params.items():
+                if "/" in param_path:
+                    group, param = param_path.split("/", 1)
+                else:
+                    group, param = param_path, ""
+                
+                treemap_data.append({
+                    "name": f"{param}",
+                    "parent": group,
+                    "value": abs(float(value)) if isinstance(value, (int, float)) else 1,
+                    "component": component,
+                    "group": group,
+                    "param": param,
+                    "param_value": value,
+                })
+            
+            # Add group nodes
+            groups = set()
+            for param_path in all_obj_params.keys():
+                if "/" in param_path:
+                    groups.add(param_path.split("/", 1)[0])
+            
+            for group in groups:
+                treemap_data.append({
+                    "name": f"{group}",
+                    "parent": component,
+                    "value": 1,
+                    "component": component,
+                    "group": group,
+                    "param": None,
+                    "param_value": None,
+                })
+            
+            # Add component node
+            treemap_data.append({
+                "name": component,
+                "parent": root_name,
+                "value": 1,
+                "component": component,
+                "group": None,
+                "param": None,
+                "param_value": None,
+            })
+        except Exception as e:
+            logger.warning(f"Could not create treemap nodes for {component}: {e}")
+    
+    # Add root
+    treemap_data.append({
+        "name": root_name,
+        "parent": "",
+        "value": 1,
+        "component": None,
+        "group": None,
+        "param": None,
+        "param_value": None,
+    })
+    
+    df_treemap = pd.DataFrame(treemap_data)
+    
+    fig_tree = px.treemap(
+        df_treemap,
+        names="name",
+        parents="parent",
+        values="value",
+        color="component",
+        hover_data={"component": False, "param_value": False},
+        title="🌳 Hierarchical Parameter Tree: Aircraft → Component → Group → Parameter",
+    )
+    
+    fig_tree.update_layout(
+        height=700,
+        font=dict(size=10),
+    )
+    
+    return fig_tree
+
+
+def create_conceptual_mindmap(model_wrapper):
+    """
+    Create an interactive sunburst visualization organizing parameters by domain.
+
+    Parameters
+    ----------
+    model_wrapper : VSPWrapper
+        The loaded VSP wrapper containing the aircraft model
+
+    Returns
+    -------
+    (fig, df_mindmap_params) : (plotly.graph_objects.Figure, pd.DataFrame)
+        Tuple of (sunburst visualization, parameters DataFrame with concept mapping)
+    """
+    # Define domain categories
+    concept_map = {
+        "Aerodynamics": {
+            "keywords": ["cl", "cd", "lift", "drag", "aero", "pressure", "mach", "reynolds"],
+            "color": "#FF6B6B",
+        },
+        "Geometry - Surfaces": {
+            "keywords": ["span", "chord", "area", "sweep", "dihedral", "twist", "aspect", "taper", "wing", "tail", "fuselage"],
+            "color": "#4ECDC4",
+        },
+        "Geometry - Airfoils": {
+            "keywords": ["airfoil", "xsec", "thickness", "camber", "leading", "naca"],
+            "color": "#45B7D1",
+        },
+        "Structural": {
+            "keywords": ["mass", "weight", "inertia", "cg", "xcg", "ycg", "zcg", "moment", "bending"],
+            "color": "#FFA07A",
+        },
+        "Flight Controls": {
+            "keywords": ["flap", "aileron", "elevator", "rudder", "control", "deflect", "hinge"],
+            "color": "#98D8C8",
+        },
+        "Performance": {
+            "keywords": ["speed", "altitude", "range", "endurance", "payload", "fuel", "burn"],
+            "color": "#F7DC6F",
+        },
+    }
+    
+    # Categorize parameters
+    all_params_flat = []
+    
+    for component in model_wrapper.geom_names:
+        try:
+            all_obj_params = model_wrapper.get_all_params(component)
+            for param_path, value in all_obj_params.items():
+                if "/" in param_path:
+                    group, param = param_path.split("/", 1)
+                else:
+                    group, param = param_path, ""
+                
+                param_name_lower = param.lower()
+                
+                # Find best matching concept
+                assigned_concept = "Other"
+                for concept, config in concept_map.items():
+                    if any(keyword in param_name_lower for keyword in config["keywords"]):
+                        assigned_concept = concept
+                        break
+                
+                all_params_flat.append({
+                    "param": param,
+                    "component": component,
+                    "group": group,
+                    "value": value,
+                    "concept": assigned_concept,
+                })
+        except Exception as e:
+            logger.warning(f"Could not categorize parameters from {component}: {e}")
+    
+    df_mindmap_params = pd.DataFrame(all_params_flat)
+    
+    # Prepare sunburst data
+    sunburst_data = []
+    root_name = "Aircraft Systems"
+    
+    # Root node
+    sunburst_data.append({
+        "name": root_name,
+        "parent": "",
+        "value": 1,
+        "concept": "root",
+    })
+    
+    # Add concept nodes and parameters
+    for concept in list(concept_map.keys()) + ["Other"]:
+        concept_params = df_mindmap_params[df_mindmap_params["concept"] == concept]
+        
+        if len(concept_params) > 0:
+            sunburst_data.append({
+                "name": f"<b>{concept}</b><br>({len(concept_params)} params)",
+                "parent": root_name,
+                "value": len(concept_params),
+                "concept": concept,
+            })
+            
+            # Add parameters grouped by component
+            for component in concept_params["component"].unique():
+                comp_params = concept_params[concept_params["component"] == component]
+                parent_concept = f"<b>{concept}</b><br>({len(concept_params)} params)"
+                
+                for _, row in comp_params.iterrows():
+                    value_str = f"{row['value']:.4f}" if isinstance(row['value'], (int, float)) else str(row['value'])
+                    sunburst_data.append({
+                        "name": f"{row['param']}: {value_str}",
+                        "parent": f"{component}",
+                        "value": 1,
+                        "concept": concept,
+                    })
+                
+                # Add component node if not exists
+                comp_check = [d for d in sunburst_data if d["name"] == component and d.get("parent") == parent_concept]
+                if not comp_check:
+                    sunburst_data.append({
+                        "name": component,
+                        "parent": parent_concept,
+                        "value": len(comp_params),
+                        "concept": concept,
+                    })
+    
+    df_sunburst = pd.DataFrame(sunburst_data)
+    
+    # Create color map for concepts
+    color_map = {concept: config["color"] for concept, config in concept_map.items()}
+    color_map["root"] = "#FFFFFF"
+    color_map["Other"] = "#D3D3D3"
+    
+    colors = [color_map.get(row["concept"], "#CCCCCC") for _, row in df_sunburst.iterrows()]
+    
+    fig_concept = go.Figure(go.Sunburst(
+        labels=df_sunburst["name"],
+        parents=df_sunburst["parent"],
+        values=df_sunburst["value"],
+        marker=dict(colors=colors, line=dict(color="white", width=2)),
+        hovertemplate="<b>%{label}</b><br>Count: %{value}<extra></extra>",
+    ))
+    
+    fig_concept.update_layout(
+        title={
+            "text": "🧠 Conceptual Mind Map: Aircraft Parameters organized by Domain",
+            "font": {"size": 18, "family": "Arial Black"},
+        },
+        height=800,
+        font=dict(size=11),
+        margin=dict(t=100, l=0, r=0, b=0),
+    )
+    
+    return fig_concept, df_mindmap_params
+
+
+def print_conceptual_summary(df_mindmap_params: pd.DataFrame, concept_map: dict) -> None:
+    """
+    Print a tabular summary of parameters organized by domain.
+
+    Parameters
+    ----------
+    df_mindmap_params : pd.DataFrame
+        DataFrame with concept-mapped parameters (from create_conceptual_mindmap)
+    concept_map : dict
+        Domain concept definitions (from create_conceptual_mindmap)
+    """
+    print("\n📋 CONCEPTUAL SUMMARY BY DOMAIN\n" + "="*100)
+    
+    for concept in list(concept_map.keys()) + ["Other"]:
+        concept_params = df_mindmap_params[df_mindmap_params["concept"] == concept]
+        
+        if len(concept_params) > 0:
+            print(f"\n🔹 {concept.upper()} ({len(concept_params)} parameters)")
+            print("-" * 100)
+            
+            # Sort by component
+            for component in concept_params["component"].unique():
+                comp_data = concept_params[concept_params["component"] == component]
+                print(f"\n   {component}:")
+                
+                summary_table = comp_data[[
+                    "param", "group", "value"
+                ]].drop_duplicates().sort_values("param")
+                
+                for _, row in summary_table.iterrows():
+                    value_str = f"{row['value']:.6f}" if isinstance(row['value'], (int, float)) else str(row['value'])
+                    print(f"     • {row['param']:30s} [{row['group']:20s}] = {value_str}")
+    
+    print("\n" + "="*100)
+
+
+def print_conceptual_summary_sample(df_mindmap_params: pd.DataFrame, concept_map: dict, samples_per_concept: int = 3) -> None:
+    """
+    Print a sampled summary of parameters organized by domain (showing examples only).
+
+    This shows only a few representative parameters per domain, useful for quick overview
+    without overwhelming the output with all parameters.
+
+    Parameters
+    ----------
+    df_mindmap_params : pd.DataFrame
+        DataFrame with concept-mapped parameters (from create_conceptual_mindmap)
+    concept_map : dict
+        Domain concept definitions (from create_conceptual_mindmap)
+    samples_per_concept : int, default 3
+        Number of example parameters to show per domain
+    """
+    print("\n🎯 CONCEPTUAL OVERVIEW - SAMPLE PARAMETERS BY DOMAIN\n" + "="*100)
+    
+    for concept in list(concept_map.keys()) + ["Other"]:
+        concept_params = df_mindmap_params[df_mindmap_params["concept"] == concept]
+        
+        if len(concept_params) > 0:
+            total_count = len(concept_params)
+            print(f"\n🔹 {concept.upper()} ({total_count} parameters total)")
+            print("-" * 100)
+            
+            # Group by component and show samples
+            components_shown = 0
+            for component in concept_params["component"].unique():
+                if components_shown >= samples_per_concept:
+                    break
+                    
+                comp_data = concept_params[concept_params["component"] == component]
+                print(f"\n   {component}:")
+                
+                summary_table = comp_data[[
+                    "param", "group", "value"
+                ]].drop_duplicates().sort_values("param").head(3)
+                
+                for _, row in summary_table.iterrows():
+                    value_str = f"{row['value']:.6f}" if isinstance(row['value'], (int, float)) else str(row['value'])
+                    print(f"     • {row['param']:30s} [{row['group']:20s}] = {value_str}")
+                
+                # Show "..." if there are more parameters in this component
+                remaining_in_comp = len(comp_data) - len(summary_table)
+                if remaining_in_comp > 0:
+                    print(f"     • ... and {remaining_in_comp} more parameter(s)")
+                
+                components_shown += 1
+            
+            # Show summary line if more components not shown
+            remaining_components = len(concept_params["component"].unique()) - components_shown
+            if remaining_components > 0:
+                print(f"\n   ... and parameters from {remaining_components} more component(s)")
+    
+    print("\n" + "="*100 + "\n📌 For complete details, see:\n  • CSV: exports/all_parameters.csv\n  • TXT: exports/all_parameters.txt")
