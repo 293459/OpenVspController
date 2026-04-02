@@ -159,6 +159,42 @@ class VSPWrapper:
         self._ensure_loaded()
         return list(self._geom_id_cache.keys())
 
+    def get_component_diagnostics(self) -> dict:
+        """
+        Return a diagnostic dictionary with detailed information about loaded components.
+
+        Includes:
+        - total_components: total number of geometry objects in VSP model
+        - unique_names: number of unique names in Python cache
+        - has_duplicates: whether duplicate names were found and renamed
+        - warnings: list of warning messages for duplicates
+        - component_info: list of dicts with name, geom_type, and geom_id
+
+        This is useful for validating that all components were loaded correctly
+        and for understanding the impact of any name deduplications.
+        """
+        self._ensure_loaded()
+
+        component_info = []
+        for name in self.geom_names:
+            geom_id = self._geom_id_cache[name]
+            geom_type = self._vsp.GetGeomTypeName(geom_id)
+            is_renamed = "_" in name and name[-2] == "_" and name[-1].isdigit()
+            component_info.append({
+                "name": name,
+                "geom_type": geom_type,
+                "geom_id": geom_id,
+                "is_renamed_duplicate": is_renamed,
+            })
+
+        return {
+            "total_components": len(self._vsp.FindGeoms()),
+            "unique_names": len(self._geom_id_cache),
+            "has_duplicates": self._duplicate_names_found,
+            "warnings": self.warnings,
+            "component_info": component_info,
+        }
+
     def get_geom_id(self, name: str) -> str:
         """
         Return the internal geometry ID for a component by name.
