@@ -77,6 +77,67 @@ def _export(fig: plt.Figure, name: str, export_dir: Optional[str | Path]):
         logger.info("Figure saved: %s", filepath)
     return fig
 
+def _validate_results_for_plotting(results, plot_name: str) -> tuple[bool, str]:
+    """
+    Validate that VSPAEROResults contain meaningful data before plotting.
+
+    Parameters
+    ----------
+    results : VSPAEROResults or list[VSPAEROResults]
+    plot_name : str, name of the plot for diagnostic messages
+
+    Returns
+    -------
+    (is_valid, message) : bool and diagnostic string
+        If not valid, the calling function should still plot but with warnings.
+    """
+    from vspopt.vspaero import VSPAEROResults
+
+    def check_single(res: VSPAEROResults) -> tuple[bool, list[str]]:
+        """Check a single result object."""
+        warnings = []
+
+        if len(res.alpha) == 0:
+            warnings.append("No alpha points in sweep (empty array)")
+        if len(res.CL) == 0:
+            warnings.append("No CL data")
+        if len(res.CD) == 0:
+            warnings.append("No CD data")
+
+        if len(res.alpha) == 1:
+            warnings.append("Only 1 alpha point — insufficient for plotting")
+
+        if len(res.CL) > 0 and np.any(np.isnan(res.CL)):
+            n_nan = int(np.sum(np.isnan(res.CL)))
+            warnings.append(f"{n_nan} NaN values in CL")
+
+        if len(res.CD) > 0 and np.any(res.CD < 0):
+            warnings.append("Negative CD detected (physically impossible)")
+
+        is_valid = len(warnings) == 0
+        return is_valid, warnings
+
+    results_to_check = results if isinstance(results, list) else [results]
+    all_issues = []
+    any_valid = False
+
+    for r in results_to_check:
+        is_valid, issues = check_single(r)
+        if not is_valid:
+            all_issues.extend(issues)
+        else:
+            any_valid = True
+
+    if not any_valid:
+        msg = f"[{plot_name}] All results are invalid:\n  " + "\n  ".join(all_issues)
+        return False, msg
+    elif all_issues:
+        msg = f"[{plot_name}] Some warnings:\n  " + "\n  ".join(all_issues)
+        logger.warning(msg)
+        return True, msg
+    else:
+        return True, ""
+
 
 # ---------------------------------------------------------------------------
 # 1. Aerodynamic polar (CL, CD, CM vs alpha)
@@ -98,9 +159,20 @@ def plot_polar(
     title      : Figure title.
     export_dir : If given, saves as '{title}.png' in that directory.
     label      : Legend label when a single result is passed.
+
+    Returns
+    -------
+    Figure with three subplots showing aerodynamic coefficients vs angle of attack.
     """
     _apply_style()
     from vspopt.vspaero import VSPAEROResults
+
+    # Validate before plotting
+    is_valid, msg = _validate_results_for_plotting(results, "plot_polar")
+    if msg:
+        logger.warning(msg)
+    if not is_valid:
+        logger.error("Cannot create plot — results are completely empty")
 
     if isinstance(results, VSPAEROResults):
         results_list = [results]
@@ -153,9 +225,31 @@ def plot_drag_polar(
 ) -> plt.Figure:
     """
     CL vs CD drag polar with constant-L/D lines and the L/D_max point marked.
+
+    Shows the relationship between lift and drag coefficients, which is central
+    to understanding aircraft performance. Constant L/D contour lines help identify
+    the optimal operating point.
+
+    Parameters
+    ----------
+    results : VSPAEROResults or list of VSPAEROResults
+    title : Figure title
+    export_dir : If given, saves figure to this directory
+
+    Returns
+    -------
+    Figure showing drag polar (CL vs CD) with performance contours
     """
     _apply_style()
     from vspopt.vspaero import VSPAEROResults
+
+    # Validate before plotting
+    is_valid, msg = _validate_results_for_plotting(results, "plot_drag_polar")
+    if msg:
+        logger.warning(msg)
+    if not is_valid:
+        logger.error("Cannot create drag polar — results are completely empty")
+
 
     if isinstance(results, VSPAEROResults):
         results_list = [results]
@@ -211,9 +305,33 @@ def plot_ld_ratio(
     title: str = "Lift-to-Drag Ratio",
     export_dir: Optional[str | Path] = None,
 ) -> plt.Figure:
-    """L/D vs angle of attack.  Marks maximum L/D and operating CL."""
+    """
+    L/D vs angle of attack. Marks maximum L/D and the operating point.
+
+    The L/D ratio is critical for aircraft efficiency. This plot shows:
+    - The L/D curve across the angle of attack range
+    - The L/D_max point (optimal cruise condition)
+    - The corresponding CL value at maximum efficiency
+
+    Parameters
+    ----------
+    results : VSPAEROResults or list of VSPAEROResults
+    title : Figure title
+    export_dir : If given, saves figure to this directory
+
+    Returns
+    -------
+    Figure showing efficiency (L/D) vs angle of attack
+    """
     _apply_style()
     from vspopt.vspaero import VSPAEROResults
+
+    # Validate before plotting
+    is_valid, msg = _validate_results_for_plotting(results, "plot_ld_ratio")
+    if msg:
+        logger.warning(msg)
+    if not is_valid:
+        logger.error("Cannot create L/D plot — results are completely empty")
 
     if isinstance(results, VSPAEROResults):
         results_list = [results]
