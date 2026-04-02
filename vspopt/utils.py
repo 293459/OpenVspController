@@ -163,13 +163,13 @@ def check_openvsp_version(min_version: tuple[int, int, int] = (3, 35, 0)) -> tup
     Verify that the installed OpenVSP version meets the minimum requirement.
 
     Attempts to determine the version from:
-      1. openvsp.GetVersionString() if available
-      2. The bundled OpenVSP-X.Y.Z-win64 folder name if GetVersionString() fails
-      3. Falls back to "0.0.0" if neither method works
+      1. openvsp.GetVersionString() if available and valid
+      2. The bundled OpenVSP-X.Y.Z-win64 folder name when GetVersionString() returns invalid/0.0.0
+      3. Falls back to "0.0.0" only when all methods fail
 
     Returns
     -------
-    (ok, message)
+    (ok, message) : bool and diagnostic string
     """
     try:
         configure_embedded_openvsp()
@@ -177,19 +177,20 @@ def check_openvsp_version(min_version: tuple[int, int, int] = (3, 35, 0)) -> tup
     except ImportError:
         return False, "openvsp is not importable."
 
-    # 1. Try GetVersionString() first
     version_str = None
+    version_source = None
+
+    # 1. Try GetVersionString() first
     if hasattr(vsp, "GetVersionString"):
         try:
-            version_str = vsp.GetVersionString()
-            if version_str and version_str != "0.0.0":
-                pass  # Use this version
-            else:
-                version_str = None  # Try fallback
+            api_version = vsp.GetVersionString()
+            if api_version and api_version.strip() and api_version != "0.0.0":
+                version_str = api_version.strip()
+                version_source = "API (GetVersionString)"
         except Exception:
-            version_str = None
+            pass
 
-    # 2. If GetVersionString() didn't work, extract version from bundled folder name
+    # 2. If GetVersionString() didn't provide a valid version, extract from bundled folder name
     if not version_str:
         try:
             from vspopt.openvsp_runtime import get_default_openvsp_root
@@ -197,26 +198,36 @@ def check_openvsp_version(min_version: tuple[int, int, int] = (3, 35, 0)) -> tup
             folder_name = root.name  # e.g., "OpenVSP-3.48.2-win64"
             if "OpenVSP-" in folder_name:
                 # Extract version: "OpenVSP-3.48.2-win64" → "3.48.2"
-                parts_str = folder_name.split("-")[1].split("-")[0]
-                version_str = parts_str
+                version_part = folder_name.split("-")[1]
+                # Handle versions like "3.48.2" or "3.48.2-win64"
+                version_str = version_part.split("-")[0]
+                version_source = f"bundled folder name ({folder_name})"
         except Exception:
-            version_str = None
+            pass
 
-    # 3. Fallback if all else fails
+    # 3. Last resort: use placeholder version
     if not version_str:
         version_str = "0.0.0"
+        version_source = "unknown (fallback)"
 
     try:
         parts = tuple(int(x) for x in version_str.split(".")[:3])
     except ValueError:
-        return True, f"Could not parse version string '{version_str}' — proceeding anyway."
+        return (
+            True,
+            f"OpenVSP version string '{version_str}' (from {version_source}) could not be parsed — proceeding anyway.",
+        )
 
+    min_version_str = ".".join(str(x) for x in min_version)
     if parts >= min_version:
-        return True, f"OpenVSP {version_str} meets requirement {'.'.join(str(x) for x in min_version)}+"
+        return (
+            True,
+            f"OpenVSP {version_str} (from {version_source}) meets requirement >={min_version_str}",
+        )
     else:
         return (
             False,
-            f"OpenVSP {version_str} is older than required {'.'.join(str(x) for x in min_version)}.",
+            f"OpenVSP {version_str} (from {version_source}) is older than required {min_version_str}.",
         )
 
 
