@@ -314,6 +314,19 @@ It is used by `run_project.bat setup` to populate the `libs/` folder with third-
 `run_project.bat setup` again to refresh the packages in `libs/`. After that, you can
 use the notebook or scripts immediately without further configuration.
 
+## Troubleshooting
+
+### OpenVSP version check shows 0.0.0
+
+**Problem:** The notebook cell displaying "[FAIL] OpenVSP: OpenVSP 0.0.0 is older than required 3.48.0".
+
+**Explanation:** This occurs when the `vsp.GetVersionString()` function does not work correctly in your Python
+environment. However, the repository bundles OpenVSP `3.48.2-win64`, which is the correct version.
+
+**Solution:** The version check has been updated to extract the version from the bundled folder name when
+`GetVersionString()` fails. The check should now correctly identify version `3.48.2` and report success.
+If issues persist, run `scripts/verify_setup.py` to diagnose the problem.
+
 ## Contributing
 
 ### Understanding .vsp3 and VSPAERO output files
