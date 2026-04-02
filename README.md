@@ -22,15 +22,31 @@ This repository is now designed around a simpler workflow:
 The project now follows this practical structure:
 
 - `vspopt/`, `app/`, `notebooks/`, `scripts/`: your project code
-- `interpreter/`: a repository-local copy of a compatible Python runtime, kept in Git
-- `libs/`: third-party packages installed with `pip --target`, kept in Git
-- `.venv/`: a local virtual environment created on top of `interpreter/`, kept in Git
+- `interpreter/`: a **copy of Python 3.13 runtime** (stdlib + compiled extensions), created on first run
+- `libs/`: **third-party packages installed with pip**, also created on first run
+- `.venv/`: a **local virtual environment created on top of interpreter/**, also created on first run
 - `results/`, `exports/`: solver outputs and derived artifacts kept as reference material when available
 
-This is intentionally heavier than a source-only repository.
-The tradeoff is deliberate: if bootstrap fails on another machine, an expert
-user can inspect what is already present in `interpreter/`, `libs/`, `.venv/`,
-and the latest output folders before trying to rebuild everything.
+### Differences between interpreter/, libs/, and .venv/
+
+| Folder | Purpose | Contains | Maintained by |
+|--------|---------|----------|---|
+| `interpreter/` | Portable Python 3.13 base runtime | Python executable, standard library, compiled extensions (e.g., `_socket.pyd`) | `bootstrap_python_runtime.py` on first setup |
+| `libs/` | Packaged third-party dependencies | All packages from `requirements.txt` (numpy, pandas, scipy, matplotlib, etc.) | `run_project.bat setup` using pip |
+| `.venv/` | Virtual environment wrapper | Symlinks/shortcuts to `interpreter/` + `libs/`, plus activation scripts | `run_project.bat setup` using venv module |
+| `OpenVSP-3.48.2-win64/` | Bundled solver | OpenVSP binaries, Python API (`_vsp.pyd`), examples, VSPAERO | Committed to Git |
+
+**Why three layers?**
+- `interpreter/` is truly portable; it can be copied to another machine and work without recompilation
+- `libs/` explicitly separates third-party packages from the base runtime, making it clear what was added
+- `.venv/` is a convenience layer for Jupyter and tools that expect a virtual environment structure
+
+**What gets committed to Git?**
+- All three folders (`interpreter/`, `libs/`, `.venv/`) are committed to Git so the repository is reproducible
+- This makes the repo larger but means an expert user can inspect or repair bootstrap failures
+
+**First run:** When you clone the repository, these folders already exist (committed to Git) and are _ready to use immediately_.
+If you need to rebuild them, run `run_project.bat setup` again.
 
 ## Git policy
 
