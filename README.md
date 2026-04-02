@@ -318,14 +318,258 @@ use the notebook or scripts immediately without further configuration.
 
 ### OpenVSP version check shows 0.0.0
 
-**Problem:** The notebook cell displaying "[FAIL] OpenVSP: OpenVSP 0.0.0 is older than required 3.48.0".
+**Problem:** The notebook cell displaying `[FAIL] OpenVSP: OpenVSP 0.0.0 is older than required 3.48.0`.
 
-**Explanation:** This occurs when the `vsp.GetVersionString()` function does not work correctly in your Python
+**Explanation:** This occurred when the `vsp.GetVersionString()` function did not work correctly in the Python
 environment. However, the repository bundles OpenVSP `3.48.2-win64`, which is the correct version.
 
-**Solution:** The version check has been updated to extract the version from the bundled folder name when
-`GetVersionString()` fails. The check should now correctly identify version `3.48.2` and report success.
-If issues persist, run `scripts/verify_setup.py` to diagnose the problem.
+**Solution:** The version check has been updated to:
+1. Try `GetVersionString()` first if available
+2. Extract the version from the bundled folder name `OpenVSP-3.48.2-win64` if GetVersionString() fails or returns invalid results
+3. Display the diagnostic source (API, bundled folder name, or unknown) in the message
+
+If you still see 0.0.0, run `scripts/verify_setup.py` to check the full environment, or review the diagnostic
+message to see which method was used to detect the version.
+
+### Duplicate component names in the model
+
+**Problem:** When loading a `.vsp3` file, you may see warnings like:
+```
+WARNING: You have duplicate names. Some parts are being overwritten!
+    -> DUPLICATE NAME FOUND: 'MeshGeom'
+```
+
+This happens when your OpenVSP model contains two or more geometry components with identical names.
+
+**Explanation:** OpenVSP allows creating components with the same name, but Python dictionaries require unique keys.
+The loading process automatically renames duplicates by appending `_2`, `_3`, etc. (e.g., `MeshGeom` becomes `MeshGeom_2`)
+to ensure all components are accessible in Python.
+
+**Diagnostics:** After loading, you can call:
+```python
+diagnostics = model.wrapper.get_component_diagnostics()
+print(f"Total components in VSP: {diagnostics['total_components']}")
+print(f"Unique names after dedup: {diagnostics['unique_names']}")
+print(f"Has duplicates: {diagnostics['has_duplicates']}")
+for warning in diagnostics['warnings']:
+    print(f"  - {warning}")
+```
+
+This shows:
+- How many geometry objects exist in the VSP model
+- How many unique names were created in Python
+- Which components were renamed due to duplication
+- Details on how to fix duplicates in your model
+
+**Solution:** To avoid confusion in the future:
+1. Open your `.vsp3` file in OpenVSP
+2. Identify and rename any components with identical names to unique names
+3. Save the model
+4. Reload in this notebook — the warnings should disappear
+
+All components are still present and usable; the renaming only affects their Python names.
+
+### VSPAERO sweep produces fewer alpha points than requested
+
+**Problem:** The VSPAERO sweep returns only 1 alpha point when 26 were requested:
+```
+VSPAEROResults(M=0.20, Re=1.0e+06, alpha=[0.0,0.0] x 1 pts, L/D_max=0.00)
+[WARNING] Only 1 alpha points in sweep. Results may be coarse; consider increasing AlphaNpts.
+```
+
+**Explanation:** This can occur due to several reasons:
+1. **VSPAERO crash or timeout:** The solver may fail silently without generating complete results
+2. **Incomplete mesh generation:** If the OpenVSP model fails geometry-to-mesh conversion
+3. **Parameter mismatch:** If VSPAERO doesn't recognize the sweep parameter names correctly
+4. **Model corruption:** If the `.vsp3` file or geometry is invalid for VSPAERO analysis
+
+**Diagnostics:**
+1. Check the wrapper logs — look for errors during the sweep setup
+2. Check if `.history` and `.stab` files were generated in the `results/` folder
+3. Run `scripts/verify_setup.py` to ensure the environment is correct
+
+**Solutions to try:**
+- Verify that the OpenVSP model geometry is valid: run `File → Validate Geometry` in OpenVSP
+- Simplify the geometry: remove any invalid or problematic components and try again
+- Check that VSPAERO binary exists: `OpenVSP-3.48.2-win64/bin/vspaero.exe` should be present
+- Ensure the model has proper reference area (Sref) defined
+- Try with a known-good model first (like a simple wing) to confirm the environment works
+
+The improved diagnostics in this version will now alert you if the actual number of points differs from requested,
+making it easier to identify incomplete runs.
+
+## File Formats
+
+### .vsp3 files (Aircraft geometry)
+
+**Description:** Binary/XML-based format that stores the complete parametric 3D geometry of your aircraft.
+
+**Contains:**
+- Aircraft component definitions (wings, fuselage, tail, propellers, etc.)
+- Detailed geometric parameters: wing span, chord, airfoil curves, dihedral, sweep, etc.
+- Component positions and orientations
+- Design variable definitions and parameter limits
+- Mesh and analysis settings
+
+**Created/Edited by:**
+- OpenVSP GUI application
+- This project via the OpenVSP Python API
+- Manual editing (with caution) as XML
+
+**Used for:**
+- Defining the starting geometry for all analysis runs
+- Design iteration and parameter optimization
+- Creating baseline configurations before running VSPAERO
+
+**Example:** `models/VESPA.vsp3` is the aircraft geometry for this project.
+
+### .vspaero files and related outputs (Aerodynamic analysis results)
+
+**Description:** Text-based or binary results from the VSPAERO solver (vortex lattice / panel method).
+
+**Contains:**
+- Computed aerodynamic coefficients: CL, CD, CM (lift, drag, moment)
+- Induced and profile drag components (CDi, CDo)
+- Pressure distributions
+- Force/moment data in various reference frames
+- One file per analysis run or sweep configuration
+
+**Accompanying files:**
+- `.history` — Convergence history (iteration count, residuals)
+- `.stab` — Stability derivatives (roll, pitch, yaw derivatives)
+- `.lod` — Load distribution data
+- `.polar` — Aerodynamic polar data
+- `.adb` — Database files with result summaries
+
+**Generated by:**
+- `model.wrapper.run_vspaero_sweep()` during analysis
+- The VSPAERO executable bundled in `OpenVSP-3.48.2-win64/bin/`
+
+**Used for:**
+- Understanding aerodynamic performance (L/D, stall behavior, etc.)
+- Extracting data for optimization algorithms
+- Validating designs against performance requirements
+- Plotting aerodynamic polars and performance curves
+
+**Workflow:**
+```
+.vsp3 model (geometry)
+    ↓ (VSPAERO analysis)
+    → .vspaero files (aerodynamic results)
+    → .history, .stab (supplementary data)
+    ↓ (post-processing)
+    → Plots, tables, optimization
+```
+
+## About requirements.txt and dependency management
+
+**Current design:**
+
+The `requirements.txt` file is **still necessary** and defines the third-party Python packages required by the
+project (numpy, pandas, scipy, matplotlib, plotly, optuna, scikit-optimize, streamlit, etc.).
+
+- When you run `run_project.bat setup`, it uses `pip install ... -r requirements.txt` to populate the `libs/` folder
+- The packages in `libs/` are then wired into the virtual environment activated in `.venv/`
+- If you modify `requirements.txt` (to add a new package, for example), you must run `run_project.bat setup` again
+
+**Why keep it?**
+
+- Explicit declaration of all dependencies and their minimum versions
+- Reproducibility: anyone can see what packages the project needs
+- Flexibility: users can modify `requirements.txt` if needed for their environment
+- Standard practice in Python projects
+
+**You do NOT need to edit `requirements.txt` unless:**
+- You want to add a new package (e.g., a new visualization library)
+- You need to constrain specific package versions
+- You're on an environment with unusual package compatibility issues
+
+## Setup lifecycle and when to run run_project.bat
+
+**First time (fresh clone):**
+```cmd
+run_project.bat setup
+```
+This:
+- Detects or creates a local Python 3.13 runtime in `interpreter/`
+- Installs packages from `requirements.txt` into `libs/`
+- Creates a virtual environment in `.venv/`
+- Registers a Jupyter kernel named `OpenVSP Controller (.venv)`
+- Runs verification checks
+
+**After first setup (normal usage):**
+```cmd
+run_project.bat
+```
+This:
+- Launches JupyterLab directly on the notebook (no setup needed)
+- Uses the existing environment from the first run
+
+**You only need to run `run_project.bat setup` again if:**
+- You modify `requirements.txt` and want to install new packages
+- The virtual environment becomes corrupted or broken
+- You want to rebuild everything from scratch
+- You're on a new machine/account (Jupyter kernel registration is local)
+
+**Important note:**
+Do not run `run_project.bat setup` every time.  After the first successful run, the `interpreter/`, `libs/`, and
+`.venv/` folders are configured and ready to use. Continuous re-running is unnecessary and slows down your workflow.
+The environment is truly local and portable — it lives in your repository, not in system directories.
+
+## Folder structure explanation (interpreter, libs, .venv)
+
+This project uses a three-layer local runtime approach for maximum portability and clarity:
+
+| Layer | Purpose | Contains | Maintained by |
+|-------|---------|----------|---|
+| **`interpreter/`** | Base Python 3.13 runtime | Python executable, standard library, compiled extensions (e.g., `_socket.pyd`) | `run_project.bat setup` (copied from system Python 3.13) |
+| **`libs/`** | Third-party packages | All packages from `requirements.txt` (numpy, pandas, scipy, matplotlib, plotly, optuna, etc.) | `run_project.bat setup` using `pip install -r requirements.txt` |
+| **`.venv/`** | Virtual environment wrapper | Symlinks/shortcuts to `interpreter/` + `libs/`, plus activation scripts (activate.bat, activate.ps1, etc.) | `run_project.bat setup` using Python `venv` module |
+
+### Why three layers?
+
+1. **`interpreter/`:** Purely portable — can be zipped and moved to another Windows machine without recompilation
+2. **`libs/`:** Explicitly separates third-party additions from the base runtime, making it clear what was installed
+3. **`.venv/`:** A convenience layer for tools (Jupyter, IDEs) that expect a standard virtual environment structure
+
+### What gets committed to Git?
+
+All three folders are **committed to Git** to ensure the repository is fully reproducible:
+- Clone the repo → all three folders exist → run `run_project.bat` immediately (no setup needed)
+- This makes the repo larger but guarantees that an expert user can inspect or repair bootstrap failures
+- The bundled OpenVSP binary is also committed for the same reason
+
+### Example workflows
+
+**Scenario 1: You clone the repo for the first time (Windows machine with Python 3.13 installed)**
+```
+1. git clone <repo>
+2. run_project.bat setup          (creates interpreter/ if missing, wires libs/ and .venv/)
+3. Jupyter kernel is registered
+4. run_project.bat                (launches notebook immediately)
+```
+
+**Scenario 2: You have already cloned and set up, now you work normally**
+```
+1. Open VSCode
+2. run_project.bat                (launches notebook, environment already ready)
+3. Kernel is already registered, select it in the notebook
+4. Run analysis
+```
+
+**Scenario 3: You want to add a new package (e.g., networkx for graph visualizations)**
+```
+1. Edit requirements.txt:  add networkx>=3.0
+2. run_project.bat setup          (pip installs networkx into libs/)
+3. run_project.bat                (use notebook with the new package)
+```
+
+**Scenario 4: Something is broken (environment corrupted)**
+```
+1. run_project.bat setup          (refresh everything)
+2. If that doesn't work, delete interpreter/ and .venv/ manually
+3. run_project.bat setup          (rebuild them from scratch)
+```
 
 ## Contributing
 
