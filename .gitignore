@@ -9,8 +9,6 @@ build/
 .eggs/
 
 # Repository-local runtimes and solver outputs are intentionally versioned:
-# - `.venv/`, `libs/`, and `interpreter/` stay in Git so an expert user can
-#   inspect or repair a broken bootstrap without starting from zero.
 # - `exports/` and OpenVSP/VSPAERO output files stay in Git so the latest
 #   reference artifacts remain visible even on a machine that cannot rerun them.
 
