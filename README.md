@@ -280,6 +280,15 @@ If someone still prefers Conda, `environment.yml` is kept as a fallback.
 However, the supported and documented path is the repository-local runtime
 created by `run_project.bat`.
 
+## About requirements.txt
+
+The `requirements.txt` file defines all Python package dependencies and is still necessary.
+It is used by `run_project.bat setup` to populate the `libs/` folder with third-party packages.
+
+**If you modify `requirements.txt`** (e.g., to add a new package), you must run
+`run_project.bat setup` again to refresh the packages in `libs/`. After that, you can
+use the notebook or scripts immediately without further configuration.
+
 ## Contributing
 
 The repository is intentionally pinned to the bundled OpenVSP build.
