@@ -393,10 +393,38 @@ def plot_performance_map(
                      "CD0_estimate", "oswald_mean"
     """
     _apply_style()
+
+    # Validate input dimensions
+    if not results_matrix or len(results_matrix) == 0:
+        logger.error("[plot_performance_map] Empty results matrix")
+        fig = plt.figure()
+        return _export(fig, f"performance_map_{metric}", export_dir)
+
+    if len(mach_values) != len(results_matrix):
+        logger.error(f"[plot_performance_map] Mach values ({len(mach_values)}) != matrix rows ({len(results_matrix)})")
+        fig = plt.figure()
+        return _export(fig, f"performance_map_{metric}", export_dir)
+
+    if any(len(row) != len(alpha_values) for row in results_matrix):
+        logger.error(f"[plot_performance_map] Matrix rows have inconsistent length (expected {len(alpha_values)})")
+        fig = plt.figure()
+        return _export(fig, f"performance_map_{metric}", export_dir)
+
     data = np.zeros((len(mach_values), len(alpha_values)))
+    non_nan_count = 0
     for i, row in enumerate(results_matrix):
         for j, res in enumerate(row):
-            data[i, j] = getattr(res, metric, float("nan"))
+            val = getattr(res, metric, float("nan"))
+            data[i, j] = val
+            if np.isfinite(val):
+                non_nan_count += 1
+
+    if non_nan_count == 0:
+        logger.error(f"[plot_performance_map] No finite {metric} values found in matrix")
+        fig = plt.figure()
+        return _export(fig, f"performance_map_{metric}", export_dir)
+
+    logger.info(f"[plot_performance_map] {non_nan_count}/{len(mach_values)*len(alpha_values)} cells have finite {metric} data")
 
     fig, ax = plt.subplots(figsize=(9, 5))
     im = ax.pcolormesh(
@@ -423,6 +451,9 @@ def plot_optimization_history(
     """
     Plot objective value vs. number of function evaluations.
     Accepts a single OptimizationResult or a list (for comparison).
+
+    Shows both raw objective values (dots) and the running minimum
+    (best-so-far curve), helping to visualize convergence behavior.
     """
     _apply_style()
     from vspopt.optimization import OptimizationResult
@@ -431,6 +462,21 @@ def plot_optimization_history(
         opt_list = [opt_results]
     else:
         opt_list = list(opt_results)
+
+    # Validate that we have meaningful data
+    if not opt_list:
+        logger.error("[plot_optimization_history] No optimization results provided")
+        fig = plt.figure()
+        return _export(fig, "optimization_history", export_dir)
+
+    # Check if any optimization has history
+    non_empty = [o for o in opt_list if len(o.history_obj) > 0]
+    if not non_empty:
+        logger.error(f"[plot_optimization_history] All {len(opt_list)} optimizations have empty history")
+        fig = plt.figure()
+        return _export(fig, "optimization_history", export_dir)
+
+    logger.info(f"[plot_optimization_history] Plotting {len(non_empty)}/{len(opt_list)} optimization results")
 
     colours = [BLUE, ORANGE, GREEN, RED, PURPLE]
     fig, ax = plt.subplots(figsize=(9, 4.5))
@@ -467,17 +513,30 @@ def plot_variable_sensitivity(
     Bar chart showing how much the objective changed relative to
     the initial point for each design variable, estimated from the
     optimization history.  Helps identify which variables matter most.
+
+    Uses Pearson correlation between each design variable and the
+    objective value across all evaluation points.
     """
     _apply_style()
+
+    # Validate data availability
+    if len(opt_result.history_x) < 2:
+        logger.warning("[plot_variable_sensitivity] Insufficient history for sensitivity plot (< 2 evaluations).")
+        fig = plt.figure()
+        return _export(fig, f"sensitivity_{title.replace(' ', '_')}", export_dir)
+
+    if len(opt_result.design_variables) == 0:
+        logger.error("[plot_variable_sensitivity] No design variables defined")
+        fig = plt.figure()
+        return _export(fig, f"sensitivity_{title.replace(' ', '_')}", export_dir)
+
     dv_names = [dv.label for dv in opt_result.design_variables]
     n_vars   = len(dv_names)
 
-    if len(opt_result.history_x) < 2:
-        logger.warning("Insufficient history for sensitivity plot.")
-        return plt.figure()
-
     x_arr  = np.array(opt_result.history_x)   # shape (n_evals, n_vars)
     obj_arr = np.array(opt_result.history_obj)
+
+    logger.info(f"[plot_variable_sensitivity] {n_vars} variables, {len(obj_arr)} evaluations")
 
     # Pearson correlation between each variable column and the objective
     sensitivities = np.array([
@@ -563,6 +622,22 @@ def plot_sweep_grid(
     sweep_label  : Name of the swept parameter (for legend).
     """
     _apply_style()
+
+    # Validate that we have meaningful data to plot
+    if not results_dict or len(results_dict) == 0:
+        logger.error("[plot_sweep_grid] No results provided")
+        fig = plt.figure(figsize=(9, 5))
+        return _export(fig, f"sweep_{y_key}_vs_{x_key}", export_dir)
+
+    # Check if any results have data
+    non_empty_results = [r for r in results_dict.values() if len(getattr(r, y_key, [])) > 0]
+    if not non_empty_results:
+        logger.error(f"[plot_sweep_grid] All {len(results_dict)} sweep results have no {y_key} data")
+        fig = plt.figure(figsize=(9, 5))
+        return _export(fig, f"sweep_{y_key}_vs_{x_key}", export_dir)
+
+    logger.info(f"[plot_sweep_grid] Plotting {len(non_empty_results)}/{len(results_dict)} results for {y_key} vs {x_key}")
+
     fig, ax = plt.subplots(figsize=(9, 5))
     ax.set_title(title, fontsize=13)
 

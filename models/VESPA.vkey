@@ -1,0 +1,21 @@
+# VSPGEOM v3 Tag Key File
+C:\Users\gabri\Desktop\TEAM\OpenVspController\models\VESPA.vspgeom
+4
+
+# part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#
+1,1,0,WingGeom_C,EIHJXOMLTA,0,3,1,2
+2,1,1,WingGeom_C,EIHJXOMLTA,0,3,2,2
+3,0,0,Vtail_C,GIVACEALSG,0,3,1,1
+4,0,1,Vtail_C,GIVACEALSG,0,3,2,1
+
+8
+
+# tag#,part#,ssname1,ssname2,...,ssid1,ssid2,...
+1,1
+2,2
+3,3
+4,4
+5,1,Ailerons,BKQSFPALZC
+6,2,Ailerons,BKQSFPALZC
+7,3,Ruddervator,FXARDJOYSI
+8,4,Ruddervator,FXARDJOYSI
