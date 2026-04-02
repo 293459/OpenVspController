@@ -162,6 +162,11 @@ def check_openvsp_version(min_version: tuple[int, int, int] = (3, 35, 0)) -> tup
     """
     Verify that the installed OpenVSP version meets the minimum requirement.
 
+    Attempts to determine the version from:
+      1. openvsp.GetVersionString() if available
+      2. The bundled OpenVSP-X.Y.Z-win64 folder name if GetVersionString() fails
+      3. Falls back to "0.0.0" if neither method works
+
     Returns
     -------
     (ok, message)
@@ -172,7 +177,34 @@ def check_openvsp_version(min_version: tuple[int, int, int] = (3, 35, 0)) -> tup
     except ImportError:
         return False, "openvsp is not importable."
 
-    version_str = vsp.GetVersionString() if hasattr(vsp, "GetVersionString") else "0.0.0"
+    # 1. Try GetVersionString() first
+    version_str = None
+    if hasattr(vsp, "GetVersionString"):
+        try:
+            version_str = vsp.GetVersionString()
+            if version_str and version_str != "0.0.0":
+                pass  # Use this version
+            else:
+                version_str = None  # Try fallback
+        except Exception:
+            version_str = None
+
+    # 2. If GetVersionString() didn't work, extract version from bundled folder name
+    if not version_str:
+        try:
+            from vspopt.openvsp_runtime import get_default_openvsp_root
+            root = get_default_openvsp_root()
+            folder_name = root.name  # e.g., "OpenVSP-3.48.2-win64"
+            if "OpenVSP-" in folder_name:
+                # Extract version: "OpenVSP-3.48.2-win64" → "3.48.2"
+                parts_str = folder_name.split("-")[1].split("-")[0]
+                version_str = parts_str
+        except Exception:
+            version_str = None
+
+    # 3. Fallback if all else fails
+    if not version_str:
+        version_str = "0.0.0"
 
     try:
         parts = tuple(int(x) for x in version_str.split(".")[:3])
