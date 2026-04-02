@@ -551,6 +551,17 @@ class VSPWrapper:
         results.cref = float(reference_quantities.get("cref", 0.0))
         results.mass_properties = mass_properties
 
+        # Validate that sweep has expected number of alpha points
+        expected_npts = int(alpha_npts)
+        actual_npts = len(results.alpha)
+        if actual_npts != expected_npts and actual_npts > 0:
+            logger.warning(
+                "VSPAEROSweep returned %d alpha points but %d were requested. "
+                "This may indicate incomplete results. Check VSPAERO output for errors.",
+                actual_npts,
+                expected_npts,
+            )
+
         search_dirs = [working_dir, self._path.parent]
         model_stem = self._path.stem
 
