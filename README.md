@@ -99,11 +99,16 @@ run_project.bat setup -PythonExe "C:\path\to\python.exe"
 
 ### 2. Run the project bootstrap
 
-From the repository root:
+From the repository root, open a terminal **in Visual Studio Code** and run:
 
 ```bat
 run_project.bat setup
 ```
+
+**Important:** It is strongly recommended to run `run_project.bat` from the VSCode integrated terminal
+(View → Terminal) rather than from the Windows command prompt or PowerShell on the desktop.
+The VSCode terminal provides proper error messages and diagnostic output, making it much easier
+to troubleshoot any issues that may arise during setup or execution.
 
 This command:
 
@@ -151,6 +156,17 @@ Launch the Streamlit interface:
 ```bat
 run_project.bat streamlit
 ```
+
+## Terminal recommendation
+
+**Always use VSCode's integrated terminal** (View → Terminal) instead of cmd.exe, PowerShell, or Windows bash when running `run_project.bat` commands.
+
+**Why?**
+- VSCode terminal captures error messages and diagnostic output properly, allowing you to see exactly what failed
+- Windows bash and cmd.exe may suppress or mangle error output, making problems harder to diagnose
+- If setup fails, running from VSCode will show the real cause immediately
+
+If an error occurs while running from outside VSCode, try running the same command again from within VSCode's terminal to get clearer feedback.
 
 ## Notebook-first workflow
 
