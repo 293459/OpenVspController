@@ -81,6 +81,8 @@ class VSPWrapper:
         self._loaded = False
         self._geom_id_cache: dict[str, str] = {}
         self._parm_id_cache: dict[tuple[str, str, str], str] = {}
+        self.warnings: list[str] = []
+        self._duplicate_names_found = False
 
     def load(self) -> "VSPWrapper":
         """
@@ -101,38 +103,50 @@ class VSPWrapper:
         vsp.ReadVSPFile(str(self._path))
         self._loaded = True
 
-        for geom_id in vsp.FindGeoms():
+        all_geoms = vsp.FindGeoms()
+        for geom_id in all_geoms:
             name = vsp.GetGeomName(geom_id)
-            self._geom_id_cache[name] = geom_id
+            if name in self._geom_id_cache:
+                # Handle duplicate names by appending index
+                suffix = 2
+                new_name = f"{name}_{suffix}"
+                while new_name in self._geom_id_cache:
+                    suffix += 1
+                    new_name = f"{name}_{suffix}"
+                logger.warning(
+                    "Duplicate geometry name '%s' detected. Renaming to '%s' in Python cache.",
+                    name,
+                    new_name,
+                )
+                self._geom_id_cache[new_name] = geom_id
+                self.warnings.append(
+                    f"Duplicate component name '{name}' found in model; cached as '{new_name}'.\n"
+                    f"To avoid confusion, consider renaming the duplicate to a unique name in your VSP3 file."
+                )
+            else:
+                self._geom_id_cache[name] = geom_id
 
         geom_count = len(self._geom_id_cache)
-        logger.info("Model loaded: %d geometry components found.", geom_count)
+        actual_count = len(all_geoms)
+        logger.info("Model loaded: %d geometry components found (%d in VSP, %d unique in cache).",
+                    geom_count, actual_count, geom_count)
 
         if geom_count == 0:
             raise OpenVSPError(
                 f"The model at '{self._path}' loaded but contains no geometry components. "
                 "The file may be empty or corrupted."
             )
-            
-        
-        # --- ADD THESE LINES FOR DEBUGGING ---
-        all_vsp_geoms = vsp.FindGeoms() # Get everything directly from VSP
-        print(f"\n[DEBUG] Actual components in VSP: {len(all_vsp_geoms)}")
-        print(f"[DEBUG] Components saved in Python cache: {len(self._geom_id_cache)}")
 
-        if len(all_vsp_geoms) != len(self._geom_id_cache):
-            print("[!] WARNING: You have duplicate names. Some parts are being overwritten!")
-            
-            # Identify the duplicates
-            seen_names = set()
-            for gid in all_vsp_geoms:
-                name = vsp.GetGeomName(gid)
-                if name in seen_names:
-                    print(f"    -> DUPLICATE NAME FOUND: '{name}'")
-                seen_names.add(name)
-        # --------------------------------------
-        
-        
+        if actual_count != geom_count:
+            msg = (
+                f"WARNING: Model has {actual_count} components in VSP but only {geom_count} unique names. "
+                f"{actual_count - geom_count} duplicate name(s) detected and renamed."
+            )
+            logger.warning(msg)
+            self._duplicate_names_found = True
+        else:
+            self._duplicate_names_found = False
+
         return self
 
     def _ensure_loaded(self) -> None:
