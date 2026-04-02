@@ -159,6 +159,15 @@ The notebook itself starts with a bootstrap section and explains the next steps.
 If setup fails, the first code cell now prints the launcher output directly so
 the user can see the real cause immediately.
 
+**Important note:** After the first successful run of `run_project.bat setup`, you do not need to
+run it again unless:
+- You modified `requirements.txt` and want to install new packages
+- The virtual environment becomes corrupted or broken
+- You want to rebuild everything from scratch
+
+For normal notebook usage, simply run `run_project.bat` (without `setup`) to launch JupyterLab.
+The environment is already configured and ready to use.
+
 ## Other commands
 
 Verify only:
