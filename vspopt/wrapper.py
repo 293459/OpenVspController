@@ -149,6 +149,41 @@ class VSPWrapper:
 
         return self
 
+
+    def setup_dual_aero_sets(self, thin_keywords, thick_keywords):
+        """
+        Assigns wings/tails to Set 1 (Thin) and bodies to Set 2 (Thick).
+        This separation is required for VSPAERO to calculate lift correctly.
+        """
+        vsp = self._vsp
+        self._ensure_loaded()
+        all_geoms = vsp.FindGeoms()
+
+        # Clean both Set 1 and Set 2 before starting
+        for geom_id in all_geoms:
+            vsp.SetSetFlag(geom_id, 1, False)
+            vsp.SetSetFlag(geom_id, 2, False)
+
+        print(f"Dual-Set Assignment: Scanning {len(all_geoms)} components...")
+        for geom_id in all_geoms:
+            name = vsp.GetGeomName(geom_id)
+            
+            # Case 1: Thin Surfaces (Set 1) -> Wings, Tails, Fins
+            if any(k.lower() in name.lower() for k in thin_keywords):
+                vsp.SetSetFlag(geom_id, 1, True)
+                print(f"  [+] Set 1 (Thin Surface): {name}")
+                
+            # Case 2: Thick Bodies (Set 2) -> Fuselage, Hull, Body
+            elif any(k.lower() in name.lower() for k in thick_keywords):
+                vsp.SetSetFlag(geom_id, 2, True)
+                print(f"  [+] Set 2 (Thick Body):   {name}")
+
+        # Configure the VSPAERO Sweep to use Set 1 as the primary analysis set
+        vsp.SetAnalysisInputDefaults("VSPAEROSweep")
+        vsp.SetIntAnalysisInput("VSPAEROSweep", "AnalysisSet", [1])
+        
+        print("VSPAERO dual-set configuration finalized.")
+        
     def _ensure_loaded(self) -> None:
         if not self._loaded:
             raise OpenVSPError("Model is not loaded. Call VSPWrapper.load() before analysis.")
@@ -158,6 +193,8 @@ class VSPWrapper:
         """Return names of all geometry components in the model."""
         self._ensure_loaded()
         return list(self._geom_id_cache.keys())
+    
+    
 
     def get_component_diagnostics(self) -> dict:
         """

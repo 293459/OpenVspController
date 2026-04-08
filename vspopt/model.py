@@ -184,6 +184,22 @@ class AircraftModel:
         )
         return self
 
+    def setup_aero_set(self, thin_keywords=None, thick_keywords=None) -> "AircraftModel":
+        """
+        Organizes the aircraft components into Thin (Set 1) and Thick (Set 2) groups.
+        Returns self for method chaining.
+        """
+        if thin_keywords is None:
+            thin_keywords = ["Wing", "tail", "Fin", "Stabilizer", "vtail"]
+        if thick_keywords is None:
+            thick_keywords = ["Fuselage", "Body", "hull", "Fuse"]
+
+        self._wrapper.setup_dual_aero_sets(thin_keywords, thick_keywords)
+        return self
+    
+    
+    
+    
     def _parse_components(self):
         """Iterate over all geometry components and classify them."""
         vsp = self._wrapper._vsp
@@ -269,25 +285,35 @@ class AircraftModel:
         )
 
     def _parse_fuselage(
+
         self, name: str, geom_id: str, raw: dict
+
     ) -> FuselageComponent:
         def _get(key, default=0.0):
+
             if key in raw:
                 return raw[key]
+
             for k, v in raw.items():
                 if k.split("/")[-1] == key:
-                    return v
-            return default
 
+                    return v
+
+            return default
         length = _get("Length")
         diam   = _get("Diameter") or _get("Max_Diameter")
         fr     = (length / diam) if diam > 0 else 0.0
-        return FuselageComponent(
-            name=name, geom_id=geom_id,
-            length=length, max_diameter=diam, fineness_ratio=fr,
-            raw_params=raw,
-        )
 
+        return FuselageComponent(
+
+            name=name, geom_id=geom_id,
+
+            length=length, max_diameter=diam, fineness_ratio=fr,
+
+            raw_params=raw,
+
+        )
+        
     def _parse_propeller(
         self, name: str, geom_id: str, raw: dict
     ) -> PropellerComponent:
