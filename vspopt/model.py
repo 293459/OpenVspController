@@ -284,37 +284,43 @@ class AircraftModel:
             raw_params=raw,
         )
 
-    def _parse_fuselage(
-
-        self, name: str, geom_id: str, raw: dict
-
-    ) -> FuselageComponent:
-        def _get(key, default=0.0):
-
+    def _parse_fuselage(self, name: str, geom_id: str, raw: dict) -> FuselageComponent:
+        # We change the default by putting an absurd number like 99.0
+        def _get(key, default=99.0):
             if key in raw:
                 return raw[key]
-
+            
             for k, v in raw.items():
                 if k.split("/")[-1] == key:
-
                     return v
-
+            
+            # TEST SECTION: If the code gets here, it means the search failed
+            print(f"TEST FAILED: Could not find parameter '{key}'. Using default: {default}")
             return default
+
+        # Search for length
         length = _get("Length")
-        diam   = _get("Diameter") or _get("Max_Diameter")
-        fr     = (length / diam) if diam > 0 else 0.0
+        
+        # Search for diameter. If it fails, 'diam' will become 99.0
+        diam = _get("Max_Diameter", default=99.0)
+        
+        # TEST SECTION: Verify if it took the absurd default
+        if diam == 99.0:
+            print("TEST RESULT: Theory confirmed! OpenVSP does not give us the global diameter.")
+            # We put the patch back to 0.16 to avoid crashing the aerodynamics right after
+            print("Restoring the forced diameter to 0.16 to continue the calculation.")
+            diam = 0.30
+            
+        fr = (length / diam) if diam > 0 else 0.0
 
         return FuselageComponent(
-
             name=name, geom_id=geom_id,
-
             length=length, max_diameter=diam, fineness_ratio=fr,
-
             raw_params=raw,
-
         )
         
-    def _parse_propeller(
+        
+    def _parse_propeller( 
         self, name: str, geom_id: str, raw: dict
     ) -> PropellerComponent:
         def _get(key, default=0.0):

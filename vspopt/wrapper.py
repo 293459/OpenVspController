@@ -20,6 +20,7 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
+import numpy as np
 from typing import Any
 
 from vspopt.openvsp_runtime import (
@@ -355,20 +356,51 @@ class VSPWrapper:
         return self
 
     def _resolve_parm_id(self, geom_name: str, parm_name: str, group_name: str) -> str:
-        """Resolve and cache parameter IDs."""
+        """
+        Resolve and cache parameter IDs with a smart fallback search.
+        If the provided group_name fails, it will search all groups for the parm_name.
+        """
         self._ensure_loaded()
         cache_key = (geom_name, parm_name, group_name)
-        if cache_key not in self._parm_id_cache:
-            geom_id = self.get_geom_id(geom_name)
-            parm_id = self._vsp.GetParm(geom_id, parm_name, group_name)
-            if not parm_id:
-                raise OpenVSPError(
-                    f"Parameter not found: geom='{geom_name}', "
-                    f"parm='{parm_name}', group='{group_name}'.\n"
-                    f"Use get_all_params('{geom_name}') to list available parameters."
-                )
-            self._parm_id_cache[cache_key] = parm_id
-        return self._parm_id_cache[cache_key]
+        
+        if cache_key in self._parm_id_cache:
+            return self._parm_id_cache[cache_key]
+
+        vsp = self._vsp
+        geom_id = self.get_geom_id(geom_name)
+        
+        # 1. Try exact match (The "Strict" way)
+        parm_id = vsp.GetParm(geom_id, parm_name, group_name)
+        
+        # 2. Smart Fallback: If not found, search all parameters in this component
+        if not parm_id:
+            logger.debug("Parm '%s' not found in group '%s'. Searching all groups...", parm_name, group_name)
+            all_parm_ids = vsp.GetGeomParmIDs(geom_id)
+            
+            for pid in all_parm_ids:
+                actual_name = vsp.GetParmName(pid)
+                if actual_name.lower() == parm_name.lower():
+                    actual_group = vsp.GetParmGroupName(pid)
+                    logger.info(
+                        "Auto-resolved parameter: '%s' found in group '%s' (instead of '%s')",
+                        parm_name, actual_group, group_name
+                    )
+                    parm_id = pid
+                    break
+
+        # 3. Final Error Handling
+        if not parm_id:
+            # Provide a very helpful list of what actually exists
+            available_params = self.get_all_params(geom_name)
+            param_list = "\n".join([f" - {k}" for k in available_params.keys()])
+            raise OpenVSPError(
+                f"Parameter '{parm_name}' not found for component '{geom_name}'.\n"
+                f"Available parameters for this component:\n{param_list}"
+            )
+
+        # Cache it and return
+        self._parm_id_cache[cache_key] = parm_id
+        return parm_id
 
     def get_reference_quantities(self) -> dict[str, float]:
         """
@@ -461,7 +493,7 @@ class VSPWrapper:
         *,
         alpha_start: float = -5.0,
         alpha_end: float = 20.0,
-        alpha_npts: int = 26,
+        alpha_npts: int = 7,
         mach: float = 0.2,
         re_cref: float = 1e6,
         wake_iter: int = 5,
@@ -531,10 +563,24 @@ class VSPWrapper:
             mach,
             re_cref,
         )
-
+        # ==========================================================
+        # Creazione della Mesh (DegenGeom)
+        # ==========================================================
+        logger.info("Computing VSPAERO Geometry (DegenGeom)...")
+        geom_analysis = "VSPAEROComputeGeometry"
+        vsp.SetAnalysisInputDefaults(geom_analysis)
+        # Diciamo al generatore di geometria se useremo VLM (0) o Panel (1)
+        vsp.SetIntAnalysisInput(geom_analysis, "AnalysisMethod", [analysis_method])
+        vsp.SetIntAnalysisInput(geom_analysis, "GeomSet", [1])
+        vsp.Update()
+        vsp.ExecAnalysis(geom_analysis)
+        # ==========================================================
         analysis = "VSPAEROSweep"
+        
         vsp.SetAnalysisInputDefaults(analysis)
-
+        #seconda aggiunta
+        vsp.SetIntAnalysisInput(analysis, "GeomSet", [1])
+        ##
         vsp.SetIntAnalysisInput(analysis, "AnalysisMethod", [analysis_method])
         vsp.SetDoubleAnalysisInput(analysis, "AlphaStart", [float(alpha_start)])
         vsp.SetDoubleAnalysisInput(analysis, "AlphaEnd", [float(alpha_end)])
@@ -582,7 +628,33 @@ class VSPWrapper:
                 "that vspaero.exe is present in the OpenVSP directory."
             )
 
+        # --- ORIGINAL API CALL ---
         results = _parse_results_manager(vsp, res_id, mach, re_cref, alpha_npts)
+
+        # ==========================================================
+        # FALLBACK LOGIC: If API returns empty or zeroed data
+        # ==========================================================
+        # Check if the Lift Coefficient (CL) array is empty, all zeros, or all NaNs
+        api_failed = (
+            len(results.CL) == 0 or 
+            np.all(results.CL == 0) or 
+            np.all(np.isnan(results.CL))
+        )
+
+        if api_failed:
+            logger.info("API Results Manager failed. Triggering physical .polar file parser...")
+            from vspopt.vspaero import _parse_polar_file_fallback
+            
+            # Construct the path to the .polar file based on the model name
+            model_stem = self._path.stem
+            polar_path = working_dir / f"{model_stem}.polar"
+            
+            # Overwrite the empty results object with data from the text file
+            results = _parse_polar_file_fallback(polar_path, mach, re_cref)
+        # ==========================================================
+        
+        
+        
         results.Sref = float(reference_quantities.get("Sref", 0.0))
         results.bref = float(reference_quantities.get("bref", 0.0))
         results.cref = float(reference_quantities.get("cref", 0.0))

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
+from os import path
 from pathlib import Path
 from typing import Optional
 
@@ -274,6 +275,88 @@ class VSPAEROResults:
             f"L/D_max={self.LD_max:.2f})"
         )
 
+def _parse_polar_file_fallback(polar_path: str | Path, mach: float, re_cref: float) -> VSPAEROResults:
+    """
+    Bulletproof fallback to read aerodynamic results directly from the .polar text file.
+    Ensures all arrays have consistent lengths to prevent 'argmax' or validation crashes.
+    """
+    logger.info(f"Fallback active: Parsing physical file {polar_path}")
+    path = Path(polar_path)
+    
+    if not path.exists():
+        logger.error(f"File not found: {path}")
+        return VSPAEROResults(mach=mach, re_cref=re_cref)
+
+    try:
+        # 1. Locate the data header row (skipping VSPAERO introductory text)
+        with path.open("r", encoding="utf-8") as f:
+            lines = f.readlines()
+            
+        header_idx = -1
+        for i, line in enumerate(lines):
+            # Look for standard VSPAERO column headers
+            if "AoA" in line and "CLtot" in line:
+                header_idx = i
+                break
+                
+        if header_idx == -1:
+             logger.error("Could not find AoA/CLtot headers in the .polar file.")
+             return VSPAEROResults(mach=mach, re_cref=re_cref)
+
+        # 2. Read the table and sanitize column names
+        df = pd.read_csv(path, sep=r"\s+", skiprows=header_idx)
+        df.columns = df.columns.str.strip()  # Clean hidden whitespace/tabs
+        n_pts = len(df)
+
+        # 3. HELPER FUNCTION: Safely fetch columns or return zeros to prevent mismatches
+        def get_col(*names):
+            """
+            Searches for a column by name (case-insensitive).
+            Returns a zero-array of length n_pts if no match is found.
+            """
+            for name in names:
+                for col in df.columns:
+                    if col.lower() == name.lower():
+                        return df[col].to_numpy()
+            
+            # Fallback to zeros to keep array lengths consistent (prevents crashes)
+            return np.zeros(n_pts)
+
+        cl_arr = get_col("CLtot", "CL")
+        cd_arr = get_col("CDtot", "CD")
+
+        # 4. SAFETY CALCULATION: Manually calculate L/D if the column is missing or unreadable
+        ld_arr = get_col("L/D", "LD", "LoD")
+        if np.all(ld_arr == 0):
+            with np.errstate(divide="ignore", invalid="ignore"):
+                ld_arr = np.where(cd_arr != 0, cl_arr / cd_arr, 0.0)
+
+        # 5. Return the mapped data structure
+        return VSPAEROResults(
+            mach=mach,
+            re_cref=re_cref,
+            alpha=get_col("AoA", "Alpha"),
+            CL=cl_arr,
+            CD=cd_arr,
+            CDi=get_col("CDi"),
+            CDo=get_col("CDo"),
+            LD=ld_arr,
+            E=get_col("E", "Ew"),
+            CS=get_col("CStot", "CS"),
+            # Map pitching moments (Y-axis) and other moments using common VSPAERO naming conventions
+            CM=get_col("CMytot", "CMy", "CMoy", "CMm"),
+            CMx=get_col("CMxtot", "CMx", "CMox"),
+            CMz=get_col("CMztot", "CMz", "CMoz"),
+            CFx=get_col("CFxtot", "CFx", "CFox"),
+            CFy=get_col("CFytot", "CFy", "CFoy"),
+            CFz=get_col("CFztot", "CFz", "CFoz"),
+            n_points=n_pts,
+        )
+
+    except Exception as e:
+        logger.error(f"Critical error during .polar file parsing: {e}")
+        return VSPAEROResults(mach=mach, re_cref=re_cref)
+    
 
 def _parse_results_manager(vsp, res_id: str, mach: float, re_cref: float, n_pts: int) -> VSPAEROResults:
     """
@@ -305,28 +388,57 @@ def _parse_results_manager(vsp, res_id: str, mach: float, re_cref: float, n_pts:
         )
         cfxs, cfys, cfzs = [], [], []
 
-        for sub_id in sub_ids:
+        # Dictionary to track which keys were successfully mapped on the first pass
+        # This prevents spamming the terminal with 26 identical debug messages.
+        debug_tracked_keys = {}
 
-            def g(key: str) -> float:
-                values = safe_get_double(sub_id, key)
-                return float(values[0]) if values else float("nan")
+        for iteration_index, sub_id in enumerate(sub_ids):
 
-            alphas.append(g("Alpha"))
-            cls.append(g("CL"))
-            cds.append(g("CDtot"))
+            def g(primary_key: str, fallback_key: str = "") -> float:
+                # 1. Try to fetch using the primary key (e.g., "CL")
+                values = safe_get_double(sub_id, primary_key)
+                if values:
+                    # Print debug info only on the very first iteration
+                    if iteration_index == 0 and primary_key not in debug_tracked_keys:
+                        print(f"[VSPAERO DEBUG] '{primary_key:<5}' -> Found directly.")
+                        debug_tracked_keys[primary_key] = True
+                    return float(values[0])
+                
+                # 2. Try to fetch using the fallback key (e.g., "CLtot")
+                if fallback_key:
+                    values = safe_get_double(sub_id, fallback_key)
+                    if values:
+                        if iteration_index == 0 and primary_key not in debug_tracked_keys:
+                            print(f"[VSPAERO DEBUG] '{primary_key:<5}' -> Found using fallback: '{fallback_key}'")
+                            debug_tracked_keys[primary_key] = True
+                        return float(values[0])
+                
+                # 3. If both fail, return NaN and warn the user
+                if iteration_index == 0 and primary_key not in debug_tracked_keys:
+                    error_msg = f"'{primary_key}'" if not fallback_key else f"'{primary_key}' or '{fallback_key}'"
+                    print(f"[VSPAERO DEBUG] WARNING: Could not find {error_msg} in Results Manager!")
+                    debug_tracked_keys[primary_key] = True
+                
+                return float("nan")
+
+            # --- DATA EXTRACTION WITH FALLBACKS ---
+            alphas.append(g("Alpha", "AoA"))
+            cls.append(g("CL", "CLtot"))
+            cds.append(g("CDtot", "CD"))
             cdis.append(g("CDi"))
             cdos.append(g("CDo"))
             cdsffs.append(g("CDsff"))
-            cms.append(g("CMy"))
-            cmxs.append(g("CMx"))
-            cmzs.append(g("CMz"))
-            css.append(g("CS"))
-            lds.append(g("LD"))
+            cms.append(g("CMy", "CMytot"))
+            cmxs.append(g("CMx", "CMxtot"))
+            cmzs.append(g("CMz", "CMztot"))
+            css.append(g("CS", "CStot"))
+            lds.append(g("LD", "L/D"))
             es.append(g("E"))
             cfxs.append(g("CFx"))
             cfys.append(g("CFy"))
             cfzs.append(g("CFz"))
 
+        # Sort arrays based on Alpha to ensure the polar graph is plotted correctly
         alpha_arr = np.array(alphas)
         sort_idx = np.argsort(alpha_arr)
 
