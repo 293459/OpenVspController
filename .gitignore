@@ -17,6 +17,7 @@ build/
 .tmp/
 venv/
 env/
+interpreter/
 
 # IMPORTANT: .venv is now excluded from Git because it is heavy (~1GB).
 # The project will automatically create .venv on first run via run_project.bat setup.
