@@ -64,11 +64,14 @@ class Markdown(_message.Message):
     ALLOW_HTML_FIELD_NUMBER: _builtins.int
     ELEMENT_TYPE_FIELD_NUMBER: _builtins.int
     HELP_FIELD_NUMBER: _builtins.int
+    UNTERMINATED_PARSING_FIELD_NUMBER: _builtins.int
     body: _builtins.str
     """Content to display."""
     allow_html: _builtins.bool
     element_type: Global___Markdown.Type.ValueType
     help: _builtins.str
+    unterminated_parsing: _builtins.bool
+    """Enables frontend unterminated markdown completion (via remend) during streaming."""
     def __init__(
         self,
         *,
@@ -76,8 +79,9 @@ class Markdown(_message.Message):
         allow_html: _builtins.bool = ...,
         element_type: Global___Markdown.Type.ValueType = ...,
         help: _builtins.str = ...,
+        unterminated_parsing: _builtins.bool = ...,
     ) -> None: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["allow_html", b"allow_html", "body", b"body", "element_type", b"element_type", "help", b"help"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["allow_html", b"allow_html", "body", b"body", "element_type", b"element_type", "help", b"help", "unterminated_parsing", b"unterminated_parsing"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
 Global___Markdown: _TypeAlias = Markdown  # noqa: Y015

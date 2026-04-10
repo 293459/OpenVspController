@@ -100,6 +100,7 @@ class ButtonGroup(_message.Message):
     HELP_FIELD_NUMBER: _builtins.int
     RAW_VALUES_FIELD_NUMBER: _builtins.int
     QUERY_PARAM_KEY_FIELD_NUMBER: _builtins.int
+    REQUIRED_FIELD_NUMBER: _builtins.int
     id: _builtins.str
     disabled: _builtins.bool
     click_mode: Global___ButtonGroup.ClickMode.ValueType
@@ -110,6 +111,10 @@ class ButtonGroup(_message.Message):
     help: _builtins.str
     query_param_key: _builtins.str
     """If set, widget value is bound to this query parameter key"""
+    required: _builtins.bool
+    """If true, the user cannot deselect an option in single-select mode.
+    This prevents deselection and ensures a value is always selected once set.
+    """
     @_builtins.property
     def options(self) -> _containers.RepeatedCompositeFieldContainer[Global___ButtonGroup.Option]: ...
     @_builtins.property
@@ -140,10 +145,11 @@ class ButtonGroup(_message.Message):
         help: _builtins.str | None = ...,
         raw_values: _abc.Iterable[_builtins.str] | None = ...,
         query_param_key: _builtins.str | None = ...,
+        required: _builtins.bool = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _typing.Literal["_help", b"_help", "_query_param_key", b"_query_param_key", "help", b"help", "label_visibility", b"label_visibility", "query_param_key", b"query_param_key"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["_help", b"_help", "_query_param_key", b"_query_param_key", "click_mode", b"click_mode", "default", b"default", "disabled", b"disabled", "form_id", b"form_id", "help", b"help", "id", b"id", "label", b"label", "label_visibility", b"label_visibility", "options", b"options", "query_param_key", b"query_param_key", "raw_values", b"raw_values", "set_value", b"set_value", "style", b"style"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_help", b"_help", "_query_param_key", b"_query_param_key", "click_mode", b"click_mode", "default", b"default", "disabled", b"disabled", "form_id", b"form_id", "help", b"help", "id", b"id", "label", b"label", "label_visibility", b"label_visibility", "options", b"options", "query_param_key", b"query_param_key", "raw_values", b"raw_values", "required", b"required", "set_value", b"set_value", "style", b"style"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     _WhichOneofReturnType__help: _TypeAlias = _typing.Literal["help"]  # noqa: Y015
     _WhichOneofArgType__help: _TypeAlias = _typing.Literal["_help", b"_help"]  # noqa: Y015

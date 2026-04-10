@@ -447,8 +447,10 @@ class Block(_message.Message):
     ID_FIELD_NUMBER: _builtins.int
     HEIGHT_CONFIG_FIELD_NUMBER: _builtins.int
     WIDTH_CONFIG_FIELD_NUMBER: _builtins.int
+    AUTOSCROLL_FIELD_NUMBER: _builtins.int
     allow_empty: _builtins.bool
     id: _builtins.str
+    autoscroll: _builtins.bool
     @_builtins.property
     def vertical(self) -> Global___Block.Vertical: ...
     @_builtins.property
@@ -493,11 +495,14 @@ class Block(_message.Message):
         id: _builtins.str | None = ...,
         height_config: _HeightConfig_pb2.HeightConfig | None = ...,
         width_config: _WidthConfig_pb2.WidthConfig | None = ...,
+        autoscroll: _builtins.bool | None = ...,
     ) -> None: ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal["_height_config", b"_height_config", "_id", b"_id", "_width_config", b"_width_config", "chat_message", b"chat_message", "column", b"column", "dialog", b"dialog", "expandable", b"expandable", "flex_container", b"flex_container", "form", b"form", "height_config", b"height_config", "horizontal", b"horizontal", "id", b"id", "popover", b"popover", "tab", b"tab", "tab_container", b"tab_container", "type", b"type", "vertical", b"vertical", "width_config", b"width_config"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_autoscroll", b"_autoscroll", "_height_config", b"_height_config", "_id", b"_id", "_width_config", b"_width_config", "autoscroll", b"autoscroll", "chat_message", b"chat_message", "column", b"column", "dialog", b"dialog", "expandable", b"expandable", "flex_container", b"flex_container", "form", b"form", "height_config", b"height_config", "horizontal", b"horizontal", "id", b"id", "popover", b"popover", "tab", b"tab", "tab_container", b"tab_container", "type", b"type", "vertical", b"vertical", "width_config", b"width_config"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["_height_config", b"_height_config", "_id", b"_id", "_width_config", b"_width_config", "allow_empty", b"allow_empty", "chat_message", b"chat_message", "column", b"column", "dialog", b"dialog", "expandable", b"expandable", "flex_container", b"flex_container", "form", b"form", "height_config", b"height_config", "horizontal", b"horizontal", "id", b"id", "popover", b"popover", "tab", b"tab", "tab_container", b"tab_container", "type", b"type", "vertical", b"vertical", "width_config", b"width_config"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_autoscroll", b"_autoscroll", "_height_config", b"_height_config", "_id", b"_id", "_width_config", b"_width_config", "allow_empty", b"allow_empty", "autoscroll", b"autoscroll", "chat_message", b"chat_message", "column", b"column", "dialog", b"dialog", "expandable", b"expandable", "flex_container", b"flex_container", "form", b"form", "height_config", b"height_config", "horizontal", b"horizontal", "id", b"id", "popover", b"popover", "tab", b"tab", "tab_container", b"tab_container", "type", b"type", "vertical", b"vertical", "width_config", b"width_config"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__autoscroll: _TypeAlias = _typing.Literal["autoscroll"]  # noqa: Y015
+    _WhichOneofArgType__autoscroll: _TypeAlias = _typing.Literal["_autoscroll", b"_autoscroll"]  # noqa: Y015
     _WhichOneofReturnType__height_config: _TypeAlias = _typing.Literal["height_config"]  # noqa: Y015
     _WhichOneofArgType__height_config: _TypeAlias = _typing.Literal["_height_config", b"_height_config"]  # noqa: Y015
     _WhichOneofReturnType__id: _TypeAlias = _typing.Literal["id"]  # noqa: Y015
@@ -506,6 +511,8 @@ class Block(_message.Message):
     _WhichOneofArgType__width_config: _TypeAlias = _typing.Literal["_width_config", b"_width_config"]  # noqa: Y015
     _WhichOneofReturnType_type: _TypeAlias = _typing.Literal["vertical", "horizontal", "column", "expandable", "form", "tab_container", "tab", "chat_message", "popover", "dialog", "flex_container"]  # noqa: Y015
     _WhichOneofArgType_type: _TypeAlias = _typing.Literal["type", b"type"]  # noqa: Y015
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__autoscroll) -> _WhichOneofReturnType__autoscroll | None: ...
     @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__height_config) -> _WhichOneofReturnType__height_config | None: ...
     @_typing.overload

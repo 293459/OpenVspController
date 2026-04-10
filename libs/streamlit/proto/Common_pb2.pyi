@@ -138,8 +138,9 @@ Global___UInt32Array: _TypeAlias = UInt32Array  # noqa: Y015
 
 @_typing.final
 class StringTriggerValue(_message.Message):
-    """DEPRECATED: This proto message is deprecated and unused. The ChatInputValue
-    proto message should be used instead.
+    """A trigger value that carries a single string payload.
+    Used for trigger-based widgets that need to return a string value
+    (e.g., menu button selections). The value auto-resets after each script run.
     """
 
     DESCRIPTOR: _descriptor.Descriptor

@@ -32,8 +32,7 @@ DESCRIPTOR: _descriptor.FileDescriptor
 
 @_typing.final
 class AppPage(_message.Message):
-    """A page in the app. Includes both the name of the page as well as the full
-    path to the corresponding script file.
+    """A page in the app with display metadata and a navigation destination.
 
     NOTE: This proto type is used by some external services so needs to remain
     relatively stable. While it isn't entirely set in stone, changing it
@@ -49,6 +48,7 @@ class AppPage(_message.Message):
     SECTION_HEADER_FIELD_NUMBER: _builtins.int
     URL_PATHNAME_FIELD_NUMBER: _builtins.int
     IS_HIDDEN_FIELD_NUMBER: _builtins.int
+    EXTERNAL_URL_FIELD_NUMBER: _builtins.int
     page_script_hash: _builtins.str
     page_name: _builtins.str
     icon: _builtins.str
@@ -58,6 +58,10 @@ class AppPage(_message.Message):
     url_pathname: _builtins.str
     is_hidden: _builtins.bool
     """Whether the page is hidden from navigation menu"""
+    external_url: _builtins.str
+    """If set, this page links to an external URL that opens in a new browser tab
+    instead of navigating within the app. Only set by the navigation payload.
+    """
     def __init__(
         self,
         *,
@@ -68,8 +72,14 @@ class AppPage(_message.Message):
         section_header: _builtins.str = ...,
         url_pathname: _builtins.str = ...,
         is_hidden: _builtins.bool = ...,
+        external_url: _builtins.str | None = ...,
     ) -> None: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["icon", b"icon", "is_default", b"is_default", "is_hidden", b"is_hidden", "page_name", b"page_name", "page_script_hash", b"page_script_hash", "section_header", b"section_header", "url_pathname", b"url_pathname"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_external_url", b"_external_url", "external_url", b"external_url"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_external_url", b"_external_url", "external_url", b"external_url", "icon", b"icon", "is_default", b"is_default", "is_hidden", b"is_hidden", "page_name", b"page_name", "page_script_hash", b"page_script_hash", "section_header", b"section_header", "url_pathname", b"url_pathname"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__external_url: _TypeAlias = _typing.Literal["external_url"]  # noqa: Y015
+    _WhichOneofArgType__external_url: _TypeAlias = _typing.Literal["_external_url", b"_external_url"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__external_url) -> _WhichOneofReturnType__external_url | None: ...
 
 Global___AppPage: _TypeAlias = AppPage  # noqa: Y015

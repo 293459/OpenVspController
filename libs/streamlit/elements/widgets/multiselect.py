@@ -34,11 +34,13 @@ from streamlit.elements.lib.layout_utils import (
     validate_width,
 )
 from streamlit.elements.lib.options_selector_utils import (
+    SelectWidgetFilterMode,
     convert_to_sequence_and_check_comparable,
     create_mappings,
     get_default_indices,
     maybe_coerce_enum_sequence,
     validate_and_sync_multiselect_value_with_options,
+    validate_select_widget_filter_mode,
 )
 from streamlit.elements.lib.policies import (
     check_widget_policies,
@@ -111,9 +113,9 @@ class MultiSelectSerde(Generic[T]):
         formatted_option_to_option_index : dict[str, int]
             A mapping from formatted option strings to their corresponding indices in
             the options sequence.
-        default_option_index : int or None, optional
-            The index of the default option to use when no selection is made.
-            If None, no default option is selected.
+        default_options_indices : list[int] or None, optional
+            The indices of the default options to use when no selection is made.
+            If None, no default options are selected.
         format_func : Callable[[Any], str], optional
             Function to format options for comparison. Used to compare values by their
             string representation instead of using == directly. This is necessary because
@@ -209,6 +211,7 @@ class MultiSelectMixin:
         disabled: bool = False,
         label_visibility: LabelVisibility = "visible",
         accept_new_options: Literal[False] = False,
+        filter_mode: SelectWidgetFilterMode = "fuzzy",
         width: WidthWithoutContent = "stretch",
         bind: BindOption = None,
     ) -> list[T]: ...
@@ -231,6 +234,7 @@ class MultiSelectMixin:
         disabled: bool = False,
         label_visibility: LabelVisibility = "visible",
         accept_new_options: Literal[True] = True,
+        filter_mode: SelectWidgetFilterMode = "fuzzy",
         width: WidthWithoutContent = "stretch",
         bind: BindOption = None,
     ) -> list[T | str]: ...
@@ -253,6 +257,7 @@ class MultiSelectMixin:
         disabled: bool = False,
         label_visibility: LabelVisibility = "visible",
         accept_new_options: bool = False,
+        filter_mode: SelectWidgetFilterMode = "fuzzy",
         width: WidthWithoutContent = "stretch",
         bind: BindOption = None,
     ) -> list[T] | list[T | str]: ...
@@ -275,6 +280,7 @@ class MultiSelectMixin:
         disabled: bool = False,
         label_visibility: LabelVisibility = "visible",
         accept_new_options: bool = False,
+        filter_mode: SelectWidgetFilterMode = "fuzzy",
         width: WidthWithoutContent = "stretch",
         bind: BindOption = None,
     ) -> list[T] | list[T | str]:
@@ -400,6 +406,18 @@ class MultiSelectMixin:
             can't be added if a case-insensitive match is already selected. The
             ``max_selections`` argument is still enforced.
 
+        filter_mode : "fuzzy", "contains", "prefix", or None
+            The matching mode used to filter options while the user types.
+            If this is ``"fuzzy"`` (default), options are matched by in-order
+            subsequence and sorted by match score. If this is ``"contains"``,
+            options are matched by case-insensitive substring. If this is
+            ``"prefix"``, options are matched by case-insensitive prefix. If
+            this is ``None``, typing is disabled and the options are not
+            filtered.
+
+            ``filter_mode=None`` is incompatible with
+            ``accept_new_options=True``.
+
         width : "stretch" or int
             The width of the multiselect widget. This can be one of the
             following:
@@ -508,6 +526,7 @@ class MultiSelectMixin:
             disabled=disabled,
             label_visibility=label_visibility,
             accept_new_options=accept_new_options,
+            filter_mode=filter_mode,
             width=width,
             bind=bind,
             ctx=ctx,
@@ -530,6 +549,7 @@ class MultiSelectMixin:
         disabled: bool = False,
         label_visibility: LabelVisibility = "visible",
         accept_new_options: bool = False,
+        filter_mode: SelectWidgetFilterMode = "fuzzy",
         width: WidthWithoutContent = "stretch",
         bind: BindOption = None,
         ctx: ScriptRunContext | None = None,
@@ -569,6 +589,12 @@ class MultiSelectMixin:
         if placeholder == "":
             placeholder = " "
 
+        proto_filter_mode = validate_select_widget_filter_mode(
+            filter_mode,
+            accept_new_options=accept_new_options,
+            command="st.multiselect",
+        )
+
         form_id = current_form_id(self.dg)
         element_id = compute_and_register_element_id(
             widget_name,
@@ -585,6 +611,7 @@ class MultiSelectMixin:
             max_selections=max_selections,
             placeholder=placeholder,
             accept_new_options=accept_new_options,
+            filter_mode=filter_mode,
             width=width,
         )
 
@@ -603,6 +630,7 @@ class MultiSelectMixin:
         if help is not None:
             proto.help = dedent(help)
         proto.accept_new_options = accept_new_options
+        proto.filter_mode = proto_filter_mode
 
         # Set query param key if bound
         if bind == "query-params" and key is not None:

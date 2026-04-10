@@ -28,6 +28,7 @@ from typing import (
     TextIO,
     TypeAlias,
     cast,
+    overload,
 )
 
 from streamlit import runtime
@@ -787,12 +788,16 @@ class ButtonMixin:
             shortcut=shortcut,
         )
 
-    @gather_metrics("link_button")
+    @overload
     def link_button(
         self,
         label: str,
         url: str,
         *,
+        key: Key | None = None,
+        on_click: Literal["ignore"] = "ignore",
+        args: WidgetArgs | None = None,
+        kwargs: WidgetKwargs | None = None,
         help: str | None = None,
         type: Literal["primary", "secondary", "tertiary"] = "secondary",
         icon: str | None = None,
@@ -801,7 +806,67 @@ class ButtonMixin:
         use_container_width: bool | None = None,
         width: Width = "content",
         shortcut: str | None = None,
-    ) -> DeltaGenerator:
+    ) -> DeltaGenerator: ...
+
+    @overload
+    def link_button(
+        self,
+        label: str,
+        url: str,
+        *,
+        key: Key | None = None,
+        on_click: Literal["rerun"],
+        args: WidgetArgs | None = None,
+        kwargs: WidgetKwargs | None = None,
+        help: str | None = None,
+        type: Literal["primary", "secondary", "tertiary"] = "secondary",
+        icon: str | None = None,
+        icon_position: IconPosition = "left",
+        disabled: bool = False,
+        use_container_width: bool | None = None,
+        width: Width = "content",
+        shortcut: str | None = None,
+    ) -> bool: ...
+
+    @overload
+    def link_button(
+        self,
+        label: str,
+        url: str,
+        *,
+        key: Key | None = None,
+        on_click: WidgetCallback,
+        args: WidgetArgs | None = None,
+        kwargs: WidgetKwargs | None = None,
+        help: str | None = None,
+        type: Literal["primary", "secondary", "tertiary"] = "secondary",
+        icon: str | None = None,
+        icon_position: IconPosition = "left",
+        disabled: bool = False,
+        use_container_width: bool | None = None,
+        width: Width = "content",
+        shortcut: str | None = None,
+    ) -> bool: ...
+
+    @gather_metrics("link_button")
+    def link_button(
+        self,
+        label: str,
+        url: str,
+        *,
+        key: Key | None = None,
+        on_click: WidgetCallback | Literal["rerun", "ignore"] = "ignore",
+        args: WidgetArgs | None = None,
+        kwargs: WidgetKwargs | None = None,
+        help: str | None = None,
+        type: Literal["primary", "secondary", "tertiary"] = "secondary",
+        icon: str | None = None,
+        icon_position: IconPosition = "left",
+        disabled: bool = False,
+        use_container_width: bool | None = None,
+        width: Width = "content",
+        shortcut: str | None = None,
+    ) -> bool | DeltaGenerator:
         r"""Display a link button element.
 
         When clicked, a new tab will be opened to the specified URL. This will
@@ -828,7 +893,45 @@ class ButtonMixin:
             .. _st.markdown: https://docs.streamlit.io/develop/api-reference/text/st.markdown
 
         url : str
-            The url to be opened on user click
+            The URL to open on user click.
+
+        key : str, int, or None
+            An optional string to use for giving this element a stable
+            identity. If this is ``None`` (default), the element's identity
+            will be determined based on the values of the other parameters.
+
+            If ``on_click`` enables widget behavior and ``key`` is provided,
+            Streamlit will register the key in Session State to store the button state.
+            The button state is read-only. For more details, see `Widget behavior
+            <https://docs.streamlit.io/develop/concepts/architecture/widget-behavior>`_.
+
+            Additionally, if ``key`` is provided, it will be used as a
+            CSS class name prefixed with ``st-key-``.
+
+        on_click : callable, "rerun", or "ignore"
+            How the button should respond to user interaction. This controls
+            whether or not the button behaves like an input widget. This can
+            be one of the following values:
+
+            - ``"ignore"`` (default): Streamlit opens the link in a new tab
+              and doesn't rerun the app. The button won't behave like an
+              input widget.
+            - ``"rerun"``: Streamlit opens the link in a new tab and reruns
+              the app. In this case, ``st.link_button`` returns a Boolean value
+              like ``st.button``.
+            - A ``callable``: Streamlit opens the link in a new tab, reruns
+              the app, and executes the callable at the beginning of the rerun.
+              In this case, ``st.link_button`` returns a Boolean value.
+
+        args : list or tuple
+            An optional list or tuple of args to pass to the callback when
+            ``on_click`` is a callable. If ``on_click`` isn't a callable,
+            this is ignored.
+
+        kwargs : dict
+            An optional dict of kwargs to pass to the callback when
+            ``on_click`` is a callable. If ``on_click`` isn't a callable,
+            this is ignored.
 
         help : str or None
             A tooltip that gets displayed when the button is hovered over. If
@@ -925,8 +1028,16 @@ class ButtonMixin:
             .. |st.button| replace:: ``st.button``
             .. _st.button: https://docs.streamlit.io/develop/api-reference/widgets/st.button
 
-        Example
+        Returns
         -------
+        element or bool
+            If ``on_click`` is ``"ignore"`` (default), this command returns an internal
+            placeholder for the button element. Otherwise, this command returns a Boolean
+            value in the same manner as ``st.button``: ``True`` if the button was clicked
+            on the last rerun and ``False`` if it wasn't.
+
+        Examples
+        --------
         >>> import streamlit as st
         >>>
         >>> st.link_button("Go to gallery", "https://streamlit.io/gallery")
@@ -936,13 +1047,13 @@ class ButtonMixin:
            height: 200px
 
         """
-        # Checks whether the entered button type is one of the allowed options - either "primary" or "secondary"
         if type not in {"primary", "secondary", "tertiary"}:
             raise StreamlitAPIException(
                 'The type argument to st.link_button must be "primary", "secondary", or "tertiary". '
                 f'\nThe argument passed was "{type}".'
             )
 
+        ctx = get_script_run_ctx()
         normalized_icon_position = _normalize_icon_position(
             icon_position, "st.link_button"
         )
@@ -953,6 +1064,10 @@ class ButtonMixin:
         return self._link_button(
             label=label,
             url=url,
+            key=key,
+            on_click=on_click,
+            args=args,
+            kwargs=kwargs,
             help=help,
             disabled=disabled,
             type=type,
@@ -960,6 +1075,7 @@ class ButtonMixin:
             icon_position=normalized_icon_position,
             width=width,
             shortcut=shortcut,
+            ctx=ctx,
         )
 
     @gather_metrics("page_link")
@@ -989,9 +1105,30 @@ class ButtonMixin:
         Parameters
         ----------
         page : str, Path, or StreamlitPage
-            The file path (relative to the main script) or a ``StreamlitPage``
-            indicating the page to switch to. Alternatively, this can be the
-            URL to an external page (must start with "http://" or "https://").
+            The page to switch to on user click. This can be one of the
+            following values:
+
+            - Path to a Python file: The path can be a string or
+              ``pathlib.Path`` object. It can be absolute or relative to the
+              entrypoint file. The Python file must be the source of a page in
+              ``st.navigation``.
+
+              If you are using the ``pages/`` directory instead of
+              ``st.navigation``, the Python file must be your entrypoint file
+              or a file in the ``pages/`` directory.
+
+            - ``StreamlitPage``: The source of the ``StreamlitPage`` and its
+              ``url_path`` must match a page defined in ``st.navigation``.
+              Use ``st.Page`` to create a ``StreamlitPage`` object.
+
+            - URL: The URL must contain an HTTP or HTTPS scheme, like
+              ``"https://docs.streamlit.io"``. When a user clicks a
+              URL-defined page link, the URL opens in a new tab and the app
+              doesn't rerun. If the page link is defined by a URL, then the
+              ``label`` parameter is required.
+
+            To link to a page defined by a ``callable``, you must use a
+            ``StreamlitPage`` object.
 
         label : str
             The label for the page link. Labels are required for external pages.
@@ -1078,8 +1215,8 @@ class ButtonMixin:
             ``None`` (default), all non-embed query parameters are cleared during
             navigation.
 
-        Example
-        -------
+        Examples
+        --------
         **Example 1: Basic usage**
 
         The following example shows how to create page links in a multipage app
@@ -1269,7 +1406,11 @@ class ButtonMixin:
         self,
         label: str,
         url: str,
-        help: str | None,
+        key: Key | None = None,
+        on_click: WidgetCallback | Literal["rerun", "ignore"] = "ignore",
+        args: WidgetArgs | None = None,
+        kwargs: WidgetKwargs | None = None,
+        help: str | None = None,
         *,  # keyword-only arguments:
         type: Literal["primary", "secondary", "tertiary"] = "secondary",
         icon: str | None = None,
@@ -1277,20 +1418,40 @@ class ButtonMixin:
         disabled: bool = False,
         width: Width = "content",
         shortcut: str | None = None,
-    ) -> DeltaGenerator:
-        link_button_proto = LinkButtonProto()
-        normalized_shortcut: str | None = None
-        if shortcut is not None:
-            normalized_shortcut = normalize_shortcut(shortcut)
+        ctx: ScriptRunContext | None = None,
+    ) -> bool | DeltaGenerator:
+        key = to_key(key)
+        ignore_rerun = on_click == "ignore"
+        is_rerun_mode = not ignore_rerun
+        on_click_callback: WidgetCallback | None = (
+            None
+            if on_click in {"ignore", "rerun"}
+            else cast("WidgetCallback", on_click)
+        )
 
-        if normalized_shortcut is not None:
-            # We only register the element ID if a shortcut is provide.
-            # The ID is required to correctly register and handle the shortcut
-            # on the client side.
+        link_button_proto = LinkButtonProto()
+        normalized_shortcut = (
+            normalize_shortcut(shortcut) if shortcut is not None else None
+        )
+
+        should_check_widget_policies = is_rerun_mode or key is not None
+        should_register_element_id = (
+            should_check_widget_policies or normalized_shortcut is not None
+        )
+        if should_check_widget_policies:
+            check_widget_policies(
+                self.dg,
+                key,
+                on_change=on_click_callback,
+                default_value=None,
+                writes_allowed=False,
+            )
+
+        if should_register_element_id:
             link_button_proto.id = compute_and_register_element_id(
                 "link_button",
-                user_key=None,
-                key_as_main_identity=False,
+                user_key=key,
+                key_as_main_identity=should_check_widget_policies,
                 dg=self.dg,
                 label=label,
                 icon=icon,
@@ -1298,12 +1459,15 @@ class ButtonMixin:
                 help=help,
                 type=type,
                 width=width,
+                icon_position=icon_position,
                 shortcut=normalized_shortcut,
             )
+
         link_button_proto.label = label
         link_button_proto.url = url
         link_button_proto.type = type
         link_button_proto.disabled = disabled
+        link_button_proto.ignore_rerun = ignore_rerun
 
         if help is not None:
             link_button_proto.help = dedent(help)
@@ -1315,11 +1479,29 @@ class ButtonMixin:
         if normalized_shortcut is not None:
             link_button_proto.shortcut = normalized_shortcut
 
+        button_state = None
+        if is_rerun_mode:
+            serde = ButtonSerde()
+            button_state = register_widget(
+                link_button_proto.id,
+                on_change_handler=on_click_callback,
+                args=args,
+                kwargs=kwargs,
+                deserializer=serde.deserialize,
+                serializer=serde.serialize,
+                ctx=ctx,
+                value_type="trigger_value",
+            )
+
         validate_width(width, allow_content=True)
         layout_config = LayoutConfig(width=width)
-        return self.dg._enqueue(
+        link_button_dg = self.dg._enqueue(
             "link_button", link_button_proto, layout_config=layout_config
         )
+
+        if button_state is not None:
+            return button_state.value
+        return link_button_dg
 
     def _page_link(
         self,
@@ -1361,14 +1543,23 @@ class ButtonMixin:
             page_link_proto.help = dedent(help)
 
         if isinstance(page, StreamlitPage):
-            page_link_proto.page_script_hash = page._script_hash
-            page_link_proto.page = page.url_path
             if label is None:
                 page_link_proto.label = page.title
             if icon is None:
                 page_link_proto.icon = page.icon
                 # Here the StreamlitPage's icon is already validated
                 # (using validate_icon_or_emoji) during its initialization
+
+            if page.is_external:
+                page_link_proto.page = page.external_url or ""
+                page_link_proto.external = True
+                layout_config = LayoutConfig(width=width)
+                return self.dg._enqueue(
+                    "page_link", page_link_proto, layout_config=layout_config
+                )
+
+            page_link_proto.page_script_hash = page._script_hash
+            page_link_proto.page = page.url_path
         else:
             # Convert Path to string if necessary
             if isinstance(page, Path):

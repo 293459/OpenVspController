@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Keep Attributes before Notes/Examples in API docstrings.
+
 from __future__ import annotations
 
 from collections.abc import Iterator, MutableMapping, Sequence
@@ -34,9 +36,11 @@ from streamlit.elements.lib.file_uploader_utils import (
 from streamlit.elements.lib.form_utils import is_in_form
 from streamlit.elements.lib.image_utils import AtomicImage, image_to_url
 from streamlit.elements.lib.layout_utils import (
+    Height,
     LayoutConfig,
     Width,
     WidthWithoutContent,
+    validate_height,
     validate_width,
 )
 from streamlit.elements.lib.policies import check_widget_policies
@@ -147,7 +151,7 @@ class ChatInputValue(MutableMapping[str, Any]):
             raise KeyError(f"Invalid key: {item}")
         try:
             return getattr(self, item)  # type: ignore[no-any-return]
-        except AttributeError:
+        except AttributeError:  # pragma: no cover - defensive
             raise KeyError(f"Invalid key: {item}") from None
 
     def __getattribute__(self, name: str) -> Any:
@@ -174,7 +178,7 @@ class ChatInputValue(MutableMapping[str, Any]):
             raise KeyError(f"Invalid key: {key}")
         try:
             delattr(self, key)
-        except AttributeError:
+        except AttributeError:  # pragma: no cover - defensive
             raise KeyError(f"Invalid key: {key}") from None
 
     def to_dict(self) -> dict[str, str | list[UploadedFile] | UploadedFile | None]:
@@ -254,7 +258,7 @@ def _pop_upload_files(
         return []
 
     ctx = get_script_run_ctx()
-    if ctx is None:
+    if ctx is None:  # pragma: no cover - defensive
         return []
 
     uploaded_file_info = files_value.uploaded_file_info
@@ -317,7 +321,7 @@ def _pop_audio_file(
         return None
 
     ctx = get_script_run_ctx()
-    if ctx is None:
+    if ctx is None:  # pragma: no cover - defensive
         return None
 
     file_recs_list = ctx.uploaded_file_mgr.get_files(
@@ -556,6 +560,7 @@ class ChatMixin:
         args: WidgetArgs | None = None,
         kwargs: WidgetKwargs | None = None,
         width: WidthWithoutContent = "stretch",
+        height: Height = "content",
     ) -> str | None: ...
 
     @overload
@@ -575,6 +580,7 @@ class ChatMixin:
         args: WidgetArgs | None = None,
         kwargs: WidgetKwargs | None = None,
         width: WidthWithoutContent = "stretch",
+        height: Height = "content",
     ) -> ChatInputValue | None: ...
 
     @overload
@@ -594,6 +600,7 @@ class ChatMixin:
         args: WidgetArgs | None = None,
         kwargs: WidgetKwargs | None = None,
         width: WidthWithoutContent = "stretch",
+        height: Height = "content",
     ) -> ChatInputValue | None: ...
 
     @gather_metrics("chat_input")
@@ -613,6 +620,7 @@ class ChatMixin:
         args: WidgetArgs | None = None,
         kwargs: WidgetKwargs | None = None,
         width: WidthWithoutContent = "stretch",
+        height: Height = "content",
     ) -> str | ChatInputValue | None:
         """Display a chat input widget.
 
@@ -677,15 +685,25 @@ class ChatMixin:
             .. _config.toml: https://docs.streamlit.io/develop/api-reference/configuration/config.toml
 
         file_type : str, Sequence[str], or None
-            The allowed file extension(s) for uploaded files. This can be one
-            of the following types:
+            The allowed file types for uploaded files. This can be one of the
+            following values:
 
             - ``None`` (default): All file extensions are allowed.
-            - A string: A single file extension is allowed. For example, to
-              only accept CSV files, use ``"csv"``.
-            - A sequence of strings: Multiple file extensions are allowed. For
-              example, to only accept JPG/JPEG and PNG files, use
-              ``["jpg", "jpeg", "png"]``.
+            - A file extension: Only one file extension is allowed. For example,
+              to only accept CSV files, use ``"csv"`` or ``".csv"``.
+            - A MIME type: Only one MIME type is allowed. For example,
+              to accept JPEG images, use ``"image/jpeg"``.
+            - A MIME wildcard: All types within a MIME media type are allowed.
+              For example, to accept all images, use ``"image/*"``.
+            - A MIME media type: This is a shortcut that is equivalent to a
+              MIME wildcard. If you use ``"image"``, ``"audio"``, ``"video"``, or
+              ``"text"``, Streamlit will internally append ``/*`` to create
+              a MIME wildcard.
+            - A sequence of strings: Use a combination of the previously listed
+              strings to accept multiple file types.
+
+            For more information about MIME types, see
+            https://www.iana.org/assignments/media-types/media-types.xhtml.
 
             .. note::
                 This is a best-effort check, but doesn't provide a
@@ -733,6 +751,20 @@ class ChatMixin:
               fixed width. If the specified width is greater than the width of
               the parent container, the width of the widget matches the width
               of the parent container.
+
+        height : "content", "stretch", or int
+            The minimum height of the chat input widget. This can be one of
+            the following:
+
+            - ``"content"`` (default): The widget uses the default single-line
+              height and automatically expands based on the text content.
+            - ``"stretch"``: The height of the widget stretches to fill the
+              available height of the parent container. The parent container
+              must have a defined height for this to work properly.
+            - An integer specifying the minimum height in pixels: The widget
+              has a fixed minimum height but still auto-expands based on text
+              content. The minimum recommended height is 68 pixels, which fits
+              a single line of text.
 
         Returns
         -------
@@ -926,6 +958,7 @@ class ChatMixin:
             accept_audio=accept_audio,
             audio_sample_rate=audio_sample_rate,
             width=width,
+            height=height,
         )
 
         if file_type:
@@ -1006,7 +1039,8 @@ class ChatMixin:
         )
 
         validate_width(width)
-        layout_config = LayoutConfig(width=width)
+        validate_height(height, allow_content=True)
+        layout_config = LayoutConfig(width=width, height=height)
 
         chat_input_proto.disabled = disabled
         if widget_state.value_changed and widget_state.value is not None:

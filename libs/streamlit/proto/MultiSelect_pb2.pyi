@@ -22,6 +22,7 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf.internal import containers as _containers
 from streamlit.proto import LabelVisibility_pb2 as _LabelVisibility_pb2
+from streamlit.proto import SelectWidgetFilterMode_pb2 as _SelectWidgetFilterMode_pb2
 import builtins as _builtins
 import sys
 import typing as _typing
@@ -51,6 +52,7 @@ class MultiSelect(_message.Message):
     PLACEHOLDER_FIELD_NUMBER: _builtins.int
     ACCEPT_NEW_OPTIONS_FIELD_NUMBER: _builtins.int
     QUERY_PARAM_KEY_FIELD_NUMBER: _builtins.int
+    FILTER_MODE_FIELD_NUMBER: _builtins.int
     id: _builtins.str
     label: _builtins.str
     help: _builtins.str
@@ -62,6 +64,7 @@ class MultiSelect(_message.Message):
     accept_new_options: _builtins.bool
     query_param_key: _builtins.str
     """If set, widget value is bound to this query parameter key"""
+    filter_mode: _SelectWidgetFilterMode_pb2.SelectWidgetFilterMode.ValueType
     @_builtins.property
     def default(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]: ...
     @_builtins.property
@@ -91,10 +94,11 @@ class MultiSelect(_message.Message):
         placeholder: _builtins.str = ...,
         accept_new_options: _builtins.bool | None = ...,
         query_param_key: _builtins.str | None = ...,
+        filter_mode: _SelectWidgetFilterMode_pb2.SelectWidgetFilterMode.ValueType = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _typing.Literal["_accept_new_options", b"_accept_new_options", "_query_param_key", b"_query_param_key", "accept_new_options", b"accept_new_options", "label_visibility", b"label_visibility", "query_param_key", b"query_param_key"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["_accept_new_options", b"_accept_new_options", "_query_param_key", b"_query_param_key", "accept_new_options", b"accept_new_options", "default", b"default", "disabled", b"disabled", "form_id", b"form_id", "help", b"help", "id", b"id", "label", b"label", "label_visibility", b"label_visibility", "max_selections", b"max_selections", "options", b"options", "placeholder", b"placeholder", "query_param_key", b"query_param_key", "raw_values", b"raw_values", "set_value", b"set_value"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_accept_new_options", b"_accept_new_options", "_query_param_key", b"_query_param_key", "accept_new_options", b"accept_new_options", "default", b"default", "disabled", b"disabled", "filter_mode", b"filter_mode", "form_id", b"form_id", "help", b"help", "id", b"id", "label", b"label", "label_visibility", b"label_visibility", "max_selections", b"max_selections", "options", b"options", "placeholder", b"placeholder", "query_param_key", b"query_param_key", "raw_values", b"raw_values", "set_value", b"set_value"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     _WhichOneofReturnType__accept_new_options: _TypeAlias = _typing.Literal["accept_new_options"]  # noqa: Y015
     _WhichOneofArgType__accept_new_options: _TypeAlias = _typing.Literal["_accept_new_options", b"_accept_new_options"]  # noqa: Y015

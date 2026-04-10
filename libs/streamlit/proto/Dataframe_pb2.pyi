@@ -89,6 +89,8 @@ class Dataframe(_message.Message):
         """Only one cell can be selected at a time."""
         MULTI_CELL: Dataframe._SelectionMode.ValueType  # 5
         """Multiple cells (continuous range) can be selected."""
+        SINGLE_ROW_REQUIRED: Dataframe._SelectionMode.ValueType  # 6
+        """Single row, cannot be cleared (radio-like behavior)."""
 
     class SelectionMode(_SelectionMode, metaclass=_SelectionModeEnumTypeWrapper):
         """Available selection modes:"""
@@ -105,6 +107,8 @@ class Dataframe(_message.Message):
     """Only one cell can be selected at a time."""
     MULTI_CELL: Dataframe.SelectionMode.ValueType  # 5
     """Multiple cells (continuous range) can be selected."""
+    SINGLE_ROW_REQUIRED: Dataframe.SelectionMode.ValueType  # 6
+    """Single row, cannot be cleared (radio-like behavior)."""
 
     ARROW_DATA_FIELD_NUMBER: _builtins.int
     ID_FIELD_NUMBER: _builtins.int
@@ -116,6 +120,8 @@ class Dataframe(_message.Message):
     SELECTION_MODE_FIELD_NUMBER: _builtins.int
     ROW_HEIGHT_FIELD_NUMBER: _builtins.int
     PLACEHOLDER_FIELD_NUMBER: _builtins.int
+    SELECTION_STATE_FIELD_NUMBER: _builtins.int
+    SELECTION_DEFAULT_FIELD_NUMBER: _builtins.int
     id: _builtins.str
     """The id of the widget, this is required if the dataframe is editable"""
     columns: _builtins.str
@@ -130,6 +136,15 @@ class Dataframe(_message.Message):
     """Row height in pixels"""
     placeholder: _builtins.str
     """Placeholder string used when rendering missing values (e.g. nulls, NaNs)."""
+    selection_state: _builtins.str
+    """Selection state (JSON serialized), set when selection is changed programmatically
+    via session state. When present, frontend applies this selection.
+    When absent, frontend manages its own selection state.
+    """
+    selection_default: _builtins.str
+    """Default selection state (JSON serialized), set when selection_default is provided.
+    Applied by the frontend only when there is no stored selection state.
+    """
     @_builtins.property
     def arrow_data(self) -> _ArrowData_pb2.ArrowData:
         """The Arrow data to display"""
@@ -155,18 +170,28 @@ class Dataframe(_message.Message):
         selection_mode: _abc.Iterable[Global___Dataframe.SelectionMode.ValueType] | None = ...,
         row_height: _builtins.int | None = ...,
         placeholder: _builtins.str | None = ...,
+        selection_state: _builtins.str | None = ...,
+        selection_default: _builtins.str | None = ...,
     ) -> None: ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal["_placeholder", b"_placeholder", "_row_height", b"_row_height", "arrow_data", b"arrow_data", "placeholder", b"placeholder", "row_height", b"row_height"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_placeholder", b"_placeholder", "_row_height", b"_row_height", "_selection_default", b"_selection_default", "_selection_state", b"_selection_state", "arrow_data", b"arrow_data", "placeholder", b"placeholder", "row_height", b"row_height", "selection_default", b"selection_default", "selection_state", b"selection_state"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["_placeholder", b"_placeholder", "_row_height", b"_row_height", "arrow_data", b"arrow_data", "column_order", b"column_order", "columns", b"columns", "disabled", b"disabled", "editing_mode", b"editing_mode", "form_id", b"form_id", "id", b"id", "placeholder", b"placeholder", "row_height", b"row_height", "selection_mode", b"selection_mode"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_placeholder", b"_placeholder", "_row_height", b"_row_height", "_selection_default", b"_selection_default", "_selection_state", b"_selection_state", "arrow_data", b"arrow_data", "column_order", b"column_order", "columns", b"columns", "disabled", b"disabled", "editing_mode", b"editing_mode", "form_id", b"form_id", "id", b"id", "placeholder", b"placeholder", "row_height", b"row_height", "selection_default", b"selection_default", "selection_mode", b"selection_mode", "selection_state", b"selection_state"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
     _WhichOneofReturnType__placeholder: _TypeAlias = _typing.Literal["placeholder"]  # noqa: Y015
     _WhichOneofArgType__placeholder: _TypeAlias = _typing.Literal["_placeholder", b"_placeholder"]  # noqa: Y015
     _WhichOneofReturnType__row_height: _TypeAlias = _typing.Literal["row_height"]  # noqa: Y015
     _WhichOneofArgType__row_height: _TypeAlias = _typing.Literal["_row_height", b"_row_height"]  # noqa: Y015
+    _WhichOneofReturnType__selection_default: _TypeAlias = _typing.Literal["selection_default"]  # noqa: Y015
+    _WhichOneofArgType__selection_default: _TypeAlias = _typing.Literal["_selection_default", b"_selection_default"]  # noqa: Y015
+    _WhichOneofReturnType__selection_state: _TypeAlias = _typing.Literal["selection_state"]  # noqa: Y015
+    _WhichOneofArgType__selection_state: _TypeAlias = _typing.Literal["_selection_state", b"_selection_state"]  # noqa: Y015
     @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__placeholder) -> _WhichOneofReturnType__placeholder | None: ...
     @_typing.overload
     def WhichOneof(self, oneof_group: _WhichOneofArgType__row_height) -> _WhichOneofReturnType__row_height | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__selection_default) -> _WhichOneofReturnType__selection_default | None: ...
+    @_typing.overload
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__selection_state) -> _WhichOneofReturnType__selection_state | None: ...
 
 Global___Dataframe: _TypeAlias = Dataframe  # noqa: Y015

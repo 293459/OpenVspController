@@ -66,10 +66,16 @@ class Navigation(_message.Message):
     POSITION_FIELD_NUMBER: _builtins.int
     PAGE_SCRIPT_HASH_FIELD_NUMBER: _builtins.int
     EXPANDED_FIELD_NUMBER: _builtins.int
+    VISIBLE_ITEMS_FIELD_NUMBER: _builtins.int
     position: Global___Navigation.Position.ValueType
     page_script_hash: _builtins.str
     """The script hash for the page identified by st.navigation"""
     expanded: _builtins.bool
+    visible_items: _builtins.int
+    """Maximum number of pages to display when the navigation is collapsed.
+    When not set, uses the default (10 pages).
+    When set to a positive value, shows that many pages before "View X more".
+    """
     @_builtins.property
     def sections(self) -> _containers.RepeatedScalarFieldContainer[_builtins.str]: ...
     @_builtins.property
@@ -82,8 +88,14 @@ class Navigation(_message.Message):
         position: Global___Navigation.Position.ValueType = ...,
         page_script_hash: _builtins.str = ...,
         expanded: _builtins.bool = ...,
+        visible_items: _builtins.int | None = ...,
     ) -> None: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["app_pages", b"app_pages", "expanded", b"expanded", "page_script_hash", b"page_script_hash", "position", b"position", "sections", b"sections"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_visible_items", b"_visible_items", "visible_items", b"visible_items"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_visible_items", b"_visible_items", "app_pages", b"app_pages", "expanded", b"expanded", "page_script_hash", b"page_script_hash", "position", b"position", "sections", b"sections", "visible_items", b"visible_items"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__visible_items: _TypeAlias = _typing.Literal["visible_items"]  # noqa: Y015
+    _WhichOneofArgType__visible_items: _TypeAlias = _typing.Literal["_visible_items", b"_visible_items"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__visible_items) -> _WhichOneofReturnType__visible_items | None: ...
 
 Global___Navigation: _TypeAlias = Navigation  # noqa: Y015

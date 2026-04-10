@@ -11,7 +11,7 @@ import sys
 import tempfile
 from importlib import util as importlib_util
 
-from traitlets import Bool, List, Unicode, default
+from traitlets import Bool, Int, List, Unicode, default
 
 from .html import HTMLExporter
 
@@ -44,9 +44,23 @@ class WebPDFExporter(HTMLExporter):
         """,
     ).tag(config=True)
 
+    page_render_timeout = Int(
+        100,
+        help="""
+        Time to wait for the page to render before converting to PDF, in milliseconds.
+        Increase this value if your notebook has a lot of complex JavaScript
+        output that needs more time to load.
+        """,
+    ).tag(config=True)
+
     @default("file_extension")
     def _file_extension_default(self):
-        return ".html"
+        return ".pdf"
+
+    @default("template_extension")
+    def _template_extension_default(self):
+        # NOTE: we use .html.j2 so that the HTMLExporter can find the template
+        return ".html.j2"
 
     @default("template_name")
     def _template_name_default(self):
@@ -123,7 +137,7 @@ class WebPDFExporter(HTMLExporter):
             await page.emulate_media(media="print")
             await page.wait_for_timeout(100)
             await page.goto(f"file://{temp_file.name}", wait_until="networkidle")
-            await page.wait_for_timeout(100)
+            await page.wait_for_timeout(self.page_render_timeout)
 
             pdf_params = {"print_background": True}
             if not self.paginate:
@@ -178,9 +192,5 @@ class WebPDFExporter(HTMLExporter):
         self.log.info("Building PDF")
         pdf_data = self.run_playwright(html)
         self.log.info("PDF successfully created")
-
-        # convert output extension to pdf
-        # the writer above required it to be html
-        resources["output_extension"] = ".pdf"
 
         return pdf_data, resources

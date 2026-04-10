@@ -63,8 +63,14 @@ class Table(_message.Message):
 
     ARROW_DATA_FIELD_NUMBER: _builtins.int
     BORDER_MODE_FIELD_NUMBER: _builtins.int
+    HIDE_INDEX_FIELD_NUMBER: _builtins.int
+    HIDE_HEADER_FIELD_NUMBER: _builtins.int
     border_mode: Global___Table.BorderMode.ValueType
     """How to show borders around the table and between cells."""
+    hide_index: _builtins.bool
+    """Whether to hide the index column(s)."""
+    hide_header: _builtins.bool
+    """Whether to hide the column header row(s)."""
     @_builtins.property
     def arrow_data(self) -> _ArrowData_pb2.ArrowData:
         """The Arrow data to display"""
@@ -74,10 +80,12 @@ class Table(_message.Message):
         *,
         arrow_data: _ArrowData_pb2.ArrowData | None = ...,
         border_mode: Global___Table.BorderMode.ValueType = ...,
+        hide_index: _builtins.bool = ...,
+        hide_header: _builtins.bool = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _typing.Literal["arrow_data", b"arrow_data"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["arrow_data", b"arrow_data", "border_mode", b"border_mode"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["arrow_data", b"arrow_data", "border_mode", b"border_mode", "hide_header", b"hide_header", "hide_index", b"hide_index"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
 Global___Table: _TypeAlias = Table  # noqa: Y015

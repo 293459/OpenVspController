@@ -45,8 +45,9 @@ class LinkButton(_message.Message):
     ICON_FIELD_NUMBER: _builtins.int
     SHORTCUT_FIELD_NUMBER: _builtins.int
     ICON_POSITION_FIELD_NUMBER: _builtins.int
+    IGNORE_RERUN_FIELD_NUMBER: _builtins.int
     id: _builtins.str
-    """The ID is only needed if a shortcut is provided."""
+    """The ID is needed for shortcuts, keys, and click-triggered reruns."""
     label: _builtins.str
     help: _builtins.str
     url: _builtins.str
@@ -56,6 +57,7 @@ class LinkButton(_message.Message):
     icon: _builtins.str
     shortcut: _builtins.str
     icon_position: _ButtonLikeIconPosition_pb2.ButtonLikeIconPosition.ValueType
+    ignore_rerun: _builtins.bool
     def __init__(
         self,
         *,
@@ -69,8 +71,9 @@ class LinkButton(_message.Message):
         icon: _builtins.str = ...,
         shortcut: _builtins.str = ...,
         icon_position: _ButtonLikeIconPosition_pb2.ButtonLikeIconPosition.ValueType = ...,
+        ignore_rerun: _builtins.bool = ...,
     ) -> None: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["disabled", b"disabled", "help", b"help", "icon", b"icon", "icon_position", b"icon_position", "id", b"id", "label", b"label", "shortcut", b"shortcut", "type", b"type", "url", b"url", "use_container_width", b"use_container_width"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["disabled", b"disabled", "help", b"help", "icon", b"icon", "icon_position", b"icon_position", "id", b"id", "ignore_rerun", b"ignore_rerun", "label", b"label", "shortcut", b"shortcut", "type", b"type", "url", b"url", "use_container_width", b"use_container_width"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
 Global___LinkButton: _TypeAlias = LinkButton  # noqa: Y015

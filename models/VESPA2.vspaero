@@ -1,0 +1,50 @@
+Sref = 0.98 
+Cref = 0.35 
+Bref = 2.8 
+X_cg = 0.508502 
+Y_cg = -8.22736e-05 
+Z_cg = 0.819512 
+Mach = 0.2 
+AoA = -5, -0.833333, 3.33333, 7.5, 11.6667, 15.8333, 20 
+Beta = 0 
+ReCref = 1e+06 
+Vinf = 20 
+Rho = 1.225 
+StallModel = 0 
+Clo2D = 0 
+CLMax2D = 1 
+Symmetry = 0 
+FreezeMultiPoleAtIteration = 10000 
+FreezeWakeAtIteration = 10000 
+FreezeWakeRootVortices = 0 
+ImplicitWake = 0 
+ImplicitWakeStartIteration = 0 
+FarDist = -1 
+NumWakeNodes = 8 
+WakeIters = 5 
+WakeRelax = 1 
+ForwardGMRESConvergenceFactor = 1 
+AdjointGMRESConvergenceFactor = 1 
+NonLinearConvergenceFactor = 1 
+CoreSizeFactor = 1 
+FarAway = 5 
+UpdateMatrixPreconditioner = 0 
+UseWakeNodeMatrixPreconditioner = 0 
+Write2DFEMFile = 0 
+WriteTecplotFile = 0 
+NumberOfControlGroups = 2 
+Ailerons
+WingGeom_Surf0_Ailerons,WingGeom_Surf1_Ailerons
+-1, -1
+0
+Ruddervators
+Vtail_Surf0_Ruddervator,Vtail_Surf1_Ruddervator
+1, 1
+0
+NumberofSurveyPoints = 0 
+QuadTreeBufferLevels = 0 
+NumberOfQuadTrees = 1 
+1 2 0 
+NumberOfInlets = 0 
+NumberOfNozzles = 0 
+VSP_StabilityType = 0 

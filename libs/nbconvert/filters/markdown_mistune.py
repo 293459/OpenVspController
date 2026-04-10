@@ -312,7 +312,7 @@ class IPythonRenderer(HTMLRenderer):
     def block_code(self, code: str, info: Optional[str] = None) -> str:
         """Handle block code."""
         lang: Optional[str] = ""
-        lexer: Optional[Lexer] = None
+        lexer: Lexer
 
         if info:
             if info.startswith("mermaid"):
@@ -436,6 +436,11 @@ class IPythonRenderer(HTMLRenderer):
         :return: the base64 url or None if the file was not found.
         """
         src_path = os.path.join(self.path, src)
+
+        resolved = os.path.abspath(src_path)
+        allowed_base = os.path.abspath(self.path)
+        if not resolved.startswith(allowed_base + os.sep) and resolved != allowed_base:
+            return None
 
         if not os.path.exists(src_path):
             return None

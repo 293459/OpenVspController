@@ -32,11 +32,6 @@ if sys.version_info >= (3, 10):
 else:
     from typing_extensions import TypeAlias as _TypeAlias
 
-if sys.version_info >= (3, 13):
-    from warnings import deprecated as _deprecated
-else:
-    from typing_extensions import deprecated as _deprecated
-
 DESCRIPTOR: _descriptor.FileDescriptor
 
 @_typing.final
@@ -114,10 +109,10 @@ class WidgetState(_message.Message):
     @_builtins.property
     def file_uploader_state_value(self) -> _Common_pb2.FileUploaderState: ...
     @_builtins.property
-    @_deprecated("""This field has been marked as deprecated using proto field options.""")
     def string_trigger_value(self) -> _Common_pb2.StringTriggerValue:
-        """DEPRECATED: StringTriggerValue proto message is deprecated and unused.
-        The ChatInputValue proto message should be used instead.
+        """A trigger value that carries a single string payload.
+        Used for trigger-based widgets that need to return a string value
+        (e.g., menu button selections). The value auto-resets after each script run.
         """
 
     @_builtins.property
