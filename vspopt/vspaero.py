@@ -325,12 +325,16 @@ def _parse_polar_file_fallback(polar_path: str | Path, mach: float, re_cref: flo
         cl_arr = get_col("CLtot", "CL")
         cd_arr = get_col("CDtot", "CD")
 
-        # 4. SAFETY CALCULATION: Manually calculate L/D if the column is missing or unreadable
+       
         ld_arr = get_col("L/D", "LD", "LoD")
-        if np.all(ld_arr == 0):
-            with np.errstate(divide="ignore", invalid="ignore"):
-                ld_arr = np.where(cd_arr != 0, cl_arr / cd_arr, 0.0)
 
+        # If the solver returns zeros or fails to provide the column, we crash.
+        if ld_arr is None or len(ld_arr) == 0 or np.all(ld_arr == 0):
+            raise RuntimeError(
+                "STRICT ERROR: L/D (Lift-to-Drag) column is missing or invalid. "
+                "VSPAERO failed to provide performance ratios. Check for flow "
+                "separation or solver divergence in the .history file."
+            )
         # 5. Return the mapped data structure
         return VSPAEROResults(
             mach=mach,
