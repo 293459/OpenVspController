@@ -1,0 +1,15 @@
+[project]
+name = "openvspcontroller"
+version = "0.1.0"
+description = "Controller per OpenVSP con Python 3.13"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "pandas",
+    "ipykernel", # Necessario per far girare i notebook .ipynb
+]
+
+[tool.uv]
+managed = true

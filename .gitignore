@@ -23,6 +23,19 @@ interpreter/
 # The project will automatically create .venv on first run via run_project.bat setup.
 .venv/
 
+# Ambiente virtuale creato da uv
+.venv/
+__pycache__/
+*.py[cod]
+
+# Cartelle inutili che avevi prima
+interpreter/
+
+# Output e file temporanei
+exports/
+*.log
+.DS_Store
+
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
 *.ipynb_checkpoints
