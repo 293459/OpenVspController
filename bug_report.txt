@@ -1,0 +1,1481 @@
+
+========================================
+DATA E ORA: 2026-04-15 13:42:40.622132
+FILE: notebooks\main_analysis.ipynb
+========================================
+--- DETTAGLIO ERRORE ---
+[NbConvertApp] Converting notebook notebooks\main_analysis.ipynb to notebook
+C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\zmq\_future.py:718: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+  self._get_loop()
+Traceback (most recent call last):
+  File [35m"<frozen runpy>"[0m, line [35m198[0m, in [35m_run_module_as_main[0m
+  File [35m"<frozen runpy>"[0m, line [35m88[0m, in [35m_run_code[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Scripts\jupyter-nbconvert.EXE\__main__.py"[0m, line [35m10[0m, in [35m<module>[0m
+    sys.exit([31mmain[0m[1;31m()[0m)
+             [31m~~~~[0m[1;31m^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\jupyter_core\application.py"[0m, line [35m284[0m, in [35mlaunch_instance[0m
+    [31msuper().launch_instance[0m[1;31m(argv=argv, **kwargs)[0m
+    [31m~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\traitlets\config\application.py"[0m, line [35m1075[0m, in [35mlaunch_instance[0m
+    [31mapp.start[0m[1;31m()[0m
+    [31m~~~~~~~~~[0m[1;31m^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\nbconvertapp.py"[0m, line [35m420[0m, in [35mstart[0m
+    [31mself.convert_notebooks[0m[1;31m()[0m
+    [31m~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\nbconvertapp.py"[0m, line [35m597[0m, in [35mconvert_notebooks[0m
+    [31mself.convert_single_notebook[0m[1;31m(notebook_filename)[0m
+    [31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\nbconvertapp.py"[0m, line [35m563[0m, in [35mconvert_single_notebook[0m
+    output, resources = [31mself.export_single_notebook[0m[1;31m([0m
+                        [31m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^[0m
+        [1;31mnotebook_filename, resources, input_buffer=input_buffer[0m
+        [1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+    [1;31m)[0m
+    [1;31m^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\nbconvertapp.py"[0m, line [35m487[0m, in [35mexport_single_notebook[0m
+    output, resources = [31mself.exporter.from_filename[0m[1;31m([0m
+                        [31m~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^[0m
+        [1;31mnotebook_filename, resources=resources[0m
+        [1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+    [1;31m)[0m
+    [1;31m^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\exporters\exporter.py"[0m, line [35m201[0m, in [35mfrom_filename[0m
+    return [31mself.from_file[0m[1;31m(f, resources=resources, **kw)[0m
+           [31m~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\exporters\exporter.py"[0m, line [35m220[0m, in [35mfrom_file[0m
+    return [31mself.from_notebook_node[0m[1;31m([0m
+           [31m~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^[0m
+        [1;31mnbformat.read(file_stream, as_version=4), resources=resources, **kw[0m
+        [1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+    [1;31m)[0m
+    [1;31m^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\exporters\notebook.py"[0m, line [35m36[0m, in [35mfrom_notebook_node[0m
+    nb_copy, resources = [31msuper().from_notebook_node[0m[1;31m(nb, resources, **kw)[0m
+                         [31m~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\exporters\exporter.py"[0m, line [35m154[0m, in [35mfrom_notebook_node[0m
+    nb_copy, resources = [31mself._preprocess[0m[1;31m(nb_copy, resources)[0m
+                         [31m~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\exporters\exporter.py"[0m, line [35m353[0m, in [35m_preprocess[0m
+    nbc, resc = [31mpreprocessor[0m[1;31m(nbc, resc)[0m
+                [31m~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\preprocessors\base.py"[0m, line [35m48[0m, in [35m__call__[0m
+    return [31mself.preprocess[0m[1;31m(nb, resources)[0m
+           [31m~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\preprocessors\execute.py"[0m, line [35m103[0m, in [35mpreprocess[0m
+    [31mself.preprocess_cell[0m[1;31m(cell, resources, index)[0m
+    [31m~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbconvert\preprocessors\execute.py"[0m, line [35m124[0m, in [35mpreprocess_cell[0m
+    cell = self.execute_cell(cell, index, store_history=True)
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\jupyter_core\utils\__init__.py"[0m, line [35m165[0m, in [35mwrapped[0m
+    return [31mloop.run_until_complete[0m[1;31m(inner)[0m
+           [31m~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^[0m
+  File [35m"C:\Users\gabri\AppData\Roaming\uv\python\cpython-3.14.4-windows-x86_64-none\Lib\asyncio\base_events.py"[0m, line [35m719[0m, in [35mrun_until_complete[0m
+    return [31mfuture.result[0m[1;31m()[0m
+           [31m~~~~~~~~~~~~~[0m[1;31m^^[0m
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbclient\client.py"[0m, line [35m1062[0m, in [35masync_execute_cell[0m
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File [35m"C:\Users\gabri\Desktop\TEAM\OpenVspController\.venv\Lib\site-packages\nbclient\client.py"[0m, line [35m918[0m, in [35m_check_raise_for_error[0m
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+[1;35mnbclient.exceptions.CellExecutionError[0m: [35mAn error occurred while executing the following cell:
+------------------
+from IPython.display import display
+import pandas as pd
+
+from vspopt import AircraftModel
+
+model = AircraftModel(MODEL_PATH).load()
+model.setup_aero_set()
+print(model.summary())
+
+print("Reference quantities currently stored in the model:")
+display(pd.Series(model.reference_quantities(), name="value").to_frame())
+
+mass_props = model.mass_properties()
+print("Mass properties from OpenVSP MassProp:")
+display(mass_props.to_series().rename("value").to_frame())
+
+------------------
+
+
+[31m---------------------------------------------------------------------------[39m
+[31mImportError[39m                               Traceback (most recent call last)
+[36mFile [39m[32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:39[39m, in [36m_import_vsp[39m[34m()[39m
+[32m     38[39m root = configure_embedded_openvsp()
+[32m---> [39m[32m39[39m [38;5;28;01mimport[39;00m[38;5;250m [39m[34;01mopenvsp[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[34;01mvsp[39;00m
+[32m     41[39m [38;5;28;01mreturn[39;00m vsp
+
+[36mFile [39m[32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\__init__.py:45[39m
+[32m     44[39m [38;5;28;01melse[39;00m:
+[32m---> [39m[32m45[39m     [38;5;28;01mfrom[39;00m[38;5;250m [39m[34;01m.[39;00m[34;01mvsp[39;00m[38;5;250m [39m[38;5;28;01mimport[39;00m *
+[32m     47[39m [38;5;28;01mdef[39;00m[38;5;250m [39m[34msetup_vspaero_path[39m():
+
+[36mFile [39m[32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\vsp.py:10[39m
+[32m      9[39m [38;5;28;01mif[39;00m __package__ [38;5;129;01mor[39;00m [33m"[39m[33m.[39m[33m"[39m [38;5;129;01min[39;00m [34m__name__[39m:
+[32m---> [39m[32m10[39m     [38;5;28;01mfrom[39;00m[38;5;250m [39m[34;01m.[39;00m[38;5;250m [39m[38;5;28;01mimport[39;00m _vsp
+[32m     11[39m [38;5;28;01melse[39;00m:
+
+[31mImportError[39m: DLL load failed while importing _vsp: Impossibile trovare il modulo specificato.
+
+The above exception was the direct cause of the following exception:
+
+[31mImportError[39m                               Traceback (most recent call last)
+[36mCell[39m[36m [39m[32mIn[5][39m[32m, line 6[39m
+[32m      2[39m [38;5;28;01mimport[39;00m pandas [38;5;28;01mas[39;00m pd
+[32m      3[39m 
+[32m      4[39m [38;5;28;01mfrom[39;00m vspopt [38;5;28;01mimport[39;00m AircraftModel
+[32m      5[39m 
+[32m----> [39m[32m6[39m model = AircraftModel(MODEL_PATH).load()
+[32m      7[39m model.setup_aero_set()
+[32m      8[39m print(model.summary())
+[32m      9[39m 
+
+[36mFile [39m[32m~\Desktop\TEAM\OpenVspController\vspopt\model.py:152[39m, in [36mAircraftModel.__init__[39m[34m(self, vsp3_path)[39m
+[32m    150[39m [38;5;28;01mdef[39;00m[38;5;250m [39m[34m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m | Path) -> [38;5;28;01mNone[39;00m:
+[32m    151[39m     [38;5;28;01mfrom[39;00m[38;5;250m [39m[34;01mvspopt[39;00m[34;01m.[39;00m[34;01mwrapper[39;00m[38;5;250m [39m[38;5;28;01mimport[39;00m VSPWrapper
+[32m--> [39m[32m152[39m     [38;5;28mself[39m._wrapper = [43mVSPWrapper[49m[43m([49m[43mvsp3_path[49m[43m)[49m
+[32m    153[39m     [38;5;28mself[39m.path = Path(vsp3_path)
+[32m    155[39m     [38;5;66;03m# Named components, populated after load()[39;00m
+
+[36mFile [39m[32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:80[39m, in [36mVSPWrapper.__init__[39m[34m(self, vsp3_path)[39m
+[32m     79[39m [38;5;28;01mdef[39;00m[38;5;250m [39m[34m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m | Path) -> [38;5;28;01mNone[39;00m:
+[32m---> [39m[32m80[39m     [38;5;28mself[39m._vsp = [43m_import_vsp[49m[43m([49m[43m)[49m
+[32m     81[39m     [38;5;28mself[39m._path = [38;5;28mself[39m._validate_vsp3_path(vsp3_path)
+[32m     82[39m     [38;5;28mself[39m._loaded = [38;5;28;01mFalse[39;00m
+
+[36mFile [39m[32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:46[39m, in [36m_import_vsp[39m[34m()[39m
+[32m     44[39m supported_msg = format_supported_python_versions(supported)
+[32m     45[39m current_msg = [33mf[39m[33m"[39m[33mPython [39m[38;5;132;01m{[39;00mos.sys.version_info[[32m0[39m][38;5;132;01m}[39;00m[33m.[39m[38;5;132;01m{[39;00mos.sys.version_info[[32m1[39m][38;5;132;01m}[39;00m[33m"[39m
+[32m---> [39m[32m46[39m [38;5;28;01mraise[39;00m [38;5;167;01mImportError[39;00m(
+[32m     47[39m     [33m"[39m[33mCannot import [39m[33m'[39m[33mopenvsp[39m[33m'[39m[33m. Make sure:[39m[38;5;130;01m\n[39;00m[33m"[39m
+[32m     48[39m     [33mf[39m[33m"[39m[33m  1. You are running a compatible interpreter ([39m[38;5;132;01m{[39;00msupported_msg[38;5;132;01m}[39;00m[33m).[39m[38;5;130;01m\n[39;00m[33m"[39m
+[32m     49[39m     [33m"[39m[33m  2. The bundled OpenVSP copy is available at:[39m[38;5;130;01m\n[39;00m[33m"[39m
+[32m     50[39m     [33mf[39m[33m"[39m[33m     [39m[38;5;132;01m{[39;00mroot[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[33m"[39m
+[32m     51[39m     [33m"[39m[33m  3. The active interpreter is:[39m[38;5;130;01m\n[39;00m[33m"[39m
+[32m     52[39m     [33mf[39m[33m"[39m[33m     [39m[38;5;132;01m{[39;00mcurrent_msg[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[33m"[39m
+[32m     53[39m     [33m"[39m[33m  Run scripts/verify_setup.py for a detailed diagnosis.[39m[33m"[39m
+[32m     54[39m ) [38;5;28;01mfrom[39;00m[38;5;250m [39m[34;01mexc[39;00m
+
+[31mImportError[39m: Cannot import 'openvsp'. Make sure:
+  1. You are running a compatible interpreter (Python 3.13).
+  2. The bundled OpenVSP copy is available at:
+     C:\Users\gabri\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64
+  3. The active interpreter is:
+     Python 3.14
+  Run scripts/verify_setup.py for a detailed diagnosis.
+[0m
+
+--- OUTPUT DELLA CONSOLE ---
+
+========================================
+DATA E ORA: 2026-04-15 13:43:16.751007
+FILE: notebooks\main_analysis.ipynb
+========================================
+--- DETTAGLIO ERRORE ---
+[NbConvertApp] Converting notebook notebooks\main_analysis.ipynb to notebook
+C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\zmq\_future.py:693: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+  self._get_loop()
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Scripts\jupyter-nbconvert.EXE\__main__.py", line 7, in <module>
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\application.py", line 283, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\traitlets\config\application.py", line 1075, in launch_instance
+    app.start()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 420, in start
+    self.convert_notebooks()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 597, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 563, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 487, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 201, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 220, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 154, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 353, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\utils\__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from IPython.display import display
+import pandas as pd
+
+from vspopt import AircraftModel
+
+model = AircraftModel(MODEL_PATH).load()
+model.setup_aero_set()
+print(model.summary())
+
+print("Reference quantities currently stored in the model:")
+display(pd.Series(model.reference_quantities(), name="value").to_frame())
+
+mass_props = model.mass_properties()
+print("Mass properties from OpenVSP MassProp:")
+display(mass_props.to_series().rename("value").to_frame())
+
+------------------
+
+
+[1;31m---------------------------------------------------------------------------[0m
+[1;31mImportError[0m                               Traceback (most recent call last)
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:39[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     38[0m root [38;5;241m=[39m configure_embedded_openvsp()
+[1;32m---> 39[0m [38;5;28;01mimport[39;00m [38;5;21;01mopenvsp[39;00m [38;5;28;01mas[39;00m [38;5;21;01mvsp[39;00m
+[0;32m     41[0m [38;5;28;01mreturn[39;00m vsp
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\__init__.py:45[0m
+[0;32m     44[0m [38;5;28;01melse[39;00m:
+[1;32m---> 45[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m[38;5;21;01mvsp[39;00m [38;5;28;01mimport[39;00m [38;5;241m*[39m
+[0;32m     47[0m [38;5;28;01mdef[39;00m [38;5;21msetup_vspaero_path[39m():
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\vsp.py:10[0m
+[0;32m      9[0m [38;5;28;01mif[39;00m __package__ [38;5;129;01mor[39;00m [38;5;124m"[39m[38;5;124m.[39m[38;5;124m"[39m [38;5;129;01min[39;00m [38;5;18m__name__[39m:
+[1;32m---> 10[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m [38;5;28;01mimport[39;00m _vsp
+[0;32m     11[0m [38;5;28;01melse[39;00m:
+
+[1;31mImportError[0m: DLL load failed while importing _vsp: Impossibile trovare il modulo specificato.
+
+The above exception was the direct cause of the following exception:
+
+[1;31mImportError[0m                               Traceback (most recent call last)
+Cell [1;32mIn[5], line 6[0m
+[0;32m      2[0m [38;5;28;01mimport[39;00m [38;5;21;01mpandas[39;00m [38;5;28;01mas[39;00m [38;5;21;01mpd[39;00m
+[0;32m      4[0m [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m [38;5;28;01mimport[39;00m AircraftModel
+[1;32m----> 6[0m model [38;5;241m=[39m [43mAircraftModel[49m[43m([49m[43mMODEL_PATH[49m[43m)[49m[38;5;241m.[39mload()
+[0;32m      7[0m model[38;5;241m.[39msetup_aero_set()
+[0;32m      8[0m [38;5;28mprint[39m(model[38;5;241m.[39msummary())
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\model.py:152[0m, in [0;36mAircraftModel.__init__[1;34m(self, vsp3_path)[0m
+[0;32m    150[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[0;32m    151[0m     [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m[38;5;21;01m.[39;00m[38;5;21;01mwrapper[39;00m [38;5;28;01mimport[39;00m VSPWrapper
+[1;32m--> 152[0m     [38;5;28mself[39m[38;5;241m.[39m_wrapper [38;5;241m=[39m [43mVSPWrapper[49m[43m([49m[43mvsp3_path[49m[43m)[49m
+[0;32m    153[0m     [38;5;28mself[39m[38;5;241m.[39mpath [38;5;241m=[39m Path(vsp3_path)
+[0;32m    155[0m     [38;5;66;03m# Named components, populated after load()[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:80[0m, in [0;36mVSPWrapper.__init__[1;34m(self, vsp3_path)[0m
+[0;32m     79[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[1;32m---> 80[0m     [38;5;28mself[39m[38;5;241m.[39m_vsp [38;5;241m=[39m [43m_import_vsp[49m[43m([49m[43m)[49m
+[0;32m     81[0m     [38;5;28mself[39m[38;5;241m.[39m_path [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_validate_vsp3_path(vsp3_path)
+[0;32m     82[0m     [38;5;28mself[39m[38;5;241m.[39m_loaded [38;5;241m=[39m [38;5;28;01mFalse[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:46[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     44[0m supported_msg [38;5;241m=[39m format_supported_python_versions(supported)
+[0;32m     45[0m current_msg [38;5;241m=[39m [38;5;124mf[39m[38;5;124m"[39m[38;5;124mPython [39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m0[39m][38;5;132;01m}[39;00m[38;5;124m.[39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m1[39m][38;5;132;01m}[39;00m[38;5;124m"[39m
+[1;32m---> 46[0m [38;5;28;01mraise[39;00m [38;5;167;01mImportError[39;00m(
+[0;32m     47[0m     [38;5;124m"[39m[38;5;124mCannot import [39m[38;5;124m'[39m[38;5;124mopenvsp[39m[38;5;124m'[39m[38;5;124m. Make sure:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     48[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m  1. You are running a compatible interpreter ([39m[38;5;132;01m{[39;00msupported_msg[38;5;132;01m}[39;00m[38;5;124m).[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     49[0m     [38;5;124m"[39m[38;5;124m  2. The bundled OpenVSP copy is available at:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     50[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mroot[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     51[0m     [38;5;124m"[39m[38;5;124m  3. The active interpreter is:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     52[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mcurrent_msg[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     53[0m     [38;5;124m"[39m[38;5;124m  Run scripts/verify_setup.py for a detailed diagnosis.[39m[38;5;124m"[39m
+[0;32m     54[0m ) [38;5;28;01mfrom[39;00m [38;5;21;01mexc[39;00m
+
+[1;31mImportError[0m: Cannot import 'openvsp'. Make sure:
+  1. You are running a compatible interpreter (Python 3.13).
+  2. The bundled OpenVSP copy is available at:
+     C:\Users\gabri\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64
+  3. The active interpreter is:
+     Python 3.12
+  Run scripts/verify_setup.py for a detailed diagnosis.
+
+
+--- OUTPUT DELLA CONSOLE ---
+
+========================================
+DATA E ORA: 2026-04-15 13:43:38.132932
+FILE: notebooks\main_analysis.ipynb
+========================================
+--- DETTAGLIO ERRORE ---
+[NbConvertApp] Converting notebook notebooks\main_analysis.ipynb to notebook
+C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\zmq\_future.py:693: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+  self._get_loop()
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Scripts\jupyter-nbconvert.EXE\__main__.py", line 7, in <module>
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\application.py", line 283, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\traitlets\config\application.py", line 1075, in launch_instance
+    app.start()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 420, in start
+    self.convert_notebooks()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 597, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 563, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 487, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 201, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 220, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 154, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 353, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\utils\__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from IPython.display import display
+import pandas as pd
+
+from vspopt import AircraftModel
+
+model = AircraftModel(MODEL_PATH).load()
+model.setup_aero_set()
+print(model.summary())
+
+print("Reference quantities currently stored in the model:")
+display(pd.Series(model.reference_quantities(), name="value").to_frame())
+
+mass_props = model.mass_properties()
+print("Mass properties from OpenVSP MassProp:")
+display(mass_props.to_series().rename("value").to_frame())
+
+------------------
+
+
+[1;31m---------------------------------------------------------------------------[0m
+[1;31mImportError[0m                               Traceback (most recent call last)
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:39[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     38[0m root [38;5;241m=[39m configure_embedded_openvsp()
+[1;32m---> 39[0m [38;5;28;01mimport[39;00m [38;5;21;01mopenvsp[39;00m [38;5;28;01mas[39;00m [38;5;21;01mvsp[39;00m
+[0;32m     41[0m [38;5;28;01mreturn[39;00m vsp
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\__init__.py:45[0m
+[0;32m     44[0m [38;5;28;01melse[39;00m:
+[1;32m---> 45[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m[38;5;21;01mvsp[39;00m [38;5;28;01mimport[39;00m [38;5;241m*[39m
+[0;32m     47[0m [38;5;28;01mdef[39;00m [38;5;21msetup_vspaero_path[39m():
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\vsp.py:10[0m
+[0;32m      9[0m [38;5;28;01mif[39;00m __package__ [38;5;129;01mor[39;00m [38;5;124m"[39m[38;5;124m.[39m[38;5;124m"[39m [38;5;129;01min[39;00m [38;5;18m__name__[39m:
+[1;32m---> 10[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m [38;5;28;01mimport[39;00m _vsp
+[0;32m     11[0m [38;5;28;01melse[39;00m:
+
+[1;31mImportError[0m: DLL load failed while importing _vsp: Impossibile trovare il modulo specificato.
+
+The above exception was the direct cause of the following exception:
+
+[1;31mImportError[0m                               Traceback (most recent call last)
+Cell [1;32mIn[5], line 6[0m
+[0;32m      2[0m [38;5;28;01mimport[39;00m [38;5;21;01mpandas[39;00m [38;5;28;01mas[39;00m [38;5;21;01mpd[39;00m
+[0;32m      4[0m [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m [38;5;28;01mimport[39;00m AircraftModel
+[1;32m----> 6[0m model [38;5;241m=[39m [43mAircraftModel[49m[43m([49m[43mMODEL_PATH[49m[43m)[49m[38;5;241m.[39mload()
+[0;32m      7[0m model[38;5;241m.[39msetup_aero_set()
+[0;32m      8[0m [38;5;28mprint[39m(model[38;5;241m.[39msummary())
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\model.py:152[0m, in [0;36mAircraftModel.__init__[1;34m(self, vsp3_path)[0m
+[0;32m    150[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[0;32m    151[0m     [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m[38;5;21;01m.[39;00m[38;5;21;01mwrapper[39;00m [38;5;28;01mimport[39;00m VSPWrapper
+[1;32m--> 152[0m     [38;5;28mself[39m[38;5;241m.[39m_wrapper [38;5;241m=[39m [43mVSPWrapper[49m[43m([49m[43mvsp3_path[49m[43m)[49m
+[0;32m    153[0m     [38;5;28mself[39m[38;5;241m.[39mpath [38;5;241m=[39m Path(vsp3_path)
+[0;32m    155[0m     [38;5;66;03m# Named components, populated after load()[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:80[0m, in [0;36mVSPWrapper.__init__[1;34m(self, vsp3_path)[0m
+[0;32m     79[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[1;32m---> 80[0m     [38;5;28mself[39m[38;5;241m.[39m_vsp [38;5;241m=[39m [43m_import_vsp[49m[43m([49m[43m)[49m
+[0;32m     81[0m     [38;5;28mself[39m[38;5;241m.[39m_path [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_validate_vsp3_path(vsp3_path)
+[0;32m     82[0m     [38;5;28mself[39m[38;5;241m.[39m_loaded [38;5;241m=[39m [38;5;28;01mFalse[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:46[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     44[0m supported_msg [38;5;241m=[39m format_supported_python_versions(supported)
+[0;32m     45[0m current_msg [38;5;241m=[39m [38;5;124mf[39m[38;5;124m"[39m[38;5;124mPython [39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m0[39m][38;5;132;01m}[39;00m[38;5;124m.[39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m1[39m][38;5;132;01m}[39;00m[38;5;124m"[39m
+[1;32m---> 46[0m [38;5;28;01mraise[39;00m [38;5;167;01mImportError[39;00m(
+[0;32m     47[0m     [38;5;124m"[39m[38;5;124mCannot import [39m[38;5;124m'[39m[38;5;124mopenvsp[39m[38;5;124m'[39m[38;5;124m. Make sure:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     48[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m  1. You are running a compatible interpreter ([39m[38;5;132;01m{[39;00msupported_msg[38;5;132;01m}[39;00m[38;5;124m).[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     49[0m     [38;5;124m"[39m[38;5;124m  2. The bundled OpenVSP copy is available at:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     50[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mroot[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     51[0m     [38;5;124m"[39m[38;5;124m  3. The active interpreter is:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     52[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mcurrent_msg[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     53[0m     [38;5;124m"[39m[38;5;124m  Run scripts/verify_setup.py for a detailed diagnosis.[39m[38;5;124m"[39m
+[0;32m     54[0m ) [38;5;28;01mfrom[39;00m [38;5;21;01mexc[39;00m
+
+[1;31mImportError[0m: Cannot import 'openvsp'. Make sure:
+  1. You are running a compatible interpreter (Python 3.13).
+  2. The bundled OpenVSP copy is available at:
+     C:\Users\gabri\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64
+  3. The active interpreter is:
+     Python 3.12
+  Run scripts/verify_setup.py for a detailed diagnosis.
+
+
+--- OUTPUT DELLA CONSOLE ---
+
+========================================
+DATA E ORA: 2026-04-15 13:43:59.799232
+FILE: notebooks\main_analysis.ipynb
+========================================
+--- DETTAGLIO ERRORE ---
+[NbConvertApp] Converting notebook notebooks\main_analysis.ipynb to notebook
+C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\zmq\_future.py:693: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+  self._get_loop()
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Scripts\jupyter-nbconvert.EXE\__main__.py", line 7, in <module>
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\application.py", line 283, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\traitlets\config\application.py", line 1075, in launch_instance
+    app.start()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 420, in start
+    self.convert_notebooks()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 597, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 563, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 487, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 201, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 220, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 154, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 353, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\utils\__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from IPython.display import display
+import pandas as pd
+
+from vspopt import AircraftModel
+
+model = AircraftModel(MODEL_PATH).load()
+model.setup_aero_set()
+print(model.summary())
+
+print("Reference quantities currently stored in the model:")
+display(pd.Series(model.reference_quantities(), name="value").to_frame())
+
+mass_props = model.mass_properties()
+print("Mass properties from OpenVSP MassProp:")
+display(mass_props.to_series().rename("value").to_frame())
+
+------------------
+
+
+[1;31m---------------------------------------------------------------------------[0m
+[1;31mImportError[0m                               Traceback (most recent call last)
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:39[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     38[0m root [38;5;241m=[39m configure_embedded_openvsp()
+[1;32m---> 39[0m [38;5;28;01mimport[39;00m [38;5;21;01mopenvsp[39;00m [38;5;28;01mas[39;00m [38;5;21;01mvsp[39;00m
+[0;32m     41[0m [38;5;28;01mreturn[39;00m vsp
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\__init__.py:45[0m
+[0;32m     44[0m [38;5;28;01melse[39;00m:
+[1;32m---> 45[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m[38;5;21;01mvsp[39;00m [38;5;28;01mimport[39;00m [38;5;241m*[39m
+[0;32m     47[0m [38;5;28;01mdef[39;00m [38;5;21msetup_vspaero_path[39m():
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\vsp.py:10[0m
+[0;32m      9[0m [38;5;28;01mif[39;00m __package__ [38;5;129;01mor[39;00m [38;5;124m"[39m[38;5;124m.[39m[38;5;124m"[39m [38;5;129;01min[39;00m [38;5;18m__name__[39m:
+[1;32m---> 10[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m [38;5;28;01mimport[39;00m _vsp
+[0;32m     11[0m [38;5;28;01melse[39;00m:
+
+[1;31mImportError[0m: DLL load failed while importing _vsp: Impossibile trovare il modulo specificato.
+
+The above exception was the direct cause of the following exception:
+
+[1;31mImportError[0m                               Traceback (most recent call last)
+Cell [1;32mIn[5], line 6[0m
+[0;32m      2[0m [38;5;28;01mimport[39;00m [38;5;21;01mpandas[39;00m [38;5;28;01mas[39;00m [38;5;21;01mpd[39;00m
+[0;32m      4[0m [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m [38;5;28;01mimport[39;00m AircraftModel
+[1;32m----> 6[0m model [38;5;241m=[39m [43mAircraftModel[49m[43m([49m[43mMODEL_PATH[49m[43m)[49m[38;5;241m.[39mload()
+[0;32m      7[0m model[38;5;241m.[39msetup_aero_set()
+[0;32m      8[0m [38;5;28mprint[39m(model[38;5;241m.[39msummary())
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\model.py:152[0m, in [0;36mAircraftModel.__init__[1;34m(self, vsp3_path)[0m
+[0;32m    150[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[0;32m    151[0m     [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m[38;5;21;01m.[39;00m[38;5;21;01mwrapper[39;00m [38;5;28;01mimport[39;00m VSPWrapper
+[1;32m--> 152[0m     [38;5;28mself[39m[38;5;241m.[39m_wrapper [38;5;241m=[39m [43mVSPWrapper[49m[43m([49m[43mvsp3_path[49m[43m)[49m
+[0;32m    153[0m     [38;5;28mself[39m[38;5;241m.[39mpath [38;5;241m=[39m Path(vsp3_path)
+[0;32m    155[0m     [38;5;66;03m# Named components, populated after load()[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:80[0m, in [0;36mVSPWrapper.__init__[1;34m(self, vsp3_path)[0m
+[0;32m     79[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[1;32m---> 80[0m     [38;5;28mself[39m[38;5;241m.[39m_vsp [38;5;241m=[39m [43m_import_vsp[49m[43m([49m[43m)[49m
+[0;32m     81[0m     [38;5;28mself[39m[38;5;241m.[39m_path [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_validate_vsp3_path(vsp3_path)
+[0;32m     82[0m     [38;5;28mself[39m[38;5;241m.[39m_loaded [38;5;241m=[39m [38;5;28;01mFalse[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:46[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     44[0m supported_msg [38;5;241m=[39m format_supported_python_versions(supported)
+[0;32m     45[0m current_msg [38;5;241m=[39m [38;5;124mf[39m[38;5;124m"[39m[38;5;124mPython [39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m0[39m][38;5;132;01m}[39;00m[38;5;124m.[39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m1[39m][38;5;132;01m}[39;00m[38;5;124m"[39m
+[1;32m---> 46[0m [38;5;28;01mraise[39;00m [38;5;167;01mImportError[39;00m(
+[0;32m     47[0m     [38;5;124m"[39m[38;5;124mCannot import [39m[38;5;124m'[39m[38;5;124mopenvsp[39m[38;5;124m'[39m[38;5;124m. Make sure:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     48[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m  1. You are running a compatible interpreter ([39m[38;5;132;01m{[39;00msupported_msg[38;5;132;01m}[39;00m[38;5;124m).[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     49[0m     [38;5;124m"[39m[38;5;124m  2. The bundled OpenVSP copy is available at:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     50[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mroot[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     51[0m     [38;5;124m"[39m[38;5;124m  3. The active interpreter is:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     52[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mcurrent_msg[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     53[0m     [38;5;124m"[39m[38;5;124m  Run scripts/verify_setup.py for a detailed diagnosis.[39m[38;5;124m"[39m
+[0;32m     54[0m ) [38;5;28;01mfrom[39;00m [38;5;21;01mexc[39;00m
+
+[1;31mImportError[0m: Cannot import 'openvsp'. Make sure:
+  1. You are running a compatible interpreter (Python 3.13).
+  2. The bundled OpenVSP copy is available at:
+     C:\Users\gabri\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64
+  3. The active interpreter is:
+     Python 3.12
+  Run scripts/verify_setup.py for a detailed diagnosis.
+
+
+--- OUTPUT DELLA CONSOLE ---
+
+========================================
+DATA E ORA: 2026-04-15 13:44:22.378793
+FILE: notebooks\main_analysis.ipynb
+========================================
+--- DETTAGLIO ERRORE ---
+[NbConvertApp] Converting notebook notebooks\main_analysis.ipynb to notebook
+C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\zmq\_future.py:693: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+  self._get_loop()
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Scripts\jupyter-nbconvert.EXE\__main__.py", line 7, in <module>
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\application.py", line 283, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\traitlets\config\application.py", line 1075, in launch_instance
+    app.start()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 420, in start
+    self.convert_notebooks()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 597, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 563, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 487, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 201, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 220, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 154, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 353, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\utils\__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from IPython.display import display
+import pandas as pd
+
+from vspopt import AircraftModel
+
+model = AircraftModel(MODEL_PATH).load()
+model.setup_aero_set()
+print(model.summary())
+
+print("Reference quantities currently stored in the model:")
+display(pd.Series(model.reference_quantities(), name="value").to_frame())
+
+mass_props = model.mass_properties()
+print("Mass properties from OpenVSP MassProp:")
+display(mass_props.to_series().rename("value").to_frame())
+
+------------------
+
+
+[1;31m---------------------------------------------------------------------------[0m
+[1;31mImportError[0m                               Traceback (most recent call last)
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:39[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     38[0m root [38;5;241m=[39m configure_embedded_openvsp()
+[1;32m---> 39[0m [38;5;28;01mimport[39;00m [38;5;21;01mopenvsp[39;00m [38;5;28;01mas[39;00m [38;5;21;01mvsp[39;00m
+[0;32m     41[0m [38;5;28;01mreturn[39;00m vsp
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\__init__.py:45[0m
+[0;32m     44[0m [38;5;28;01melse[39;00m:
+[1;32m---> 45[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m[38;5;21;01mvsp[39;00m [38;5;28;01mimport[39;00m [38;5;241m*[39m
+[0;32m     47[0m [38;5;28;01mdef[39;00m [38;5;21msetup_vspaero_path[39m():
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\vsp.py:10[0m
+[0;32m      9[0m [38;5;28;01mif[39;00m __package__ [38;5;129;01mor[39;00m [38;5;124m"[39m[38;5;124m.[39m[38;5;124m"[39m [38;5;129;01min[39;00m [38;5;18m__name__[39m:
+[1;32m---> 10[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m [38;5;28;01mimport[39;00m _vsp
+[0;32m     11[0m [38;5;28;01melse[39;00m:
+
+[1;31mImportError[0m: DLL load failed while importing _vsp: Impossibile trovare il modulo specificato.
+
+The above exception was the direct cause of the following exception:
+
+[1;31mImportError[0m                               Traceback (most recent call last)
+Cell [1;32mIn[5], line 6[0m
+[0;32m      2[0m [38;5;28;01mimport[39;00m [38;5;21;01mpandas[39;00m [38;5;28;01mas[39;00m [38;5;21;01mpd[39;00m
+[0;32m      4[0m [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m [38;5;28;01mimport[39;00m AircraftModel
+[1;32m----> 6[0m model [38;5;241m=[39m [43mAircraftModel[49m[43m([49m[43mMODEL_PATH[49m[43m)[49m[38;5;241m.[39mload()
+[0;32m      7[0m model[38;5;241m.[39msetup_aero_set()
+[0;32m      8[0m [38;5;28mprint[39m(model[38;5;241m.[39msummary())
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\model.py:152[0m, in [0;36mAircraftModel.__init__[1;34m(self, vsp3_path)[0m
+[0;32m    150[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[0;32m    151[0m     [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m[38;5;21;01m.[39;00m[38;5;21;01mwrapper[39;00m [38;5;28;01mimport[39;00m VSPWrapper
+[1;32m--> 152[0m     [38;5;28mself[39m[38;5;241m.[39m_wrapper [38;5;241m=[39m [43mVSPWrapper[49m[43m([49m[43mvsp3_path[49m[43m)[49m
+[0;32m    153[0m     [38;5;28mself[39m[38;5;241m.[39mpath [38;5;241m=[39m Path(vsp3_path)
+[0;32m    155[0m     [38;5;66;03m# Named components, populated after load()[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:80[0m, in [0;36mVSPWrapper.__init__[1;34m(self, vsp3_path)[0m
+[0;32m     79[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[1;32m---> 80[0m     [38;5;28mself[39m[38;5;241m.[39m_vsp [38;5;241m=[39m [43m_import_vsp[49m[43m([49m[43m)[49m
+[0;32m     81[0m     [38;5;28mself[39m[38;5;241m.[39m_path [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_validate_vsp3_path(vsp3_path)
+[0;32m     82[0m     [38;5;28mself[39m[38;5;241m.[39m_loaded [38;5;241m=[39m [38;5;28;01mFalse[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:46[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     44[0m supported_msg [38;5;241m=[39m format_supported_python_versions(supported)
+[0;32m     45[0m current_msg [38;5;241m=[39m [38;5;124mf[39m[38;5;124m"[39m[38;5;124mPython [39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m0[39m][38;5;132;01m}[39;00m[38;5;124m.[39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m1[39m][38;5;132;01m}[39;00m[38;5;124m"[39m
+[1;32m---> 46[0m [38;5;28;01mraise[39;00m [38;5;167;01mImportError[39;00m(
+[0;32m     47[0m     [38;5;124m"[39m[38;5;124mCannot import [39m[38;5;124m'[39m[38;5;124mopenvsp[39m[38;5;124m'[39m[38;5;124m. Make sure:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     48[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m  1. You are running a compatible interpreter ([39m[38;5;132;01m{[39;00msupported_msg[38;5;132;01m}[39;00m[38;5;124m).[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     49[0m     [38;5;124m"[39m[38;5;124m  2. The bundled OpenVSP copy is available at:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     50[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mroot[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     51[0m     [38;5;124m"[39m[38;5;124m  3. The active interpreter is:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     52[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mcurrent_msg[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     53[0m     [38;5;124m"[39m[38;5;124m  Run scripts/verify_setup.py for a detailed diagnosis.[39m[38;5;124m"[39m
+[0;32m     54[0m ) [38;5;28;01mfrom[39;00m [38;5;21;01mexc[39;00m
+
+[1;31mImportError[0m: Cannot import 'openvsp'. Make sure:
+  1. You are running a compatible interpreter (Python 3.13).
+  2. The bundled OpenVSP copy is available at:
+     C:\Users\gabri\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64
+  3. The active interpreter is:
+     Python 3.12
+  Run scripts/verify_setup.py for a detailed diagnosis.
+
+
+--- OUTPUT DELLA CONSOLE ---
+
+========================================
+DATA E ORA: 2026-04-15 13:44:43.650771
+FILE: notebooks\main_analysis.ipynb
+========================================
+--- DETTAGLIO ERRORE ---
+[NbConvertApp] Converting notebook notebooks\main_analysis.ipynb to notebook
+C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\zmq\_future.py:693: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+  self._get_loop()
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Scripts\jupyter-nbconvert.EXE\__main__.py", line 7, in <module>
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\application.py", line 283, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\traitlets\config\application.py", line 1075, in launch_instance
+    app.start()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 420, in start
+    self.convert_notebooks()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 597, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 563, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 487, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 201, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 220, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 154, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 353, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\utils\__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from IPython.display import display
+import pandas as pd
+
+from vspopt import AircraftModel
+
+model = AircraftModel(MODEL_PATH).load()
+model.setup_aero_set()
+print(model.summary())
+
+print("Reference quantities currently stored in the model:")
+display(pd.Series(model.reference_quantities(), name="value").to_frame())
+
+mass_props = model.mass_properties()
+print("Mass properties from OpenVSP MassProp:")
+display(mass_props.to_series().rename("value").to_frame())
+
+------------------
+
+
+[1;31m---------------------------------------------------------------------------[0m
+[1;31mImportError[0m                               Traceback (most recent call last)
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:39[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     38[0m root [38;5;241m=[39m configure_embedded_openvsp()
+[1;32m---> 39[0m [38;5;28;01mimport[39;00m [38;5;21;01mopenvsp[39;00m [38;5;28;01mas[39;00m [38;5;21;01mvsp[39;00m
+[0;32m     41[0m [38;5;28;01mreturn[39;00m vsp
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\__init__.py:45[0m
+[0;32m     44[0m [38;5;28;01melse[39;00m:
+[1;32m---> 45[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m[38;5;21;01mvsp[39;00m [38;5;28;01mimport[39;00m [38;5;241m*[39m
+[0;32m     47[0m [38;5;28;01mdef[39;00m [38;5;21msetup_vspaero_path[39m():
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\vsp.py:10[0m
+[0;32m      9[0m [38;5;28;01mif[39;00m __package__ [38;5;129;01mor[39;00m [38;5;124m"[39m[38;5;124m.[39m[38;5;124m"[39m [38;5;129;01min[39;00m [38;5;18m__name__[39m:
+[1;32m---> 10[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m [38;5;28;01mimport[39;00m _vsp
+[0;32m     11[0m [38;5;28;01melse[39;00m:
+
+[1;31mImportError[0m: DLL load failed while importing _vsp: Impossibile trovare il modulo specificato.
+
+The above exception was the direct cause of the following exception:
+
+[1;31mImportError[0m                               Traceback (most recent call last)
+Cell [1;32mIn[5], line 6[0m
+[0;32m      2[0m [38;5;28;01mimport[39;00m [38;5;21;01mpandas[39;00m [38;5;28;01mas[39;00m [38;5;21;01mpd[39;00m
+[0;32m      4[0m [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m [38;5;28;01mimport[39;00m AircraftModel
+[1;32m----> 6[0m model [38;5;241m=[39m [43mAircraftModel[49m[43m([49m[43mMODEL_PATH[49m[43m)[49m[38;5;241m.[39mload()
+[0;32m      7[0m model[38;5;241m.[39msetup_aero_set()
+[0;32m      8[0m [38;5;28mprint[39m(model[38;5;241m.[39msummary())
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\model.py:152[0m, in [0;36mAircraftModel.__init__[1;34m(self, vsp3_path)[0m
+[0;32m    150[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[0;32m    151[0m     [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m[38;5;21;01m.[39;00m[38;5;21;01mwrapper[39;00m [38;5;28;01mimport[39;00m VSPWrapper
+[1;32m--> 152[0m     [38;5;28mself[39m[38;5;241m.[39m_wrapper [38;5;241m=[39m [43mVSPWrapper[49m[43m([49m[43mvsp3_path[49m[43m)[49m
+[0;32m    153[0m     [38;5;28mself[39m[38;5;241m.[39mpath [38;5;241m=[39m Path(vsp3_path)
+[0;32m    155[0m     [38;5;66;03m# Named components, populated after load()[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:80[0m, in [0;36mVSPWrapper.__init__[1;34m(self, vsp3_path)[0m
+[0;32m     79[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[1;32m---> 80[0m     [38;5;28mself[39m[38;5;241m.[39m_vsp [38;5;241m=[39m [43m_import_vsp[49m[43m([49m[43m)[49m
+[0;32m     81[0m     [38;5;28mself[39m[38;5;241m.[39m_path [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_validate_vsp3_path(vsp3_path)
+[0;32m     82[0m     [38;5;28mself[39m[38;5;241m.[39m_loaded [38;5;241m=[39m [38;5;28;01mFalse[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:46[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     44[0m supported_msg [38;5;241m=[39m format_supported_python_versions(supported)
+[0;32m     45[0m current_msg [38;5;241m=[39m [38;5;124mf[39m[38;5;124m"[39m[38;5;124mPython [39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m0[39m][38;5;132;01m}[39;00m[38;5;124m.[39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m1[39m][38;5;132;01m}[39;00m[38;5;124m"[39m
+[1;32m---> 46[0m [38;5;28;01mraise[39;00m [38;5;167;01mImportError[39;00m(
+[0;32m     47[0m     [38;5;124m"[39m[38;5;124mCannot import [39m[38;5;124m'[39m[38;5;124mopenvsp[39m[38;5;124m'[39m[38;5;124m. Make sure:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     48[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m  1. You are running a compatible interpreter ([39m[38;5;132;01m{[39;00msupported_msg[38;5;132;01m}[39;00m[38;5;124m).[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     49[0m     [38;5;124m"[39m[38;5;124m  2. The bundled OpenVSP copy is available at:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     50[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mroot[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     51[0m     [38;5;124m"[39m[38;5;124m  3. The active interpreter is:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     52[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mcurrent_msg[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     53[0m     [38;5;124m"[39m[38;5;124m  Run scripts/verify_setup.py for a detailed diagnosis.[39m[38;5;124m"[39m
+[0;32m     54[0m ) [38;5;28;01mfrom[39;00m [38;5;21;01mexc[39;00m
+
+[1;31mImportError[0m: Cannot import 'openvsp'. Make sure:
+  1. You are running a compatible interpreter (Python 3.13).
+  2. The bundled OpenVSP copy is available at:
+     C:\Users\gabri\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64
+  3. The active interpreter is:
+     Python 3.12
+  Run scripts/verify_setup.py for a detailed diagnosis.
+
+
+--- OUTPUT DELLA CONSOLE ---
+
+========================================
+DATA E ORA: 2026-04-15 13:45:06.654507
+FILE: notebooks\main_analysis.ipynb
+========================================
+--- DETTAGLIO ERRORE ---
+[NbConvertApp] Converting notebook notebooks\main_analysis.ipynb to notebook
+C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\zmq\_future.py:693: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+  self._get_loop()
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Scripts\jupyter-nbconvert.EXE\__main__.py", line 7, in <module>
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\application.py", line 283, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\traitlets\config\application.py", line 1075, in launch_instance
+    app.start()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 420, in start
+    self.convert_notebooks()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 597, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 563, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 487, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 201, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 220, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 154, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 353, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\utils\__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from IPython.display import display
+import pandas as pd
+
+from vspopt import AircraftModel
+
+model = AircraftModel(MODEL_PATH).load()
+model.setup_aero_set()
+print(model.summary())
+
+print("Reference quantities currently stored in the model:")
+display(pd.Series(model.reference_quantities(), name="value").to_frame())
+
+mass_props = model.mass_properties()
+print("Mass properties from OpenVSP MassProp:")
+display(mass_props.to_series().rename("value").to_frame())
+
+------------------
+
+
+[1;31m---------------------------------------------------------------------------[0m
+[1;31mImportError[0m                               Traceback (most recent call last)
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:39[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     38[0m root [38;5;241m=[39m configure_embedded_openvsp()
+[1;32m---> 39[0m [38;5;28;01mimport[39;00m [38;5;21;01mopenvsp[39;00m [38;5;28;01mas[39;00m [38;5;21;01mvsp[39;00m
+[0;32m     41[0m [38;5;28;01mreturn[39;00m vsp
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\__init__.py:45[0m
+[0;32m     44[0m [38;5;28;01melse[39;00m:
+[1;32m---> 45[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m[38;5;21;01mvsp[39;00m [38;5;28;01mimport[39;00m [38;5;241m*[39m
+[0;32m     47[0m [38;5;28;01mdef[39;00m [38;5;21msetup_vspaero_path[39m():
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\vsp.py:10[0m
+[0;32m      9[0m [38;5;28;01mif[39;00m __package__ [38;5;129;01mor[39;00m [38;5;124m"[39m[38;5;124m.[39m[38;5;124m"[39m [38;5;129;01min[39;00m [38;5;18m__name__[39m:
+[1;32m---> 10[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m [38;5;28;01mimport[39;00m _vsp
+[0;32m     11[0m [38;5;28;01melse[39;00m:
+
+[1;31mImportError[0m: DLL load failed while importing _vsp: Impossibile trovare il modulo specificato.
+
+The above exception was the direct cause of the following exception:
+
+[1;31mImportError[0m                               Traceback (most recent call last)
+Cell [1;32mIn[5], line 6[0m
+[0;32m      2[0m [38;5;28;01mimport[39;00m [38;5;21;01mpandas[39;00m [38;5;28;01mas[39;00m [38;5;21;01mpd[39;00m
+[0;32m      4[0m [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m [38;5;28;01mimport[39;00m AircraftModel
+[1;32m----> 6[0m model [38;5;241m=[39m [43mAircraftModel[49m[43m([49m[43mMODEL_PATH[49m[43m)[49m[38;5;241m.[39mload()
+[0;32m      7[0m model[38;5;241m.[39msetup_aero_set()
+[0;32m      8[0m [38;5;28mprint[39m(model[38;5;241m.[39msummary())
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\model.py:152[0m, in [0;36mAircraftModel.__init__[1;34m(self, vsp3_path)[0m
+[0;32m    150[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[0;32m    151[0m     [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m[38;5;21;01m.[39;00m[38;5;21;01mwrapper[39;00m [38;5;28;01mimport[39;00m VSPWrapper
+[1;32m--> 152[0m     [38;5;28mself[39m[38;5;241m.[39m_wrapper [38;5;241m=[39m [43mVSPWrapper[49m[43m([49m[43mvsp3_path[49m[43m)[49m
+[0;32m    153[0m     [38;5;28mself[39m[38;5;241m.[39mpath [38;5;241m=[39m Path(vsp3_path)
+[0;32m    155[0m     [38;5;66;03m# Named components, populated after load()[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:80[0m, in [0;36mVSPWrapper.__init__[1;34m(self, vsp3_path)[0m
+[0;32m     79[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[1;32m---> 80[0m     [38;5;28mself[39m[38;5;241m.[39m_vsp [38;5;241m=[39m [43m_import_vsp[49m[43m([49m[43m)[49m
+[0;32m     81[0m     [38;5;28mself[39m[38;5;241m.[39m_path [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_validate_vsp3_path(vsp3_path)
+[0;32m     82[0m     [38;5;28mself[39m[38;5;241m.[39m_loaded [38;5;241m=[39m [38;5;28;01mFalse[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:46[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     44[0m supported_msg [38;5;241m=[39m format_supported_python_versions(supported)
+[0;32m     45[0m current_msg [38;5;241m=[39m [38;5;124mf[39m[38;5;124m"[39m[38;5;124mPython [39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m0[39m][38;5;132;01m}[39;00m[38;5;124m.[39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m1[39m][38;5;132;01m}[39;00m[38;5;124m"[39m
+[1;32m---> 46[0m [38;5;28;01mraise[39;00m [38;5;167;01mImportError[39;00m(
+[0;32m     47[0m     [38;5;124m"[39m[38;5;124mCannot import [39m[38;5;124m'[39m[38;5;124mopenvsp[39m[38;5;124m'[39m[38;5;124m. Make sure:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     48[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m  1. You are running a compatible interpreter ([39m[38;5;132;01m{[39;00msupported_msg[38;5;132;01m}[39;00m[38;5;124m).[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     49[0m     [38;5;124m"[39m[38;5;124m  2. The bundled OpenVSP copy is available at:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     50[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mroot[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     51[0m     [38;5;124m"[39m[38;5;124m  3. The active interpreter is:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     52[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mcurrent_msg[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     53[0m     [38;5;124m"[39m[38;5;124m  Run scripts/verify_setup.py for a detailed diagnosis.[39m[38;5;124m"[39m
+[0;32m     54[0m ) [38;5;28;01mfrom[39;00m [38;5;21;01mexc[39;00m
+
+[1;31mImportError[0m: Cannot import 'openvsp'. Make sure:
+  1. You are running a compatible interpreter (Python 3.13).
+  2. The bundled OpenVSP copy is available at:
+     C:\Users\gabri\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64
+  3. The active interpreter is:
+     Python 3.12
+  Run scripts/verify_setup.py for a detailed diagnosis.
+
+
+--- OUTPUT DELLA CONSOLE ---
+
+========================================
+DATA E ORA: 2026-04-15 13:45:37.873073
+FILE: notebooks\main_analysis.ipynb
+========================================
+--- DETTAGLIO ERRORE ---
+[NbConvertApp] Converting notebook notebooks\main_analysis.ipynb to notebook
+C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\zmq\_future.py:693: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+  self._get_loop()
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Scripts\jupyter-nbconvert.EXE\__main__.py", line 7, in <module>
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\application.py", line 283, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\traitlets\config\application.py", line 1075, in launch_instance
+    app.start()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 420, in start
+    self.convert_notebooks()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 597, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 563, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 487, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 201, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 220, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 154, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 353, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\utils\__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from IPython.display import display
+import pandas as pd
+
+from vspopt import AircraftModel
+
+model = AircraftModel(MODEL_PATH).load()
+model.setup_aero_set()
+print(model.summary())
+
+print("Reference quantities currently stored in the model:")
+display(pd.Series(model.reference_quantities(), name="value").to_frame())
+
+mass_props = model.mass_properties()
+print("Mass properties from OpenVSP MassProp:")
+display(mass_props.to_series().rename("value").to_frame())
+
+------------------
+
+
+[1;31m---------------------------------------------------------------------------[0m
+[1;31mImportError[0m                               Traceback (most recent call last)
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:39[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     38[0m root [38;5;241m=[39m configure_embedded_openvsp()
+[1;32m---> 39[0m [38;5;28;01mimport[39;00m [38;5;21;01mopenvsp[39;00m [38;5;28;01mas[39;00m [38;5;21;01mvsp[39;00m
+[0;32m     41[0m [38;5;28;01mreturn[39;00m vsp
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\__init__.py:45[0m
+[0;32m     44[0m [38;5;28;01melse[39;00m:
+[1;32m---> 45[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m[38;5;21;01mvsp[39;00m [38;5;28;01mimport[39;00m [38;5;241m*[39m
+[0;32m     47[0m [38;5;28;01mdef[39;00m [38;5;21msetup_vspaero_path[39m():
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\vsp.py:10[0m
+[0;32m      9[0m [38;5;28;01mif[39;00m __package__ [38;5;129;01mor[39;00m [38;5;124m"[39m[38;5;124m.[39m[38;5;124m"[39m [38;5;129;01min[39;00m [38;5;18m__name__[39m:
+[1;32m---> 10[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m [38;5;28;01mimport[39;00m _vsp
+[0;32m     11[0m [38;5;28;01melse[39;00m:
+
+[1;31mImportError[0m: DLL load failed while importing _vsp: Impossibile trovare il modulo specificato.
+
+The above exception was the direct cause of the following exception:
+
+[1;31mImportError[0m                               Traceback (most recent call last)
+Cell [1;32mIn[5], line 6[0m
+[0;32m      2[0m [38;5;28;01mimport[39;00m [38;5;21;01mpandas[39;00m [38;5;28;01mas[39;00m [38;5;21;01mpd[39;00m
+[0;32m      4[0m [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m [38;5;28;01mimport[39;00m AircraftModel
+[1;32m----> 6[0m model [38;5;241m=[39m [43mAircraftModel[49m[43m([49m[43mMODEL_PATH[49m[43m)[49m[38;5;241m.[39mload()
+[0;32m      7[0m model[38;5;241m.[39msetup_aero_set()
+[0;32m      8[0m [38;5;28mprint[39m(model[38;5;241m.[39msummary())
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\model.py:152[0m, in [0;36mAircraftModel.__init__[1;34m(self, vsp3_path)[0m
+[0;32m    150[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[0;32m    151[0m     [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m[38;5;21;01m.[39;00m[38;5;21;01mwrapper[39;00m [38;5;28;01mimport[39;00m VSPWrapper
+[1;32m--> 152[0m     [38;5;28mself[39m[38;5;241m.[39m_wrapper [38;5;241m=[39m [43mVSPWrapper[49m[43m([49m[43mvsp3_path[49m[43m)[49m
+[0;32m    153[0m     [38;5;28mself[39m[38;5;241m.[39mpath [38;5;241m=[39m Path(vsp3_path)
+[0;32m    155[0m     [38;5;66;03m# Named components, populated after load()[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:80[0m, in [0;36mVSPWrapper.__init__[1;34m(self, vsp3_path)[0m
+[0;32m     79[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[1;32m---> 80[0m     [38;5;28mself[39m[38;5;241m.[39m_vsp [38;5;241m=[39m [43m_import_vsp[49m[43m([49m[43m)[49m
+[0;32m     81[0m     [38;5;28mself[39m[38;5;241m.[39m_path [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_validate_vsp3_path(vsp3_path)
+[0;32m     82[0m     [38;5;28mself[39m[38;5;241m.[39m_loaded [38;5;241m=[39m [38;5;28;01mFalse[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:46[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     44[0m supported_msg [38;5;241m=[39m format_supported_python_versions(supported)
+[0;32m     45[0m current_msg [38;5;241m=[39m [38;5;124mf[39m[38;5;124m"[39m[38;5;124mPython [39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m0[39m][38;5;132;01m}[39;00m[38;5;124m.[39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m1[39m][38;5;132;01m}[39;00m[38;5;124m"[39m
+[1;32m---> 46[0m [38;5;28;01mraise[39;00m [38;5;167;01mImportError[39;00m(
+[0;32m     47[0m     [38;5;124m"[39m[38;5;124mCannot import [39m[38;5;124m'[39m[38;5;124mopenvsp[39m[38;5;124m'[39m[38;5;124m. Make sure:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     48[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m  1. You are running a compatible interpreter ([39m[38;5;132;01m{[39;00msupported_msg[38;5;132;01m}[39;00m[38;5;124m).[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     49[0m     [38;5;124m"[39m[38;5;124m  2. The bundled OpenVSP copy is available at:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     50[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mroot[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     51[0m     [38;5;124m"[39m[38;5;124m  3. The active interpreter is:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     52[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mcurrent_msg[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     53[0m     [38;5;124m"[39m[38;5;124m  Run scripts/verify_setup.py for a detailed diagnosis.[39m[38;5;124m"[39m
+[0;32m     54[0m ) [38;5;28;01mfrom[39;00m [38;5;21;01mexc[39;00m
+
+[1;31mImportError[0m: Cannot import 'openvsp'. Make sure:
+  1. You are running a compatible interpreter (Python 3.13).
+  2. The bundled OpenVSP copy is available at:
+     C:\Users\gabri\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64
+  3. The active interpreter is:
+     Python 3.12
+  Run scripts/verify_setup.py for a detailed diagnosis.
+
+
+--- OUTPUT DELLA CONSOLE ---
+
+========================================
+DATA E ORA: 2026-04-15 13:46:09.279309
+FILE: notebooks\main_analysis.ipynb
+========================================
+--- DETTAGLIO ERRORE ---
+[NbConvertApp] Converting notebook notebooks\main_analysis.ipynb to notebook
+C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\zmq\_future.py:693: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+  self._get_loop()
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Scripts\jupyter-nbconvert.EXE\__main__.py", line 7, in <module>
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\application.py", line 283, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\traitlets\config\application.py", line 1075, in launch_instance
+    app.start()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 420, in start
+    self.convert_notebooks()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 597, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 563, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 487, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 201, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 220, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 154, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 353, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\utils\__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from IPython.display import display
+import pandas as pd
+
+from vspopt import AircraftModel
+
+model = AircraftModel(MODEL_PATH).load()
+model.setup_aero_set()
+print(model.summary())
+
+print("Reference quantities currently stored in the model:")
+display(pd.Series(model.reference_quantities(), name="value").to_frame())
+
+mass_props = model.mass_properties()
+print("Mass properties from OpenVSP MassProp:")
+display(mass_props.to_series().rename("value").to_frame())
+
+------------------
+
+
+[1;31m---------------------------------------------------------------------------[0m
+[1;31mImportError[0m                               Traceback (most recent call last)
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:39[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     38[0m root [38;5;241m=[39m configure_embedded_openvsp()
+[1;32m---> 39[0m [38;5;28;01mimport[39;00m [38;5;21;01mopenvsp[39;00m [38;5;28;01mas[39;00m [38;5;21;01mvsp[39;00m
+[0;32m     41[0m [38;5;28;01mreturn[39;00m vsp
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\__init__.py:45[0m
+[0;32m     44[0m [38;5;28;01melse[39;00m:
+[1;32m---> 45[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m[38;5;21;01mvsp[39;00m [38;5;28;01mimport[39;00m [38;5;241m*[39m
+[0;32m     47[0m [38;5;28;01mdef[39;00m [38;5;21msetup_vspaero_path[39m():
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\vsp.py:10[0m
+[0;32m      9[0m [38;5;28;01mif[39;00m __package__ [38;5;129;01mor[39;00m [38;5;124m"[39m[38;5;124m.[39m[38;5;124m"[39m [38;5;129;01min[39;00m [38;5;18m__name__[39m:
+[1;32m---> 10[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m [38;5;28;01mimport[39;00m _vsp
+[0;32m     11[0m [38;5;28;01melse[39;00m:
+
+[1;31mImportError[0m: DLL load failed while importing _vsp: Impossibile trovare il modulo specificato.
+
+The above exception was the direct cause of the following exception:
+
+[1;31mImportError[0m                               Traceback (most recent call last)
+Cell [1;32mIn[5], line 6[0m
+[0;32m      2[0m [38;5;28;01mimport[39;00m [38;5;21;01mpandas[39;00m [38;5;28;01mas[39;00m [38;5;21;01mpd[39;00m
+[0;32m      4[0m [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m [38;5;28;01mimport[39;00m AircraftModel
+[1;32m----> 6[0m model [38;5;241m=[39m [43mAircraftModel[49m[43m([49m[43mMODEL_PATH[49m[43m)[49m[38;5;241m.[39mload()
+[0;32m      7[0m model[38;5;241m.[39msetup_aero_set()
+[0;32m      8[0m [38;5;28mprint[39m(model[38;5;241m.[39msummary())
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\model.py:152[0m, in [0;36mAircraftModel.__init__[1;34m(self, vsp3_path)[0m
+[0;32m    150[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[0;32m    151[0m     [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m[38;5;21;01m.[39;00m[38;5;21;01mwrapper[39;00m [38;5;28;01mimport[39;00m VSPWrapper
+[1;32m--> 152[0m     [38;5;28mself[39m[38;5;241m.[39m_wrapper [38;5;241m=[39m [43mVSPWrapper[49m[43m([49m[43mvsp3_path[49m[43m)[49m
+[0;32m    153[0m     [38;5;28mself[39m[38;5;241m.[39mpath [38;5;241m=[39m Path(vsp3_path)
+[0;32m    155[0m     [38;5;66;03m# Named components, populated after load()[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:80[0m, in [0;36mVSPWrapper.__init__[1;34m(self, vsp3_path)[0m
+[0;32m     79[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[1;32m---> 80[0m     [38;5;28mself[39m[38;5;241m.[39m_vsp [38;5;241m=[39m [43m_import_vsp[49m[43m([49m[43m)[49m
+[0;32m     81[0m     [38;5;28mself[39m[38;5;241m.[39m_path [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_validate_vsp3_path(vsp3_path)
+[0;32m     82[0m     [38;5;28mself[39m[38;5;241m.[39m_loaded [38;5;241m=[39m [38;5;28;01mFalse[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:46[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     44[0m supported_msg [38;5;241m=[39m format_supported_python_versions(supported)
+[0;32m     45[0m current_msg [38;5;241m=[39m [38;5;124mf[39m[38;5;124m"[39m[38;5;124mPython [39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m0[39m][38;5;132;01m}[39;00m[38;5;124m.[39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m1[39m][38;5;132;01m}[39;00m[38;5;124m"[39m
+[1;32m---> 46[0m [38;5;28;01mraise[39;00m [38;5;167;01mImportError[39;00m(
+[0;32m     47[0m     [38;5;124m"[39m[38;5;124mCannot import [39m[38;5;124m'[39m[38;5;124mopenvsp[39m[38;5;124m'[39m[38;5;124m. Make sure:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     48[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m  1. You are running a compatible interpreter ([39m[38;5;132;01m{[39;00msupported_msg[38;5;132;01m}[39;00m[38;5;124m).[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     49[0m     [38;5;124m"[39m[38;5;124m  2. The bundled OpenVSP copy is available at:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     50[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mroot[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     51[0m     [38;5;124m"[39m[38;5;124m  3. The active interpreter is:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     52[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mcurrent_msg[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     53[0m     [38;5;124m"[39m[38;5;124m  Run scripts/verify_setup.py for a detailed diagnosis.[39m[38;5;124m"[39m
+[0;32m     54[0m ) [38;5;28;01mfrom[39;00m [38;5;21;01mexc[39;00m
+
+[1;31mImportError[0m: Cannot import 'openvsp'. Make sure:
+  1. You are running a compatible interpreter (Python 3.13).
+  2. The bundled OpenVSP copy is available at:
+     C:\Users\gabri\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64
+  3. The active interpreter is:
+     Python 3.12
+  Run scripts/verify_setup.py for a detailed diagnosis.
+
+
+--- OUTPUT DELLA CONSOLE ---
+
+========================================
+DATA E ORA: 2026-04-15 13:46:38.170005
+FILE: notebooks\main_analysis.ipynb
+========================================
+--- DETTAGLIO ERRORE ---
+[NbConvertApp] Converting notebook notebooks\main_analysis.ipynb to notebook
+C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\zmq\_future.py:693: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+  self._get_loop()
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Scripts\jupyter-nbconvert.EXE\__main__.py", line 7, in <module>
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\application.py", line 283, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\traitlets\config\application.py", line 1075, in launch_instance
+    app.start()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 420, in start
+    self.convert_notebooks()
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 597, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 563, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\nbconvertapp.py", line 487, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 201, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 220, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 154, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\exporters\exporter.py", line 353, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbconvert\preprocessors\execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\jupyter_core\utils\__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\site-packages\nbclient\client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+from IPython.display import display
+import pandas as pd
+
+from vspopt import AircraftModel
+
+model = AircraftModel(MODEL_PATH).load()
+model.setup_aero_set()
+print(model.summary())
+
+print("Reference quantities currently stored in the model:")
+display(pd.Series(model.reference_quantities(), name="value").to_frame())
+
+mass_props = model.mass_properties()
+print("Mass properties from OpenVSP MassProp:")
+display(mass_props.to_series().rename("value").to_frame())
+
+------------------
+
+
+[1;31m---------------------------------------------------------------------------[0m
+[1;31mImportError[0m                               Traceback (most recent call last)
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:39[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     38[0m root [38;5;241m=[39m configure_embedded_openvsp()
+[1;32m---> 39[0m [38;5;28;01mimport[39;00m [38;5;21;01mopenvsp[39;00m [38;5;28;01mas[39;00m [38;5;21;01mvsp[39;00m
+[0;32m     41[0m [38;5;28;01mreturn[39;00m vsp
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\__init__.py:45[0m
+[0;32m     44[0m [38;5;28;01melse[39;00m:
+[1;32m---> 45[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m[38;5;21;01mvsp[39;00m [38;5;28;01mimport[39;00m [38;5;241m*[39m
+[0;32m     47[0m [38;5;28;01mdef[39;00m [38;5;21msetup_vspaero_path[39m():
+
+File [1;32m~\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64\python\openvsp\openvsp\vsp.py:10[0m
+[0;32m      9[0m [38;5;28;01mif[39;00m __package__ [38;5;129;01mor[39;00m [38;5;124m"[39m[38;5;124m.[39m[38;5;124m"[39m [38;5;129;01min[39;00m [38;5;18m__name__[39m:
+[1;32m---> 10[0m     [38;5;28;01mfrom[39;00m [38;5;21;01m.[39;00m [38;5;28;01mimport[39;00m _vsp
+[0;32m     11[0m [38;5;28;01melse[39;00m:
+
+[1;31mImportError[0m: DLL load failed while importing _vsp: Impossibile trovare il modulo specificato.
+
+The above exception was the direct cause of the following exception:
+
+[1;31mImportError[0m                               Traceback (most recent call last)
+Cell [1;32mIn[5], line 6[0m
+[0;32m      2[0m [38;5;28;01mimport[39;00m [38;5;21;01mpandas[39;00m [38;5;28;01mas[39;00m [38;5;21;01mpd[39;00m
+[0;32m      4[0m [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m [38;5;28;01mimport[39;00m AircraftModel
+[1;32m----> 6[0m model [38;5;241m=[39m [43mAircraftModel[49m[43m([49m[43mMODEL_PATH[49m[43m)[49m[38;5;241m.[39mload()
+[0;32m      7[0m model[38;5;241m.[39msetup_aero_set()
+[0;32m      8[0m [38;5;28mprint[39m(model[38;5;241m.[39msummary())
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\model.py:152[0m, in [0;36mAircraftModel.__init__[1;34m(self, vsp3_path)[0m
+[0;32m    150[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[0;32m    151[0m     [38;5;28;01mfrom[39;00m [38;5;21;01mvspopt[39;00m[38;5;21;01m.[39;00m[38;5;21;01mwrapper[39;00m [38;5;28;01mimport[39;00m VSPWrapper
+[1;32m--> 152[0m     [38;5;28mself[39m[38;5;241m.[39m_wrapper [38;5;241m=[39m [43mVSPWrapper[49m[43m([49m[43mvsp3_path[49m[43m)[49m
+[0;32m    153[0m     [38;5;28mself[39m[38;5;241m.[39mpath [38;5;241m=[39m Path(vsp3_path)
+[0;32m    155[0m     [38;5;66;03m# Named components, populated after load()[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:80[0m, in [0;36mVSPWrapper.__init__[1;34m(self, vsp3_path)[0m
+[0;32m     79[0m [38;5;28;01mdef[39;00m [38;5;21m__init__[39m([38;5;28mself[39m, vsp3_path: [38;5;28mstr[39m [38;5;241m|[39m Path) [38;5;241m-[39m[38;5;241m>[39m [38;5;28;01mNone[39;00m:
+[1;32m---> 80[0m     [38;5;28mself[39m[38;5;241m.[39m_vsp [38;5;241m=[39m [43m_import_vsp[49m[43m([49m[43m)[49m
+[0;32m     81[0m     [38;5;28mself[39m[38;5;241m.[39m_path [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_validate_vsp3_path(vsp3_path)
+[0;32m     82[0m     [38;5;28mself[39m[38;5;241m.[39m_loaded [38;5;241m=[39m [38;5;28;01mFalse[39;00m
+
+File [1;32m~\Desktop\TEAM\OpenVspController\vspopt\wrapper.py:46[0m, in [0;36m_import_vsp[1;34m()[0m
+[0;32m     44[0m supported_msg [38;5;241m=[39m format_supported_python_versions(supported)
+[0;32m     45[0m current_msg [38;5;241m=[39m [38;5;124mf[39m[38;5;124m"[39m[38;5;124mPython [39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m0[39m][38;5;132;01m}[39;00m[38;5;124m.[39m[38;5;132;01m{[39;00mos[38;5;241m.[39msys[38;5;241m.[39mversion_info[[38;5;241m1[39m][38;5;132;01m}[39;00m[38;5;124m"[39m
+[1;32m---> 46[0m [38;5;28;01mraise[39;00m [38;5;167;01mImportError[39;00m(
+[0;32m     47[0m     [38;5;124m"[39m[38;5;124mCannot import [39m[38;5;124m'[39m[38;5;124mopenvsp[39m[38;5;124m'[39m[38;5;124m. Make sure:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     48[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m  1. You are running a compatible interpreter ([39m[38;5;132;01m{[39;00msupported_msg[38;5;132;01m}[39;00m[38;5;124m).[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     49[0m     [38;5;124m"[39m[38;5;124m  2. The bundled OpenVSP copy is available at:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     50[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mroot[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     51[0m     [38;5;124m"[39m[38;5;124m  3. The active interpreter is:[39m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     52[0m     [38;5;124mf[39m[38;5;124m"[39m[38;5;124m     [39m[38;5;132;01m{[39;00mcurrent_msg[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m"[39m
+[0;32m     53[0m     [38;5;124m"[39m[38;5;124m  Run scripts/verify_setup.py for a detailed diagnosis.[39m[38;5;124m"[39m
+[0;32m     54[0m ) [38;5;28;01mfrom[39;00m [38;5;21;01mexc[39;00m
+
+[1;31mImportError[0m: Cannot import 'openvsp'. Make sure:
+  1. You are running a compatible interpreter (Python 3.13).
+  2. The bundled OpenVSP copy is available at:
+     C:\Users\gabri\Desktop\TEAM\OpenVspController\OpenVSP-3.48.2-win64
+  3. The active interpreter is:
+     Python 3.12
+  Run scripts/verify_setup.py for a detailed diagnosis.
+
+
+--- OUTPUT DELLA CONSOLE ---
