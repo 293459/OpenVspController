@@ -3,14 +3,22 @@ name = "openvspcontroller"
 version = "0.1.0"
 description = "Controller per OpenVSP con Python 3.13"
 readme = "README.md"
-requires-python = ">=3.13"
+# === MODIFICA CRITICA PER RISOLVERE IL BUG ===
+# Prima era ">=3.13" → uv scaricava automaticamente Python 3.14 (incompatibile con OpenVSP).
+# Ora è ">=3.13,<3.14" → uv userà SEMPRE Python 3.13.x (l'unica versione per cui
+# il file _vsp.pyd incluso in OpenVSP-3.48.2-win64 funziona).
+# Questa è la scelta più robusta e futura-proof: il binario OpenVSP è compilato
+# contro python313.dll. Qualsiasi altra versione causa esattamente l'errore DLL load failed.
+requires-python = ">=3.13,<3.14"
+
 dependencies = [
     "numpy",
     "matplotlib",
     "pandas",
     "ipykernel",
-    "nbconvert", # <-- Aggiunto per convertire ed eseguire il notebook
-    "jupyter"    # <-- Aggiunto per gestire l'esecuzione
+    "nbconvert",      # necessario per run_wrapper.py
+    "jupyter",        # necessario per nbconvert
+    # Puoi aggiungere qui altri pacchetti (optuna, streamlit, plotly...) se li usi nel notebook
 ]
 
 [tool.uv]
