@@ -1,21 +1,23 @@
 @echo off
 setlocal
 
-:: 1. Verifica se 'uv' è installato
-where uv >nul 2>nul
-if %ERRORLEVEL% neq 0 (
-    echo [INFO] 'uv' non trovato. Installazione in corso...
+REM Imposta il percorso della cartella locale per uv
+set "UV_BIN_DIR=%~dp0.uv_bin"
+set "PATH=%UV_BIN_DIR%;%PATH%"
+
+REM 1. Controlla se uv esiste
+if not exist "%UV_BIN_DIR%\uv.exe" (
+    echo [INFO] uv non trovato in locale. Installazione in corso...
+    mkdir "%UV_BIN_DIR%"
     powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-    set "PATH=%USERPROFILE%\.cargo\bin;%PATH%"
+    copy "%USERPROFILE%\.local\bin\uv*.exe" "%UV_BIN_DIR%\"
 )
 
-:: 2. Sincronizza l'ambiente (scarica Python 3.13 e librerie se mancano)
-echo [INFO] Sincronizzazione ambiente in corso...
+REM 2. Sincronizzazione librerie (Scarichera nbconvert la prima volta)
+echo [INFO] Sincronizzazione ambiente e librerie...
 uv sync
 
-:: 3. Esegui il comando principale
-:: Sostituisci 'app/main.py' con il tuo file di ingresso reale
-echo [INFO] Avvio del progetto...
-uv run python app/main.py %*
+REM 3. Avvia il wrapper che esegue il notebook e cattura gli errori
+uv run python run_wrapper.py
 
 pause

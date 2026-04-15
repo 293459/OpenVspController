@@ -28,6 +28,10 @@ interpreter/
 __pycache__/
 *.py[cod]
 
+# Cartelle create da uv e dall'ambiente virtuale
+.uv_bin/
+
+
 # Cartelle inutili che avevi prima
 interpreter/
 

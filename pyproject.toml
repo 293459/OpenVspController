@@ -8,7 +8,9 @@ dependencies = [
     "numpy",
     "matplotlib",
     "pandas",
-    "ipykernel", # Necessario per far girare i notebook .ipynb
+    "ipykernel",
+    "nbconvert", # <-- Aggiunto per convertire ed eseguire il notebook
+    "jupyter"    # <-- Aggiunto per gestire l'esecuzione
 ]
 
 [tool.uv]
