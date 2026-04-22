@@ -37,7 +37,7 @@ def setup_logging(level: str = "INFO", log_file: Optional[str | Path] = None) ->
     root_logger.setLevel(getattr(logging, level.upper(), logging.INFO))
 
     fmt = logging.Formatter(
-        fmt="%(asctime)s [%(levelname)-7s] %(name)s — %(message)s",
+        fmt="%(asctime)s [%(levelname)-7s] %(name)s - %(message)s",
         datefmt="%H:%M:%S",
     )
 
@@ -130,7 +130,7 @@ def check_polar_sanity(alpha: np.ndarray, CL: np.ndarray, CD: np.ndarray) -> lis
         issues.append(f"{n} non-finite CD values found.")
 
     if np.any(CD < 0):
-        issues.append("Negative CD values detected — physically impossible.")
+        issues.append("Negative CD values detected - physically impossible.")
 
     if np.max(np.abs(CL)) > 4.0:
         issues.append(f"|CL| > 4 detected (max={np.max(np.abs(CL)):.2f}).  "
@@ -147,7 +147,7 @@ def check_polar_sanity(alpha: np.ndarray, CL: np.ndarray, CD: np.ndarray) -> lis
         dCL = np.diff(CL[mask_linear])
         if np.any(dCL < -0.05):
             issues.append(
-                "CL is non-monotone in the linear range (-5°–10°).  "
+                "CL is non-monotone in the linear range (-5 deg to 10 deg).  "
                 "May indicate a mesh or wake iteration issue."
             )
 
@@ -215,7 +215,7 @@ def check_openvsp_version(min_version: tuple[int, int, int] = (3, 35, 0)) -> tup
     except ValueError:
         return (
             True,
-            f"OpenVSP version string '{version_str}' (from {version_source}) could not be parsed — proceeding anyway.",
+            f"OpenVSP version string '{version_str}' (from {version_source}) could not be parsed - proceeding anyway.",
         )
 
     min_version_str = ".".join(str(x) for x in min_version)

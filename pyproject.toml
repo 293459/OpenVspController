@@ -13,8 +13,11 @@ requires-python = ">=3.13,<3.14"
 
 dependencies = [
     "numpy",
+    "scipy",
     "matplotlib",
     "pandas",
+    "optuna",
+    "plotly",
     "ipykernel",
     "nbconvert",      # necessario per run_wrapper.py
     "jupyter",        # necessario per nbconvert

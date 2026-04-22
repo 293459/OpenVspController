@@ -25,7 +25,7 @@ from vspopt.vspaero        import VSPAEROResults
 from vspopt.optimization   import (
     DesignVariable, ObjectiveSpec, OptimizationResult,
     run_gradient_optimization, run_bayesian_optimization,
-    run_two_phase_optimization, compare_results,
+    run_two_phase_optimization, compare_results, validate_design_variables,
 )
 from vspopt.postprocess    import (
     MassProperties, check_history_convergence, parse_stab_file,
@@ -40,6 +40,10 @@ from vspopt.openvsp_runtime import (
     configure_embedded_openvsp, detect_supported_python_versions,
     format_supported_python_versions, get_default_openvsp_root,
 )
+from vspopt.reporting      import (
+    build_case_summary_row, collect_case_tables, export_case_collection,
+    print_case_collection_summary,
+)
 from vspopt.utils          import (
     setup_logging, check_vsp3_integrity, check_openvsp_version,
     check_polar_sanity, results_to_markdown_table, print_banner,
@@ -53,7 +57,7 @@ __all__ = [
     "MassProperties",
     "DesignVariable", "ObjectiveSpec", "OptimizationResult",
     "run_gradient_optimization", "run_bayesian_optimization",
-    "run_two_phase_optimization", "compare_results",
+    "run_two_phase_optimization", "compare_results", "validate_design_variables",
     "check_history_convergence", "parse_stab_file",
     "read_history_file", "stability_records_to_dataframe",
     "plot_polar", "plot_drag_polar", "plot_ld_ratio",
@@ -61,6 +65,8 @@ __all__ = [
     "plot_comparison_bar", "plot_sweep_grid", "export_all",
     "configure_embedded_openvsp", "detect_supported_python_versions",
     "format_supported_python_versions", "get_default_openvsp_root",
+    "build_case_summary_row", "collect_case_tables", "export_case_collection",
+    "print_case_collection_summary",
     "setup_logging", "check_vsp3_integrity", "check_openvsp_version",
     "check_polar_sanity", "results_to_markdown_table", "print_banner",
 ]

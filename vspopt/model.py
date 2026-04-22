@@ -1,19 +1,15 @@
 """
-vspopt/model.py
----------------
-High-level aircraft model representation.
+High-level aircraft model representation built on top of :mod:`vspopt.wrapper`.
 
-After loading a .vsp3 file, this module converts the OpenVSP geometry
-into a hierarchy of Python objects with named attributes.
+The goal of this module is not to mirror every OpenVSP concept. Instead, it
+extracts the subset that is most useful in the notebook:
+  - lifting-surface geometry;
+  - fuselage dimensions;
+  - a lightweight component registry for everything else.
 
-Usage
------
->>> from vspopt.model import AircraftModel
->>> model = AircraftModel("models/my_aircraft.vsp3")
->>> model.load()
->>> print(model.wing.span)
-12.5
->>> print(model.summary())
+The parsing logic prefers explicit OpenVSP section names such as ``XSec_1`` and
+``WingGeom`` so the values exposed here match the values that automation later
+edits during sweeps and optimization.
 """
 
 from __future__ import annotations
@@ -27,141 +23,126 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
+
 # ---------------------------------------------------------------------------
 # Geometry component dataclasses
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class WingComponent:
-    """Geometric parameters of a lifting surface (wing, HTP, VTP)."""
+    """Geometric parameters of a lifting surface."""
+
     name: str
     geom_id: str
     geom_type: str
-
-    # Primary wing geometry (read from OpenVSP)
-    span: float = 0.0           # [m] Total span
-    area: float = 0.0           # [m²] Reference area
-    aspect_ratio: float = 0.0   # [-] AR = b² / S
-    root_chord: float = 0.0     # [m]
-    tip_chord: float = 0.0      # [m]
-    taper_ratio: float = 0.0    # [-] λ = c_tip / c_root
-    sweep_le: float = 0.0       # [deg] Leading-edge sweep
-    dihedral: float = 0.0       # [deg]
-    twist_tip: float = 0.0      # [deg] Washout at tip
-
-    # All raw parameters (group/param: value)
-    raw_params: dict = field(default_factory=dict)
+    span: float = 0.0
+    area: float = 0.0
+    aspect_ratio: float = 0.0
+    root_chord: float = 0.0
+    tip_chord: float = 0.0
+    taper_ratio: float = 0.0
+    sweep_le: float = 0.0
+    dihedral: float = 0.0
+    twist_tip: float = 0.0
+    raw_params: dict[str, float] = field(default_factory=dict)
 
     @property
     def mac(self) -> float:
-        """Mean aerodynamic chord [m] for a simple tapered wing."""
+        """Mean aerodynamic chord for a simple tapered wing."""
         if abs(self.taper_ratio - 1.0) < 1e-6:
             return self.root_chord
         lam = self.taper_ratio
-        return (2 / 3) * self.root_chord * (1 + lam + lam**2) / (1 + lam)
+        return (2.0 / 3.0) * self.root_chord * (1.0 + lam + lam**2) / (1.0 + lam)
 
     @property
     def area_half(self) -> float:
-        """Semi-span area [m²]."""
+        """Semi-span area."""
         return self.area / 2.0
 
     def to_series(self) -> "pd.Series":
-        """Return a pandas Series of the main geometric parameters."""
-        return pd.Series({
-            "span [m]":          self.span,
-            "area [m²]":         self.area,
-            "aspect_ratio [-]":  self.aspect_ratio,
-            "root_chord [m]":    self.root_chord,
-            "tip_chord [m]":     self.tip_chord,
-            "taper_ratio [-]":   self.taper_ratio,
-            "mac [m]":           self.mac,
-            "sweep_le [deg]":    self.sweep_le,
-            "dihedral [deg]":    self.dihedral,
-            "twist_tip [deg]":   self.twist_tip,
-        }, name=self.name)
+        return pd.Series(
+            {
+                "span [m]": self.span,
+                "area [m^2]": self.area,
+                "aspect_ratio [-]": self.aspect_ratio,
+                "root_chord [m]": self.root_chord,
+                "tip_chord [m]": self.tip_chord,
+                "taper_ratio [-]": self.taper_ratio,
+                "mac [m]": self.mac,
+                "sweep_le [deg]": self.sweep_le,
+                "dihedral [deg]": self.dihedral,
+                "twist_tip [deg]": self.twist_tip,
+            },
+            name=self.name,
+        )
 
 
 @dataclass
 class FuselageComponent:
     """Geometric parameters of the fuselage."""
+
     name: str
     geom_id: str
-
-    length: float = 0.0         # [m]
-    max_diameter: float = 0.0   # [m]
-    fineness_ratio: float = 0.0 # [-] L / D_max
-
-    raw_params: dict = field(default_factory=dict)
+    length: float = 0.0
+    max_diameter: float = 0.0
+    fineness_ratio: float = 0.0
+    raw_params: dict[str, float] = field(default_factory=dict)
 
     def to_series(self) -> "pd.Series":
-        return pd.Series({
-            "length [m]":         self.length,
-            "max_diameter [m]":   self.max_diameter,
-            "fineness_ratio [-]": self.fineness_ratio,
-        }, name=self.name)
+        return pd.Series(
+            {
+                "length [m]": self.length,
+                "max_diameter [m]": self.max_diameter,
+                "fineness_ratio [-]": self.fineness_ratio,
+            },
+            name=self.name,
+        )
 
 
 @dataclass
 class PropellerComponent:
     """Geometric parameters of a propeller or rotor."""
+
     name: str
     geom_id: str
-
-    diameter: float = 0.0       # [m]
-    num_blades: int = 0         # [-]
-    design_rpm: float = 0.0     # [rpm]
-
-    raw_params: dict = field(default_factory=dict)
+    diameter: float = 0.0
+    num_blades: int = 0
+    design_rpm: float = 0.0
+    raw_params: dict[str, float] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
 # Aircraft model class
 # ---------------------------------------------------------------------------
 
+
 class AircraftModel:
     """
     High-level representation of an OpenVSP aircraft model.
 
-    Reads geometry from a .vsp3 file and exposes named components
-    (wing, fuselage, htp, vtp, …) as Python objects with typed attributes.
-
-    Parameters
-    ----------
-    vsp3_path : str | Path
-        Path to the .vsp3 model file.
-
-    Examples
-    --------
-    >>> m = AircraftModel("models/aircraft.vsp3")
-    >>> m.load()
-    >>> print(m.wing.span)       # 12.5
-    >>> print(m.htp.sweep_le)    # 25.0
-    >>> df = m.geometry_table()  # pandas DataFrame of all components
+    After loading a ``.vsp3`` file, the class classifies components by name and
+    geometry type, then exposes the most useful ones as typed attributes.
     """
 
-    # Heuristic keywords used to auto-detect component roles from their names.
-    # The user can always override by accessing components by name.
-    _WING_KEYWORDS   = ("wing", "main", "main_wing", "mainwing")
-    _HTP_KEYWORDS    = ("htp", "horiz", "horizontal", "stabilizer", "htail", "h_tail")
-    _VTP_KEYWORDS    = ("vtp", "vert", "vertical", "fin", "vtail", "v_tail")
-    _FUSE_KEYWORDS   = ("fuse", "fuselage", "body", "hull")
-    _PROP_KEYWORDS   = ("prop", "rotor", "propeller", "fan")
+    _WING_KEYWORDS = ("wing", "main", "main_wing", "mainwing")
+    _HTP_KEYWORDS = ("htp", "horiz", "horizontal", "stabilizer", "htail", "h_tail")
+    _VTP_KEYWORDS = ("vtp", "vert", "vertical", "fin", "vtail", "v_tail")
+    _FUSE_KEYWORDS = ("fuse", "fuselage", "body", "hull")
+    _PROP_KEYWORDS = ("prop", "rotor", "propeller", "fan")
 
     def __init__(self, vsp3_path: str | Path) -> None:
         from vspopt.wrapper import VSPWrapper
+
         self._wrapper = VSPWrapper(vsp3_path)
         self.path = Path(vsp3_path)
 
-        # Named components, populated after load()
-        self.wing:       Optional[WingComponent]      = None
-        self.htp:        Optional[WingComponent]      = None
-        self.vtp:        Optional[WingComponent]      = None
-        self.fuselage:   Optional[FuselageComponent]  = None
-        self.propellers: list[PropellerComponent]     = []
-
-        # All components by name
+        self.wing: Optional[WingComponent] = None
+        self.htp: Optional[WingComponent] = None
+        self.vtp: Optional[WingComponent] = None
+        self.fuselage: Optional[FuselageComponent] = None
+        self.propellers: list[PropellerComponent] = []
         self.components: dict[str, object] = {}
-
         self._loaded = False
 
     # ------------------------------------------------------------------
@@ -169,26 +150,23 @@ class AircraftModel:
     # ------------------------------------------------------------------
 
     def load(self) -> "AircraftModel":
-        """
-        Load the .vsp3 file and populate all component attributes.
-
-        Returns self for method chaining.
-        """
+        """Load the ``.vsp3`` file and populate all component attributes."""
         self._wrapper.load()
         self._parse_components()
         self._loaded = True
         logger.info(
-            "AircraftModel loaded: %d components (%s)",
+            "AircraftModel loaded: %d components (%s).",
             len(self.components),
             ", ".join(self.components.keys()),
         )
         return self
 
-    def setup_aero_set(self, thin_keywords=None, thick_keywords=None) -> "AircraftModel":
-        """
-        Organizes the aircraft components into Thin (Set 1) and Thick (Set 2) groups.
-        Returns self for method chaining.
-        """
+    def setup_aero_set(
+        self,
+        thin_keywords: list[str] | None = None,
+        thick_keywords: list[str] | None = None,
+    ) -> "AircraftModel":
+        """Organize the model into thin and thick VSPAERO sets."""
         if thin_keywords is None:
             thin_keywords = ["Wing", "tail", "Fin", "Stabilizer", "vtail"]
         if thick_keywords is None:
@@ -196,20 +174,23 @@ class AircraftModel:
 
         self._wrapper.setup_dual_aero_sets(thin_keywords, thick_keywords)
         return self
-    
-    
-    
-    
-    def _parse_components(self):
-        """Iterate over all geometry components and classify them."""
-        vsp = self._wrapper._vsp
 
+    def _parse_components(self) -> None:
+        """Iterate over all geometry components and classify them."""
+        self.components.clear()
+        self.wing = None
+        self.htp = None
+        self.vtp = None
+        self.fuselage = None
+        self.propellers = []
+
+        vsp = self._wrapper._vsp
         for geom_name, geom_id in self._wrapper._geom_id_cache.items():
             geom_type = vsp.GetGeomTypeName(geom_id)
             raw = self._wrapper.get_all_params(geom_name)
             role = self._classify_role(geom_name, geom_type)
 
-            if geom_type in ("Wing",) or role in ("wing", "htp", "vtp"):
+            if geom_type == "Wing" or role in {"wing", "htp", "vtp"}:
                 comp = self._parse_wing(geom_name, geom_id, geom_type, raw)
                 self.components[geom_name] = comp
                 if role == "wing" and self.wing is None:
@@ -219,7 +200,7 @@ class AircraftModel:
                 elif role == "vtp" and self.vtp is None:
                     self.vtp = comp
 
-            elif geom_type in ("Fuselage", "BodyOfRevolution") or role == "fuselage":
+            elif geom_type in {"Fuselage", "BodyOfRevolution"} or role == "fuselage":
                 comp = self._parse_fuselage(geom_name, geom_id, raw)
                 self.components[geom_name] = comp
                 if self.fuselage is None:
@@ -231,110 +212,196 @@ class AircraftModel:
                 self.propellers.append(comp)
 
             else:
-                # Store raw data for unknown types
                 self.components[geom_name] = {"type": geom_type, "params": raw}
 
+    # ------------------------------------------------------------------
+    # Parsing helpers
+    # ------------------------------------------------------------------
+
     def _classify_role(self, name: str, geom_type: str) -> str:
-        """Heuristic role classification based on component name."""
         n = name.lower().replace("-", "_").replace(" ", "_")
-        if any(kw in n for kw in self._WING_KEYWORDS):
+        if any(keyword in n for keyword in self._WING_KEYWORDS):
             return "wing"
-        if any(kw in n for kw in self._HTP_KEYWORDS):
+        if any(keyword in n for keyword in self._HTP_KEYWORDS):
             return "htp"
-        if any(kw in n for kw in self._VTP_KEYWORDS):
+        if any(keyword in n for keyword in self._VTP_KEYWORDS):
             return "vtp"
-        if any(kw in n for kw in self._FUSE_KEYWORDS):
+        if any(keyword in n for keyword in self._FUSE_KEYWORDS):
             return "fuselage"
-        if any(kw in n for kw in self._PROP_KEYWORDS):
+        if any(keyword in n for keyword in self._PROP_KEYWORDS):
             return "propeller"
         return geom_type.lower()
 
-    def _parse_wing(
-        self, name: str, geom_id: str, geom_type: str, raw: dict
-    ) -> WingComponent:
-        """Extract wing geometry from raw parameters."""
+    def _get_param_with_fallback(
+        self,
+        geom_name: str,
+        raw: dict[str, float],
+        *,
+        param_name: str,
+        groups: tuple[str, ...],
+        fallback_keys: tuple[str, ...] = (),
+        default: float = 0.0,
+    ) -> float:
+        """
+        Read a parameter using exact wrapper access first, then the raw cache.
 
-        def _get(key: str, default: float = 0.0) -> float:
-            # Try full key first, then just the parm name part
+        The wrapper path is preferred because it understands display group names
+        such as ``XSec_1``. The raw cache remains a useful fallback for global
+        quantities that are already stored with stable names.
+        """
+        for group_name in groups:
+            try:
+                return float(self._wrapper.get_param(geom_name, param_name, group_name))
+            except Exception:
+                continue
+
+        keys_to_try = [f"{group}/{param_name}" for group in groups]
+        keys_to_try.extend(fallback_keys)
+        for key in keys_to_try:
             if key in raw:
-                return raw[key]
-            for k, v in raw.items():
-                if k.split("/")[-1] == key:
-                    return v
-            return default
+                return float(raw[key])
 
-        span   = _get("Span")
-        area   = _get("TotalArea")
-        ar     = _get("Aspect")
-        rc     = _get("Root_Chord") or _get("Chord")
-        tc     = _get("Tip_Chord")  or rc * _get("Taper", 1.0)
-        sweep  = _get("Sweep")
-        dihed  = _get("Dihedral")
-        twist  = _get("Twist")
+        for key, value in raw.items():
+            if key.split("/")[-1] == param_name:
+                return float(value)
 
-        taper = (tc / rc) if rc > 0 else 1.0
-        if ar <= 0 and span > 0 and area > 0:
-            ar = span**2 / area
+        return float(default)
+
+    def _parse_wing(
+        self,
+        name: str,
+        geom_id: str,
+        geom_type: str,
+        raw: dict[str, float],
+    ) -> WingComponent:
+        """
+        Extract wing geometry from the OpenVSP parameter tree.
+
+        ``WingGeom`` stores the global quantities we care about for notebook
+        summaries, while ``XSec_1`` stores the editable section values we use in
+        sweeps and optimization.
+        """
+        span = self._get_param_with_fallback(
+            name,
+            raw,
+            param_name="TotalSpan",
+            groups=("WingGeom",),
+            fallback_keys=("WingGeom/TotalSpan", "WingGeom/TotalProjectedSpan", "XSec_1/Span"),
+        )
+        area = self._get_param_with_fallback(
+            name,
+            raw,
+            param_name="TotalArea",
+            groups=("WingGeom",),
+            fallback_keys=("WingGeom/TotalArea", "XSec_1/Area"),
+        )
+        root_chord = self._get_param_with_fallback(
+            name,
+            raw,
+            param_name="Root_Chord",
+            groups=("XSec_1",),
+            fallback_keys=("XSec_1/Root_Chord", "XSec/Root_Chord"),
+        )
+        tip_chord = self._get_param_with_fallback(
+            name,
+            raw,
+            param_name="Tip_Chord",
+            groups=("XSec_1",),
+            fallback_keys=("XSec_1/Tip_Chord", "XSec/Tip_Chord"),
+            default=root_chord,
+        )
+        sweep = self._get_param_with_fallback(
+            name,
+            raw,
+            param_name="Sweep",
+            groups=("XSec_1",),
+            fallback_keys=("XSec_1/Sweep", "XSec/Sweep"),
+        )
+        dihedral = self._get_param_with_fallback(
+            name,
+            raw,
+            param_name="Dihedral",
+            groups=("XSec_1",),
+            fallback_keys=("XSec_1/Dihedral", "XSec/Dihedral"),
+        )
+        twist = self._get_param_with_fallback(
+            name,
+            raw,
+            param_name="Twist",
+            groups=("XSec_1",),
+            fallback_keys=("XSec_1/Twist", "XSec/Twist"),
+        )
+
+        taper = (tip_chord / root_chord) if root_chord > 0 else 1.0
+        aspect_ratio = span**2 / area if span > 0 and area > 0 else 0.0
 
         return WingComponent(
-            name=name, geom_id=geom_id, geom_type=geom_type,
-            span=span, area=area, aspect_ratio=ar,
-            root_chord=rc, tip_chord=tc, taper_ratio=taper,
-            sweep_le=sweep, dihedral=dihed, twist_tip=twist,
+            name=name,
+            geom_id=geom_id,
+            geom_type=geom_type,
+            span=span,
+            area=area,
+            aspect_ratio=aspect_ratio,
+            root_chord=root_chord,
+            tip_chord=tip_chord,
+            taper_ratio=taper,
+            sweep_le=sweep,
+            dihedral=dihedral,
+            twist_tip=twist,
             raw_params=raw,
         )
 
-    def _parse_fuselage(self, name: str, geom_id: str, raw: dict) -> FuselageComponent:
-        # We change the default by putting an absurd number like 99.0
-        def _get(key, default=99.0):
+    def _parse_fuselage(
+        self,
+        name: str,
+        geom_id: str,
+        raw: dict[str, float],
+    ) -> FuselageComponent:
+        """
+        Extract fuselage dimensions.
+
+        Many OpenVSP fuselage files do not expose a single global ``Max_Diameter``
+        parameter. The bounding-box extents are a more reliable fallback for
+        notebook-level summaries, and they stay consistent with the saved model.
+        """
+        length = 0.0
+        for key in ("Design/Length", "BBox/X_Len"):
             if key in raw:
-                return raw[key]
-            
-            for k, v in raw.items():
-                if k.split("/")[-1] == key:
-                    return v
-            
-            # TEST SECTION: If the code gets here, it means the search failed
-            print(f"TEST FAILED: Could not find parameter '{key}'. Using default: {default}")
-            return default
+                length = float(raw[key])
+                break
 
-        # Search for length
-        length = _get("Length")
-        
-        # Search for diameter. If it fails, 'diam' will become 99.0
-        diam = _get("Max_Diameter", default=99.0)
-        
-        # TEST SECTION: Verify if it took the absurd default
-        if diam == 99.0:
-            print("TEST RESULT: Theory confirmed! OpenVSP does not give us the global diameter.")
-            # We put the patch back to 0.16 to avoid crashing the aerodynamics right after
-            print("Restoring the forced diameter to 0.16 to continue the calculation.")
-            diam = 0.30
-            
-        fr = (length / diam) if diam > 0 else 0.0
+        max_diameter = max(
+            float(raw.get("BBox/Y_Len", 0.0)),
+            float(raw.get("BBox/Z_Len", 0.0)),
+            float(raw.get("Design/Max_Diameter", 0.0)),
+            float(raw.get("Design/Diameter", 0.0)),
+        )
 
+        fineness_ratio = (length / max_diameter) if max_diameter > 0 else 0.0
         return FuselageComponent(
-            name=name, geom_id=geom_id,
-            length=length, max_diameter=diam, fineness_ratio=fr,
+            name=name,
+            geom_id=geom_id,
+            length=length,
+            max_diameter=max_diameter,
+            fineness_ratio=fineness_ratio,
             raw_params=raw,
         )
-        
-        
-    def _parse_propeller( 
-        self, name: str, geom_id: str, raw: dict
-    ) -> PropellerComponent:
-        def _get(key, default=0.0):
-            if key in raw:
-                return raw[key]
-            for k, v in raw.items():
-                if k.split("/")[-1] == key:
-                    return v
-            return default
 
-        diameter = _get("Diameter")
+    def _parse_propeller(
+        self,
+        name: str,
+        geom_id: str,
+        raw: dict[str, float],
+    ) -> PropellerComponent:
+        diameter = float(raw.get("Design/Diameter", raw.get("XSecCurve/Diameter", 0.0)))
+        num_blades = int(raw.get("Design/NumBlade", 0.0))
+        design_rpm = float(raw.get("Rotor/RotorRPM", 0.0))
         return PropellerComponent(
-            name=name, geom_id=geom_id,
+            name=name,
+            geom_id=geom_id,
             diameter=diameter,
+            num_blades=num_blades,
+            design_rpm=design_rpm,
             raw_params=raw,
         )
 
@@ -343,60 +410,77 @@ class AircraftModel:
     # ------------------------------------------------------------------
 
     def geometry_table(self) -> "pd.DataFrame":
-        """
-        Return a DataFrame summarising the main geometry of all
-        recognised lifting surfaces and the fuselage.
-        """
+        """Return a DataFrame summarizing the main recognized geometry."""
         rows = []
         for name, comp in self.components.items():
             if isinstance(comp, WingComponent):
-                s = comp.to_series()
-                s["role"] = self._classify_role(name, comp.geom_type)
-                rows.append(s)
+                row = comp.to_series()
+                row["role"] = self._classify_role(name, comp.geom_type)
+                rows.append(row)
             elif isinstance(comp, FuselageComponent):
-                s = comp.to_series()
-                s["role"] = "fuselage"
-                rows.append(s)
+                row = comp.to_series()
+                row["role"] = "fuselage"
+                rows.append(row)
+
         if not rows:
             return pd.DataFrame()
-        return pd.DataFrame(rows).fillna("—")
+        return pd.DataFrame(rows).fillna("-")
 
     def summary(self) -> str:
         """Return a human-readable summary of the aircraft model."""
-        lines = [f"\n{'='*60}", f"  Aircraft Model: {self.path.name}", f"{'='*60}"]
+        lines = [f"\n{'=' * 60}", f"  Aircraft Model: {self.path.name}", f"{'=' * 60}"]
         if self.wing:
-            w = self.wing
-            lines += [
-                f"\n  Main Wing:",
-                f"    Span:         {w.span:.3f} m",
-                f"    Area:         {w.area:.3f} m²",
-                f"    Aspect ratio: {w.aspect_ratio:.2f}",
-                f"    MAC:          {w.mac:.3f} m",
-                f"    Sweep LE:     {w.sweep_le:.1f}°",
-                f"    Taper ratio:  {w.taper_ratio:.3f}",
-            ]
+            wing = self.wing
+            lines.extend(
+                [
+                    "",
+                    "  Main Wing:",
+                    f"    Span:         {wing.span:.3f} m",
+                    f"    Area:         {wing.area:.3f} m^2",
+                    f"    Aspect ratio: {wing.aspect_ratio:.2f}",
+                    f"    MAC:          {wing.mac:.3f} m",
+                    f"    Sweep LE:     {wing.sweep_le:.1f} deg",
+                    f"    Taper ratio:  {wing.taper_ratio:.3f}",
+                ]
+            )
         if self.htp:
-            h = self.htp
-            lines += [
-                f"\n  Horizontal Tail (HTP):",
-                f"    Span:         {h.span:.3f} m",
-                f"    Area:         {h.area:.3f} m²",
-            ]
+            htp = self.htp
+            lines.extend(
+                [
+                    "",
+                    "  Horizontal Tail:",
+                    f"    Span:         {htp.span:.3f} m",
+                    f"    Area:         {htp.area:.3f} m^2",
+                ]
+            )
+        if self.vtp:
+            vtp = self.vtp
+            lines.extend(
+                [
+                    "",
+                    "  Vertical Tail:",
+                    f"    Span:         {vtp.span:.3f} m",
+                    f"    Area:         {vtp.area:.3f} m^2",
+                ]
+            )
         if self.fuselage:
-            f_ = self.fuselage
-            lines += [
-                f"\n  Fuselage:",
-                f"    Length:       {f_.length:.3f} m",
-                f"    Max diameter: {f_.max_diameter:.3f} m",
-                f"    Fineness:     {f_.fineness_ratio:.2f}",
-            ]
+            fuselage = self.fuselage
+            lines.extend(
+                [
+                    "",
+                    "  Fuselage:",
+                    f"    Length:       {fuselage.length:.3f} m",
+                    f"    Max diameter: {fuselage.max_diameter:.3f} m",
+                    f"    Fineness:     {fuselage.fineness_ratio:.2f}",
+                ]
+            )
         if self.propellers:
             lines.append(f"\n  Propellers: {len(self.propellers)} unit(s)")
-        lines.append(f"{'='*60}\n")
+        lines.append(f"{'=' * 60}\n")
         return "\n".join(lines)
 
     # ------------------------------------------------------------------
-    # Delegate to wrapper for analysis
+    # Delegates to wrapper for analysis
     # ------------------------------------------------------------------
 
     def reference_quantities(self) -> dict[str, float]:
@@ -417,7 +501,7 @@ class AircraftModel:
 
     @property
     def wrapper(self) -> "VSPWrapper":
-        """Direct access to the underlying VSPWrapper for advanced usage."""
+        """Direct access to the underlying wrapper for advanced usage."""
         return self._wrapper
 
     def __repr__(self) -> str:

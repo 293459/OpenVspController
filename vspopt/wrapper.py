@@ -1,18 +1,14 @@
 """
-Low-level wrapper around the OpenVSP Python API (openvsp).
+Low-level wrapper around the OpenVSP Python API (``openvsp``).
 
-Design philosophy
------------------
-The raw OpenVSP API requires callers to:
-  1. Look up a geometry ID by name
-  2. Look up a parameter ID by (geom_id, parm_name, group_name)
-  3. Call SetParmVal(parm_id, value)
+The raw API is powerful, but it is also easy to misuse:
+  1. some parameters share the same raw group name across multiple sections;
+  2. analysis input names differ across OpenVSP versions;
+  3. VSPAERO artifacts are written using the active ``.vsp3`` filename, which
+     makes baseline and sweep cases overwrite each other unless we isolate them.
 
-This wrapper collapses those three steps into single, readable calls
-and adds validation, logging, and error context at every boundary.
-
-All public methods raise ``OpenVSPError`` (a subclass of RuntimeError)
-on failure so callers can catch a single exception type.
+This wrapper keeps those details in one place and exposes a small, validated
+surface for the rest of the project.
 """
 
 from __future__ import annotations
@@ -20,8 +16,9 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
+from typing import Any, Mapping
+
 import numpy as np
-from typing import Any
 
 from vspopt.openvsp_runtime import (
     configure_embedded_openvsp,
@@ -33,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def _import_vsp():
-    """Import openvsp and return the module, with a helpful error on failure."""
+    """Import ``openvsp`` and return the module, with a helpful error on failure."""
     try:
         root = configure_embedded_openvsp()
         import openvsp as vsp
@@ -65,16 +62,13 @@ class VSPWrapper:
     Parameters
     ----------
     vsp3_path : str | Path
-        Path to an existing .vsp3 model file.
-
-    Examples
-    --------
-    >>> wrap = VSPWrapper("models/my_aircraft.vsp3")
-    >>> print(wrap.geom_names)
-    ['Wing', 'Fuselage', 'HTP', 'VTP']
-    >>> wrap.set_param("Wing", "Span", "XSec_1", 14.0)
-    >>> results = wrap.run_vspaero_sweep(alpha_start=-5, alpha_end=20, alpha_npts=26)
+        Path to an existing ``.vsp3`` model file.
     """
+
+    # OpenVSP reserves low set indices for built-in sets. User-defined sets
+    # start at SET_FIRST_USER, which is 3 in the bundled 3.48.2 build.
+    DEFAULT_THIN_SET = 3
+    DEFAULT_THICK_SET = 4
 
     def __init__(self, vsp3_path: str | Path) -> None:
         self._vsp = _import_vsp()
@@ -82,17 +76,22 @@ class VSPWrapper:
         self._loaded = False
         self._geom_id_cache: dict[str, str] = {}
         self._parm_id_cache: dict[tuple[str, str, str], str] = {}
+        self._analysis_inputs_cache: dict[str, set[str]] = {}
         self.warnings: list[str] = []
         self._duplicate_names_found = False
 
+    # ------------------------------------------------------------------
+    # Model loading and diagnostics
+    # ------------------------------------------------------------------
+
     def load(self) -> "VSPWrapper":
         """
-        Load the .vsp3 model into memory. Safe to call multiple times.
+        Load the ``.vsp3`` model into memory. Safe to call multiple times.
 
         Returns
         -------
         self : VSPWrapper
-            Enables method chaining: ``wrap.load().run_vspaero_sweep(...)``
+            Enables method chaining: ``wrap.load().run_vspaero_sweep(...)``.
         """
         vsp = self._vsp
         logger.info("Loading VSP model: %s", self._path)
@@ -100,37 +99,41 @@ class VSPWrapper:
         vsp.ClearVSPModel()
         self._geom_id_cache.clear()
         self._parm_id_cache.clear()
+        self._analysis_inputs_cache.clear()
+        self.warnings.clear()
 
         vsp.ReadVSPFile(str(self._path))
         self._loaded = True
 
-        all_geoms = vsp.FindGeoms()
+        all_geoms = list(vsp.FindGeoms())
         for geom_id in all_geoms:
             name = vsp.GetGeomName(geom_id)
-            if name in self._geom_id_cache:
-                # Handle duplicate names by appending index
-                suffix = 2
-                new_name = f"{name}_{suffix}"
-                while new_name in self._geom_id_cache:
-                    suffix += 1
-                    new_name = f"{name}_{suffix}"
+            cache_name = name
+            suffix = 2
+            while cache_name in self._geom_id_cache:
+                cache_name = f"{name}_{suffix}"
+                suffix += 1
+
+            if cache_name != name:
                 logger.warning(
-                    "Duplicate geometry name '%s' detected. Renaming to '%s' in Python cache.",
+                    "Duplicate geometry name '%s' detected. Renaming to '%s' in the Python cache.",
                     name,
-                    new_name,
+                    cache_name,
                 )
-                self._geom_id_cache[new_name] = geom_id
                 self.warnings.append(
-                    f"Duplicate component name '{name}' found in model; cached as '{new_name}'.\n"
-                    f"To avoid confusion, consider renaming the duplicate to a unique name in your VSP3 file."
+                    f"Duplicate component name '{name}' found in model; cached as '{cache_name}'."
                 )
-            else:
-                self._geom_id_cache[name] = geom_id
+
+            self._geom_id_cache[cache_name] = geom_id
 
         geom_count = len(self._geom_id_cache)
         actual_count = len(all_geoms)
-        logger.info("Model loaded: %d geometry components found (%d in VSP, %d unique in cache).",
-                    geom_count, actual_count, geom_count)
+        logger.info(
+            "Model loaded: %d geometry components found (%d in VSP, %d unique in cache).",
+            geom_count,
+            actual_count,
+            geom_count,
+        )
 
         if geom_count == 0:
             raise OpenVSPError(
@@ -138,53 +141,9 @@ class VSPWrapper:
                 "The file may be empty or corrupted."
             )
 
-        if actual_count != geom_count:
-            msg = (
-                f"WARNING: Model has {actual_count} components in VSP but only {geom_count} unique names. "
-                f"{actual_count - geom_count} duplicate name(s) detected and renamed."
-            )
-            logger.warning(msg)
-            self._duplicate_names_found = True
-        else:
-            self._duplicate_names_found = False
-
+        self._duplicate_names_found = actual_count != geom_count
         return self
 
-
-    def setup_dual_aero_sets(self, thin_keywords, thick_keywords):
-        """
-        Assigns wings/tails to Set 1 (Thin) and bodies to Set 2 (Thick).
-        This separation is required for VSPAERO to calculate lift correctly.
-        """
-        vsp = self._vsp
-        self._ensure_loaded()
-        all_geoms = vsp.FindGeoms()
-
-        # Clean both Set 1 and Set 2 before starting
-        for geom_id in all_geoms:
-            vsp.SetSetFlag(geom_id, 1, False)
-            vsp.SetSetFlag(geom_id, 2, False)
-
-        print(f"Dual-Set Assignment: Scanning {len(all_geoms)} components...")
-        for geom_id in all_geoms:
-            name = vsp.GetGeomName(geom_id)
-            
-            # Case 1: Thin Surfaces (Set 1) -> Wings, Tails, Fins
-            if any(k.lower() in name.lower() for k in thin_keywords):
-                vsp.SetSetFlag(geom_id, 1, True)
-                print(f"  [+] Set 1 (Thin Surface): {name}")
-                
-            # Case 2: Thick Bodies (Set 2) -> Fuselage, Hull, Body
-            elif any(k.lower() in name.lower() for k in thick_keywords):
-                vsp.SetSetFlag(geom_id, 2, True)
-                print(f"  [+] Set 2 (Thick Body):   {name}")
-
-        # Configure the VSPAERO Sweep to use Set 1 as the primary analysis set
-        vsp.SetAnalysisInputDefaults("VSPAEROSweep")
-        vsp.SetIntAnalysisInput("VSPAEROSweep", "AnalysisSet", [1])
-        
-        print("VSPAERO dual-set configuration finalized.")
-        
     def _ensure_loaded(self) -> None:
         if not self._loaded:
             raise OpenVSPError("Model is not loaded. Call VSPWrapper.load() before analysis.")
@@ -194,52 +153,119 @@ class VSPWrapper:
         """Return names of all geometry components in the model."""
         self._ensure_loaded()
         return list(self._geom_id_cache.keys())
-    
-    
 
-    def get_component_diagnostics(self) -> dict:
-        """
-        Return a diagnostic dictionary with detailed information about loaded components.
-
-        Includes:
-        - total_components: total number of geometry objects in VSP model
-        - unique_names: number of unique names in Python cache
-        - has_duplicates: whether duplicate names were found and renamed
-        - warnings: list of warning messages for duplicates
-        - component_info: list of dicts with name, geom_type, and geom_id
-
-        This is useful for validating that all components were loaded correctly
-        and for understanding the impact of any name deduplications.
-        """
+    def get_component_diagnostics(self) -> dict[str, Any]:
+        """Return a structured summary of the currently loaded geometry cache."""
         self._ensure_loaded()
 
         component_info = []
         for name in self.geom_names:
             geom_id = self._geom_id_cache[name]
-            geom_type = self._vsp.GetGeomTypeName(geom_id)
-            is_renamed = "_" in name and name[-2] == "_" and name[-1].isdigit()
-            component_info.append({
-                "name": name,
-                "geom_type": geom_type,
-                "geom_id": geom_id,
-                "is_renamed_duplicate": is_renamed,
-            })
+            component_info.append(
+                {
+                    "name": name,
+                    "geom_type": self._vsp.GetGeomTypeName(geom_id),
+                    "geom_id": geom_id,
+                    "is_renamed_duplicate": name != self._vsp.GetGeomName(geom_id),
+                }
+            )
 
         return {
             "total_components": len(self._vsp.FindGeoms()),
             "unique_names": len(self._geom_id_cache),
             "has_duplicates": self._duplicate_names_found,
-            "warnings": self.warnings,
+            "warnings": list(self.warnings),
             "component_info": component_info,
         }
 
-    def get_geom_id(self, name: str) -> str:
-        """
-        Return the internal geometry ID for a component by name.
+    def _drain_openvsp_errors(self) -> list[str]:
+        """Collect and clear the OpenVSP error queue."""
+        errors: list[str] = []
+        try:
+            while self._vsp.GetNumTotalErrors() > 0:
+                err = self._vsp.PopLastError()
+                if not err:
+                    break
+                errors.append(f"Error Code: {err.GetErrorCode()}, Desc: {err.GetErrorString()}")
+        except Exception:
+            return errors
+        return errors
 
-        Raises ``OpenVSPError`` with a helpful message listing available
-        names if the requested name is not found.
+    # ------------------------------------------------------------------
+    # Geometry sets
+    # ------------------------------------------------------------------
+
+    def setup_dual_aero_sets(
+        self,
+        thin_keywords: list[str] | tuple[str, ...],
+        thick_keywords: list[str] | tuple[str, ...],
+        *,
+        thin_set_index: int = DEFAULT_THIN_SET,
+        thick_set_index: int = DEFAULT_THICK_SET,
+    ) -> dict[str, list[str]]:
         """
+        Assign lifting surfaces to one set and bodies to another.
+
+        OpenVSP 3.48.2 expects:
+          - ``ThinGeomSet`` for lifting surfaces (wing, tail, control-surface carriers)
+          - ``GeomSet`` for thick bodies (fuselage, pods, etc.)
+
+        Returns a summary dictionary so notebooks can display what was assigned.
+        """
+        self._ensure_loaded()
+        vsp = self._vsp
+        all_geoms = list(vsp.FindGeoms())
+
+        thin_hits: list[str] = []
+        thick_hits: list[str] = []
+
+        for geom_id in all_geoms:
+            vsp.SetSetFlag(geom_id, thin_set_index, False)
+            vsp.SetSetFlag(geom_id, thick_set_index, False)
+
+        for geom_id in all_geoms:
+            name = vsp.GetGeomName(geom_id)
+            lowered = name.lower()
+
+            if any(keyword.lower() in lowered for keyword in thin_keywords):
+                vsp.SetSetFlag(geom_id, thin_set_index, True)
+                thin_hits.append(name)
+            elif any(keyword.lower() in lowered for keyword in thick_keywords):
+                vsp.SetSetFlag(geom_id, thick_set_index, True)
+                thick_hits.append(name)
+
+        vsp.Update()
+
+        logger.info(
+            "VSPAERO set assignment complete: %d thin components in set %d, %d thick components in set %d.",
+            len(thin_hits),
+            thin_set_index,
+            len(thick_hits),
+            thick_set_index,
+        )
+        return {
+            "thin_components": thin_hits,
+            "thick_components": thick_hits,
+        }
+
+    def get_set_members(self, set_index: int) -> list[str]:
+        """Return cached component names that currently belong to a given set."""
+        self._ensure_loaded()
+        members: list[str] = []
+        for name, geom_id in self._geom_id_cache.items():
+            try:
+                if self._vsp.GetSetFlag(geom_id, int(set_index)):
+                    members.append(name)
+            except Exception:
+                continue
+        return members
+
+    # ------------------------------------------------------------------
+    # Geometry and parameter access
+    # ------------------------------------------------------------------
+
+    def get_geom_id(self, name: str) -> str:
+        """Return the internal geometry ID for a component by name."""
         self._ensure_loaded()
         if name not in self._geom_id_cache:
             available = ", ".join(f"'{candidate}'" for candidate in self._geom_id_cache)
@@ -250,48 +276,145 @@ class VSPWrapper:
         return self._geom_id_cache[name]
 
     def get_geom_type(self, name: str) -> str:
-        """Return the geometry type string (for example 'Wing' or 'Fuselage')."""
+        """Return the geometry type string (for example ``Wing`` or ``Fuselage``)."""
         geom_id = self.get_geom_id(name)
         return self._vsp.GetGeomTypeName(geom_id)
 
+    def _parm_group_name(self, parm_id: str) -> str:
+        """Return the most informative parameter group name available."""
+        vsp = self._vsp
+        display_name = ""
+        if hasattr(vsp, "GetParmDisplayGroupName"):
+            try:
+                display_name = vsp.GetParmDisplayGroupName(parm_id)
+            except Exception:
+                display_name = ""
+        raw_name = vsp.GetParmGroupName(parm_id)
+        return display_name or raw_name
+
     def list_parm_groups(self, geom_name: str) -> list[str]:
-        """Return all parameter group names for a given geometry component."""
+        """Return distinct parameter group names for a given geometry component."""
         geom_id = self.get_geom_id(geom_name)
-        return list(self._vsp.GetGeomParmIDs(geom_id))
+        groups = {self._parm_group_name(parm_id) for parm_id in self._vsp.GetGeomParmIDs(geom_id)}
+        return sorted(group for group in groups if group)
 
     def get_all_params(self, geom_name: str) -> dict[str, float]:
         """
-        Return a dictionary of {group_name/parm_name: current_value}.
+        Return a dictionary of ``{display_group/parm_name: value}``.
 
-        Useful for exploratory inspection of a new model.
+        Using the display group name keeps section-specific parameters visible.
+        For example, OpenVSP stores both ``XSec`` and ``XSec_1`` information; the
+        latter is what users need for reliable automation.
         """
         geom_id = self.get_geom_id(geom_name)
         vsp = self._vsp
         result: dict[str, float] = {}
+        duplicate_counts: dict[str, int] = {}
 
         for parm_id in vsp.GetGeomParmIDs(geom_id):
             parm_name = vsp.GetParmName(parm_id)
-            group_name = vsp.GetParmGroupName(parm_id)
+            group_name = self._parm_group_name(parm_id)
+
             try:
-                value = vsp.GetParmVal(parm_id)
-                result[f"{group_name}/{parm_name}"] = value
+                value = float(vsp.GetParmVal(parm_id))
             except Exception:
                 continue
 
+            base_key = f"{group_name}/{parm_name}"
+            count = duplicate_counts.get(base_key, 0) + 1
+            duplicate_counts[base_key] = count
+            key = base_key if count == 1 else f"{base_key}#{count}"
+            result[key] = value
+
         return result
 
-    def get_param(self, geom_name: str, parm_name: str, group_name: str) -> float:
+    def _resolve_parm_id(self, geom_name: str, parm_name: str, group_name: str) -> str:
         """
-        Get the current value of a named parameter.
+        Resolve and cache parameter IDs.
 
-        Parameters
-        ----------
-        geom_name  : Name of the geometry component (for example "Wing")
-        parm_name  : OpenVSP parameter name (for example "Span")
-        group_name : OpenVSP group name (for example "WingGeom" or "XSec_1")
+        The raw OpenVSP group name is not always unique across sections, so we
+        first try the exact API lookup and then fall back to a display-group-aware
+        search. Ambiguous lookups raise a helpful error instead of silently
+        selecting the wrong parameter.
         """
+        self._ensure_loaded()
+        cache_key = (geom_name, parm_name, group_name)
+        if cache_key in self._parm_id_cache:
+            return self._parm_id_cache[cache_key]
+
+        vsp = self._vsp
+        geom_id = self.get_geom_id(geom_name)
+        requested_group = group_name.strip()
+
+        parm_id = vsp.GetParm(geom_id, parm_name, requested_group)
+        if parm_id:
+            self._parm_id_cache[cache_key] = parm_id
+            return parm_id
+
+        matches: list[tuple[str, str]] = []
+        group_matches: list[tuple[str, str]] = []
+
+        for candidate_id in vsp.GetGeomParmIDs(geom_id):
+            candidate_name = vsp.GetParmName(candidate_id)
+            if candidate_name.lower() != parm_name.lower():
+                continue
+
+            candidate_group = self._parm_group_name(candidate_id)
+            matches.append((candidate_group, candidate_id))
+            if candidate_group.lower() == requested_group.lower():
+                group_matches.append((candidate_group, candidate_id))
+
+        if len(group_matches) == 1:
+            resolved_id = group_matches[0][1]
+            logger.info(
+                "Resolved parameter %s/%s/%s using display group name '%s'.",
+                geom_name,
+                requested_group,
+                parm_name,
+                group_matches[0][0],
+            )
+            self._parm_id_cache[cache_key] = resolved_id
+            return resolved_id
+
+        if len(group_matches) > 1:
+            options = ", ".join(group for group, _ in group_matches)
+            raise OpenVSPError(
+                f"Parameter lookup for '{geom_name}/{requested_group}/{parm_name}' is ambiguous.\n"
+                f"Matching groups: {options}\n"
+                "Use an exact display group such as 'XSec_1'."
+            )
+
+        if len(matches) == 1:
+            resolved_group, resolved_id = matches[0]
+            logger.info(
+                "Auto-resolved parameter %s/%s/%s to display group '%s'.",
+                geom_name,
+                requested_group,
+                parm_name,
+                resolved_group,
+            )
+            self._parm_id_cache[cache_key] = resolved_id
+            return resolved_id
+
+        if len(matches) > 1:
+            options = ", ".join(sorted({group for group, _ in matches}))
+            raise OpenVSPError(
+                f"Parameter '{parm_name}' for component '{geom_name}' matches multiple groups and "
+                f"cannot be resolved from '{requested_group}'.\n"
+                f"Candidate groups: {options}\n"
+                "Inspect wrapper.get_all_params(...) and use the exact display group name."
+            )
+
+        available_params = "\n".join(f" - {key}" for key in self.get_all_params(geom_name))
+        raise OpenVSPError(
+            f"Parameter '{parm_name}' not found for component '{geom_name}' in group '{requested_group}'.\n"
+            f"Available parameters for this component:\n{available_params}"
+        )
+
+    def get_param(self, geom_name: str, parm_name: str, group_name: str) -> float:
+        """Get the current value of a named parameter."""
         parm_id = self._resolve_parm_id(geom_name, parm_name, group_name)
-        return self._vsp.GetParmVal(parm_id)
+        return float(self._vsp.GetParmVal(parm_id))
 
     def set_param(
         self,
@@ -302,28 +425,18 @@ class VSPWrapper:
         *,
         clamp: bool = True,
     ) -> "VSPWrapper":
-        """
-        Set the value of a named parameter.
-
-        Parameters
-        ----------
-        geom_name  : Name of the geometry component.
-        parm_name  : OpenVSP parameter name.
-        group_name : OpenVSP group name.
-        value      : New value to assign.
-        clamp      : If True, silently clamp to the parameter bounds.
-        """
+        """Set the value of a named parameter."""
         parm_id = self._resolve_parm_id(geom_name, parm_name, group_name)
         vsp = self._vsp
 
-        lower = vsp.GetParmLowerLimit(parm_id)
-        upper = vsp.GetParmUpperLimit(parm_id)
+        lower = float(vsp.GetParmLowerLimit(parm_id))
+        upper = float(vsp.GetParmUpperLimit(parm_id))
 
         if not (lower <= value <= upper):
             if clamp:
                 clamped = max(lower, min(upper, value))
                 logger.warning(
-                    "Parameter %s/%s/%s: requested value %.4f clamped to [%.4f, %.4f] -> %.4f",
+                    "Parameter %s/%s/%s: requested %.6f clamped to [%.6f, %.6f] -> %.6f.",
                     geom_name,
                     group_name,
                     parm_name,
@@ -336,97 +449,241 @@ class VSPWrapper:
             else:
                 raise OpenVSPError(
                     f"Parameter {geom_name}/{group_name}/{parm_name}: "
-                    f"value {value:.4f} is outside bounds [{lower:.4f}, {upper:.4f}]."
+                    f"value {value:.6f} is outside bounds [{lower:.6f}, {upper:.6f}]."
                 )
 
-        vsp.SetParmVal(parm_id, value)
-        logger.debug("Set %s/%s/%s = %.6f", geom_name, group_name, parm_name, value)
+        vsp.SetParmVal(parm_id, float(value))
         return self
 
-    def set_params(self, param_dict: dict[tuple[str, str, str], float], **kwargs) -> "VSPWrapper":
-        """
-        Set multiple parameters at once.
-
-        Parameters
-        ----------
-        param_dict : dict mapping (geom_name, parm_name, group_name) -> value
-        """
+    def set_params(
+        self,
+        param_dict: Mapping[tuple[str, str, str], float],
+        **kwargs,
+    ) -> "VSPWrapper":
+        """Set multiple parameters at once."""
         for (geom_name, parm_name, group_name), value in param_dict.items():
             self.set_param(geom_name, parm_name, group_name, value, **kwargs)
+        self._vsp.Update()
         return self
 
-    def _resolve_parm_id(self, geom_name: str, parm_name: str, group_name: str) -> str:
+    # ------------------------------------------------------------------
+    # Analysis input helpers
+    # ------------------------------------------------------------------
+
+    def get_available_analysis_inputs(self, analysis_name: str) -> set[str]:
+        """Return the available input names for an OpenVSP analysis."""
+        self._ensure_loaded()
+        if analysis_name not in self._analysis_inputs_cache:
+            self._analysis_inputs_cache[analysis_name] = set(
+                self._vsp.GetAnalysisInputNames(analysis_name)
+            )
+        return self._analysis_inputs_cache[analysis_name]
+
+    def _analysis_input_exists(self, analysis_name: str, input_name: str) -> bool:
+        return input_name in self.get_available_analysis_inputs(analysis_name)
+
+    def _set_int_analysis_input(self, analysis_name: str, input_name: str, values: list[int]) -> bool:
+        if not self._analysis_input_exists(analysis_name, input_name):
+            return False
+        self._vsp.SetIntAnalysisInput(analysis_name, input_name, [int(v) for v in values])
+        return True
+
+    def _set_double_analysis_input(
+        self,
+        analysis_name: str,
+        input_name: str,
+        values: list[float],
+    ) -> bool:
+        if not self._analysis_input_exists(analysis_name, input_name):
+            return False
+        self._vsp.SetDoubleAnalysisInput(analysis_name, input_name, [float(v) for v in values])
+        return True
+
+    def _set_string_analysis_input(
+        self,
+        analysis_name: str,
+        input_name: str,
+        values: list[str],
+    ) -> bool:
+        if not self._analysis_input_exists(analysis_name, input_name):
+            return False
+        self._vsp.SetStringAnalysisInput(analysis_name, input_name, list(values))
+        return True
+
+    # ------------------------------------------------------------------
+    # VSPAERO settings and control-surface helpers
+    # ------------------------------------------------------------------
+
+    def _get_vspaero_settings_container(self) -> str:
+        container_id = self._vsp.FindContainer("VSPAEROSettings", 0)
+        if not container_id:
+            raise OpenVSPError("Could not locate the VSPAEROSettings container in the loaded model.")
+        return container_id
+
+    def get_vspaero_settings(self) -> dict[str, float]:
+        """Return scalar parameters currently stored in the ``VSPAEROSettings`` container."""
+        self._ensure_loaded()
+        vsp = self._vsp
+        container_id = self._get_vspaero_settings_container()
+        result: dict[str, float] = {}
+        duplicate_counts: dict[str, int] = {}
+
+        for parm_id in vsp.FindContainerParmIDs(container_id):
+            group_name = self._parm_group_name(parm_id)
+            parm_name = vsp.GetParmName(parm_id)
+            try:
+                value = float(vsp.GetParmVal(parm_id))
+            except Exception:
+                continue
+
+            base_key = f"{group_name}/{parm_name}"
+            count = duplicate_counts.get(base_key, 0) + 1
+            duplicate_counts[base_key] = count
+            key = base_key if count == 1 else f"{base_key}#{count}"
+            result[key] = value
+
+        return result
+
+    def get_vspaero_reference_cg(self) -> dict[str, float]:
+        """Return the reference CG currently stored in the VSPAERO settings container."""
+        settings = self.get_vspaero_settings()
+        return {
+            "Xcg": float(settings.get("VSPAERO/Xcg", 0.0)),
+            "Ycg": float(settings.get("VSPAERO/Ycg", 0.0)),
+            "Zcg": float(settings.get("VSPAERO/Zcg", 0.0)),
+        }
+
+    def set_vspaero_reference_cg(
+        self,
+        *,
+        xcg: float | None = None,
+        ycg: float | None = None,
+        zcg: float | None = None,
+    ) -> None:
+        """Update the CG stored in the VSPAERO settings container."""
+        vsp = self._vsp
+        container_id = self._get_vspaero_settings_container()
+        updates = {
+            "Xcg": xcg,
+            "Ycg": ycg,
+            "Zcg": zcg,
+        }
+
+        for parm_name, value in updates.items():
+            if value is None:
+                continue
+            parm_id = vsp.FindParm(container_id, parm_name, "VSPAERO")
+            if parm_id:
+                vsp.SetParmVal(parm_id, float(value))
+
+        vsp.Update()
+
+    def get_control_surface_groups(self) -> list[dict[str, Any]]:
         """
-        Resolve and cache parameter IDs with a smart fallback search.
-        If the provided group_name fails, it will search all groups for the parm_name.
+        Return a structured summary of VSPAERO control-surface groups.
+
+        Group indices are zero-based in the OpenVSP Python API.
         """
         self._ensure_loaded()
-        cache_key = (geom_name, parm_name, group_name)
-        
-        if cache_key in self._parm_id_cache:
-            return self._parm_id_cache[cache_key]
-
         vsp = self._vsp
-        geom_id = self.get_geom_id(geom_name)
-        
-        # 1. Try exact match (The "Strict" way)
-        parm_id = vsp.GetParm(geom_id, parm_name, group_name)
-        
-        # 2. Smart Fallback: If not found, search all parameters in this component
-        if not parm_id:
-            logger.debug("Parm '%s' not found in group '%s'. Searching all groups...", parm_name, group_name)
-            all_parm_ids = vsp.GetGeomParmIDs(geom_id)
-            
-            for pid in all_parm_ids:
-                actual_name = vsp.GetParmName(pid)
-                if actual_name.lower() == parm_name.lower():
-                    actual_group = vsp.GetParmGroupName(pid)
-                    logger.info(
-                        "Auto-resolved parameter: '%s' found in group '%s' (instead of '%s')",
-                        parm_name, actual_group, group_name
-                    )
-                    parm_id = pid
-                    break
+        container_id = self._get_vspaero_settings_container()
+        groups: list[dict[str, Any]] = []
 
-        # 3. Final Error Handling
-        if not parm_id:
-            # Provide a very helpful list of what actually exists
-            available_params = self.get_all_params(geom_name)
-            param_list = "\n".join([f" - {k}" for k in available_params.keys()])
-            raise OpenVSPError(
-                f"Parameter '{parm_name}' not found for component '{geom_name}'.\n"
-                f"Available parameters for this component:\n{param_list}"
+        for index in range(int(vsp.GetNumControlSurfaceGroups())):
+            group_name = vsp.GetVSPAEROControlGroupName(index)
+            group_key = f"ControlSurfaceGroup_{index}"
+
+            deflection_id = vsp.FindParm(container_id, "DeflectionAngle", group_key)
+            active_id = vsp.FindParm(container_id, "ActiveFlag", group_key)
+            gains: dict[str, float] = {}
+
+            for parm_id in vsp.FindContainerParmIDs(container_id):
+                if self._parm_group_name(parm_id) != group_key:
+                    continue
+                parm_name = vsp.GetParmName(parm_id)
+                if parm_name.startswith("Surf_") and parm_name.endswith("_Gain"):
+                    gains[parm_name] = float(vsp.GetParmVal(parm_id))
+
+            groups.append(
+                {
+                    "index": index,
+                    "name": group_name,
+                    "active_flag": bool(vsp.GetParmVal(active_id)) if active_id else False,
+                    "deflection_angle": float(vsp.GetParmVal(deflection_id)) if deflection_id else 0.0,
+                    "active_surfaces": list(vsp.GetActiveCSNameVec(index)),
+                    "available_surfaces": list(vsp.GetAvailableCSNameVec(index)),
+                    "gains": gains,
+                }
             )
 
-        # Cache it and return
-        self._parm_id_cache[cache_key] = parm_id
-        return parm_id
+        return groups
+
+    def _resolve_control_surface_group_index(self, group: str | int) -> int:
+        """Resolve a control-surface group from either index or group name."""
+        groups = self.get_control_surface_groups()
+
+        if isinstance(group, int):
+            if any(entry["index"] == group for entry in groups):
+                return group
+            raise OpenVSPError(f"Control-surface group index {group} does not exist.")
+
+        lowered = group.strip().lower()
+        for entry in groups:
+            if entry["name"].strip().lower() == lowered:
+                return int(entry["index"])
+
+        available = ", ".join(entry["name"] for entry in groups)
+        raise OpenVSPError(
+            f"Control-surface group '{group}' not found. Available groups: {available or 'none'}."
+        )
+
+    def set_control_surface_deflections(self, deflections: Mapping[str | int, float]) -> None:
+        """Set one or more VSPAERO control-surface group deflections in degrees."""
+        if not deflections:
+            return
+
+        vsp = self._vsp
+        container_id = self._get_vspaero_settings_container()
+
+        for group, angle in deflections.items():
+            group_index = self._resolve_control_surface_group_index(group)
+            parm_id = vsp.FindParm(container_id, "DeflectionAngle", f"ControlSurfaceGroup_{group_index}")
+            if not parm_id:
+                raise OpenVSPError(
+                    f"Could not resolve DeflectionAngle for control-surface group '{group}'."
+                )
+            vsp.SetParmVal(parm_id, float(angle))
+
+        vsp.Update()
+
+    # ------------------------------------------------------------------
+    # Reference data
+    # ------------------------------------------------------------------
 
     def get_reference_quantities(self) -> dict[str, float]:
-        """
-        Return the VSPAERO reference quantities currently set in the model:
-        Sref (m^2), bref (m), cref (m).
-        """
-        vsp = self._vsp
+        """Return the VSPAERO reference quantities currently stored in the model."""
         self._ensure_loaded()
+        vsp = self._vsp
 
         refs: dict[str, float] = {}
         vsp.SetAnalysisInputDefaults("VSPAEROSweep")
-        refs["Sref"] = vsp.GetDoubleAnalysisInput("VSPAEROSweep", "Sref", 0)[0]
-        refs["bref"] = vsp.GetDoubleAnalysisInput("VSPAEROSweep", "bref", 0)[0]
-        refs["cref"] = vsp.GetDoubleAnalysisInput("VSPAEROSweep", "cref", 0)[0]
+        refs["Sref"] = float(vsp.GetDoubleAnalysisInput("VSPAEROSweep", "Sref", 0)[0])
+        refs["bref"] = float(vsp.GetDoubleAnalysisInput("VSPAEROSweep", "bref", 0)[0])
+        refs["cref"] = float(vsp.GetDoubleAnalysisInput("VSPAEROSweep", "cref", 0)[0])
         return refs
-    
-    
+
+    # ------------------------------------------------------------------
+    # Mass properties
+    # ------------------------------------------------------------------
+
     def run_mass_properties(
         self,
         *,
         num_slices: int = 100,
+        set_index: int = 0,
         working_dir: str | Path | None = None,
     ) -> "MassProperties":
-        """
-        Run the OpenVSP ``MassProp`` analysis and return structured mass data.
-        """
+        """Run the OpenVSP ``MassProp`` analysis and return structured mass data."""
         from vspopt.postprocess import MassProperties
 
         self._ensure_loaded()
@@ -437,57 +694,62 @@ class VSPWrapper:
         working_dir = Path(working_dir)
         working_dir.mkdir(parents=True, exist_ok=True)
 
-        # 1. Setup and Run Analysis (Modern Method)
-        vsp.SetAnalysisInputDefaults("MassProp")
-        vsp.SetIntAnalysisInput("MassProp", "NumMassSlice", [int(num_slices)])
+        analysis_name = "MassProp"
+        vsp.SetAnalysisInputDefaults(analysis_name)
+        if not self._set_int_analysis_input(analysis_name, "NumMassSlices", [int(num_slices)]):
+            self._set_int_analysis_input(analysis_name, "NumMassSlice", [int(num_slices)])
+        self._set_int_analysis_input(analysis_name, "Set", [int(set_index)])
 
         prev_dir = os.getcwd()
         try:
             os.chdir(str(working_dir))
-            res_id = vsp.ExecAnalysis("MassProp")
+            res_id = vsp.ExecAnalysis(analysis_name)
         finally:
             os.chdir(prev_dir)
 
         if not res_id:
             raise OpenVSPError("MassProp returned an empty result ID.")
 
-        # ... (setup code remains the same) ...
-
-        # 2. Extract Data
         data_names = vsp.GetAllDataNames(res_id)
-        raw_results = {}
-        
+        raw_results: dict[str, Any] = {}
         for name in data_names:
             rtype = vsp.GetResultsType(res_id, name)
-            
             if rtype == vsp.DOUBLE_DATA or rtype == 2:
                 raw_results[name] = list(vsp.GetDoubleResults(res_id, name))
-                
             elif rtype == vsp.VEC3D_DATA or rtype == 4:
                 vecs = vsp.GetVec3dResults(res_id, name)
-                raw_results[name] = [(v.x(), v.y(), v.z()) for v in vecs]
-                
+                raw_results[name] = [(vec.x(), vec.y(), vec.z()) for vec in vecs]
             elif rtype == vsp.DOUBLE_MATRIX_DATA or rtype == 5:
-                mat = vsp.GetDoubleMatResults(res_id, name)
-                raw_results[name] = [list(row) for row in mat]
-                
-            # --- IMPROVEMENT: Better Fallback for Strings and Ints ---
+                raw_results[name] = [list(row) for row in vsp.GetDoubleMatResults(res_id, name)]
             elif rtype == vsp.STRING_DATA or rtype == 3:
                 raw_results[name] = list(vsp.GetStringResults(res_id, name))
-                
             elif rtype == vsp.INT_DATA or rtype == 1:
                 raw_results[name] = list(vsp.GetIntResults(res_id, name))
-                
             else:
                 raw_results[name] = None
-                
-        # --- IMPROVEMENT: Professional Logging ---
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.info(f"MassProp completed: extracted {len(raw_results)} result fields (including Total_CG).")
 
+        logger.info("MassProp completed: extracted %d result fields.", len(raw_results))
         return MassProperties.from_results(raw_results)
-    
+
+    # ------------------------------------------------------------------
+    # VSPAERO sweep execution
+    # ------------------------------------------------------------------
+
+    def _cleanup_run_artifacts(self, working_dir: Path, output_stem: str) -> None:
+        """Remove stale files for a case so artifact discovery never picks an old run."""
+        for path in working_dir.glob(f"{output_stem}*"):
+            if path.is_file():
+                path.unlink(missing_ok=True)
+
+    def _write_case_model(self, working_dir: Path, output_stem: str) -> Path:
+        """Save the current model state to a case-specific ``.vsp3`` file."""
+        vsp = self._vsp
+        case_model_path = working_dir / f"{output_stem}.vsp3"
+        if hasattr(vsp, "SetVSP3FileName"):
+            vsp.SetVSP3FileName(str(case_model_path))
+        vsp.WriteVSPFile(str(case_model_path), getattr(vsp, "SET_ALL", 0))
+        return case_model_path
+
     def run_vspaero_sweep(
         self,
         *,
@@ -497,43 +759,34 @@ class VSPWrapper:
         mach: float = 0.2,
         re_cref: float = 1e6,
         wake_iter: int = 5,
-        analysis_method: int = 0,  # 0 = VLM, 1 = Panel
+        analysis_method: int = 0,
         beta: float = 0.0,
+        xcg: float | None = None,
+        ycg: float | None = None,
+        zcg: float | None = None,
+        control_surface_deflections: Mapping[str | int, float] | None = None,
         working_dir: str | Path | None = None,
+        output_stem: str | None = None,
         parse_history: bool = True,
         parse_stability: bool = True,
+        require_stability_file: bool = False,
+        allow_incomplete_results: bool = False,
         min_convergence_iterations: int = 3,
         use_massprop_cg: bool = False,
         massprop_num_slices: int = 100,
+        thin_geom_set: int = DEFAULT_THIN_SET,
+        thick_geom_set: int = DEFAULT_THICK_SET,
+        stability_mode: int | None = None,
+        redirect_solver_output: bool = True,
     ) -> "VSPAEROResults":
         """
-        
         Run a VSPAERO alpha sweep and return structured results.
 
         Parameters
         ----------
-        alpha_start    : First angle of attack (degrees).
-        alpha_end      : Last angle of attack (degrees).
-        alpha_npts     : Number of evenly-spaced alpha points.
-        mach           : Freestream Mach number.
-        re_cref        : Reynolds number based on the reference chord.
-        wake_iter      : Number of wake relaxation iterations.
-        analysis_method: 0 for Vortex Lattice (fast), 1 for Panel (slow).
-        beta           : Sideslip angle (degrees), default 0.
-        working_dir    : Directory where VSPAERO writes output files.
-        parse_history  : Parse the generated ``.history`` file when available.
-        parse_stability: Parse the generated ``.stab`` file when available.
-        min_convergence_iterations:
-                         Minimum iterations required to mark history as usable.
-        use_massprop_cg: Run ``MassProp`` first and feed the computed CG into
-                         VSPAERO as Xcg/Ycg/Zcg.
-        massprop_num_slices:
-                         Number of slices used by the optional ``MassProp`` run.
-
-        Returns
-        -------
-        VSPAEROResults
-            Dataclass holding alpha, CL, CD, CM arrays and metadata.
+        The aerodynamic conditions stay sweep-based in alpha, while the design
+        variables can now act on geometry, CG position, and control-surface
+        deflections through the other wrapper helpers.
         """
         from vspopt.postprocess import (
             check_history_convergence,
@@ -542,7 +795,12 @@ class VSPWrapper:
             read_history_file,
             stability_records_to_dataframe,
         )
-        from vspopt.vspaero import _parse_results_manager
+        from vspopt.vspaero import (
+            VSPAEROResults,
+            _parse_polar_file_fallback,
+            _parse_results_manager,
+            results_from_stability_records,
+        )
 
         self._ensure_loaded()
         vsp = self._vsp
@@ -552,130 +810,142 @@ class VSPWrapper:
         working_dir = Path(working_dir)
         working_dir.mkdir(parents=True, exist_ok=True)
 
+        output_stem = output_stem or self._path.stem
+        self._cleanup_run_artifacts(working_dir, output_stem)
+
         reference_quantities = self.get_reference_quantities()
         mass_properties = None
 
+        if use_massprop_cg:
+            mass_properties = self.run_mass_properties(
+                num_slices=massprop_num_slices,
+                working_dir=working_dir,
+            )
+            if mass_properties.cg_is_finite:
+                xcg = mass_properties.xcg if xcg is None else xcg
+                ycg = mass_properties.ycg if ycg is None else ycg
+                zcg = mass_properties.zcg if zcg is None else zcg
+            else:
+                logger.warning(
+                    "MassProp completed but did not produce a finite CG. Proceeding with the stored VSPAERO CG."
+                )
+
+        if xcg is not None or ycg is not None or zcg is not None:
+            self.set_vspaero_reference_cg(xcg=xcg, ycg=ycg, zcg=zcg)
+
+        if control_surface_deflections:
+            self.set_control_surface_deflections(control_surface_deflections)
+
+        case_model_path = self._write_case_model(working_dir, output_stem)
+
         logger.info(
-            "Running VSPAEROSweep: alpha=[%.1f deg, %.1f deg] x %d pts, M=%.2f, Re=%.2e",
+            "Running VSPAEROSweep for '%s': alpha=[%.1f, %.1f] deg x %d, Mach=%.3f, Re=%.3e.",
+            output_stem,
             alpha_start,
             alpha_end,
             alpha_npts,
             mach,
             re_cref,
         )
-        # ==========================================================
-        # Creazione della Mesh (DegenGeom)
-        # ==========================================================
-        logger.info("Computing VSPAERO Geometry (DegenGeom)...")
+
         geom_analysis = "VSPAEROComputeGeometry"
         vsp.SetAnalysisInputDefaults(geom_analysis)
-        # Diciamo al generatore di geometria se useremo VLM (0) o Panel (1)
-        vsp.SetIntAnalysisInput(geom_analysis, "AnalysisMethod", [analysis_method])
-        vsp.SetIntAnalysisInput(geom_analysis, "GeomSet", [1])
-        vsp.Update()
-        vsp.ExecAnalysis(geom_analysis)
-        # ==========================================================
+        self._set_int_analysis_input(geom_analysis, "GeomSet", [int(thick_geom_set)])
+        self._set_int_analysis_input(geom_analysis, "ThinGeomSet", [int(thin_geom_set)])
+
         analysis = "VSPAEROSweep"
-        
         vsp.SetAnalysisInputDefaults(analysis)
-        #seconda aggiunta
-        vsp.SetIntAnalysisInput(analysis, "GeomSet", [1])
-        ##
-        vsp.SetIntAnalysisInput(analysis, "AnalysisMethod", [analysis_method])
-        vsp.SetDoubleAnalysisInput(analysis, "AlphaStart", [float(alpha_start)])
-        vsp.SetDoubleAnalysisInput(analysis, "AlphaEnd", [float(alpha_end)])
-        vsp.SetIntAnalysisInput(analysis, "AlphaNpts", [int(alpha_npts)])
+        self._set_int_analysis_input(analysis, "GeomSet", [int(thick_geom_set)])
+        self._set_int_analysis_input(analysis, "ThinGeomSet", [int(thin_geom_set)])
 
-        vsp.SetDoubleAnalysisInput(analysis, "MachStart", [float(mach)])
-        vsp.SetDoubleAnalysisInput(analysis, "MachEnd", [float(mach)])
-        vsp.SetIntAnalysisInput(analysis, "MachNpts", [1])
+        self._set_double_analysis_input(analysis, "AlphaStart", [float(alpha_start)])
+        self._set_double_analysis_input(analysis, "AlphaEnd", [float(alpha_end)])
+        self._set_int_analysis_input(analysis, "AlphaNpts", [int(alpha_npts)])
 
-        vsp.SetDoubleAnalysisInput(analysis, "BetaStart", [float(beta)])
-        vsp.SetDoubleAnalysisInput(analysis, "BetaEnd", [float(beta)])
-        vsp.SetIntAnalysisInput(analysis, "BetaNpts", [1])
+        self._set_double_analysis_input(analysis, "MachStart", [float(mach)])
+        self._set_double_analysis_input(analysis, "MachEnd", [float(mach)])
+        self._set_int_analysis_input(analysis, "MachNpts", [1])
 
-        vsp.SetDoubleAnalysisInput(analysis, "ReCref", [float(re_cref)])
-        vsp.SetIntAnalysisInput(analysis, "WakeNumIter", [int(wake_iter)])
+        self._set_double_analysis_input(analysis, "BetaStart", [float(beta)])
+        self._set_double_analysis_input(analysis, "BetaEnd", [float(beta)])
+        self._set_int_analysis_input(analysis, "BetaNpts", [1])
 
-        if use_massprop_cg:
-            mass_properties = self.run_mass_properties(
-                num_slices=massprop_num_slices,
-                working_dir=working_dir,
-                
+        self._set_double_analysis_input(analysis, "ReCref", [float(re_cref)])
+        self._set_int_analysis_input(analysis, "WakeNumIter", [int(wake_iter)])
+        self._set_double_analysis_input(analysis, "Sref", [float(reference_quantities.get("Sref", 0.0))])
+        self._set_double_analysis_input(analysis, "bref", [float(reference_quantities.get("bref", 0.0))])
+        self._set_double_analysis_input(analysis, "cref", [float(reference_quantities.get("cref", 0.0))])
+
+        active_cg = self.get_vspaero_reference_cg()
+        self._set_double_analysis_input(analysis, "Xcg", [float(active_cg["Xcg"])])
+        self._set_double_analysis_input(analysis, "Ycg", [float(active_cg["Ycg"])])
+        self._set_double_analysis_input(analysis, "Zcg", [float(active_cg["Zcg"])])
+
+        if redirect_solver_output:
+            self._set_string_analysis_input(
+                analysis,
+                "RedirectFile",
+                [str(working_dir / f"{output_stem}.vspaero.log")],
             )
-            if mass_properties.cg_is_finite:
-                vsp.SetDoubleAnalysisInput(analysis, "Xcg", [float(mass_properties.xcg)])
-                vsp.SetDoubleAnalysisInput(analysis, "Ycg", [float(mass_properties.ycg)])
-                vsp.SetDoubleAnalysisInput(analysis, "Zcg", [float(mass_properties.zcg)])
-            else:
-                logger.warning(
-                    "MassProp completed but did not produce a finite CG. "
-                    "Proceeding without overriding Xcg/Ycg/Zcg."
-                )
+
+        if parse_stability and self._analysis_input_exists(analysis, "UnsteadyType"):
+            if stability_mode is None:
+                stability_mode = getattr(vsp, "STABILITY_DEFAULT", 1)
+            self._set_int_analysis_input(analysis, "UnsteadyType", [int(stability_mode)])
+        elif self._analysis_input_exists(analysis, "UnsteadyType"):
+            self._set_int_analysis_input(analysis, "UnsteadyType", [int(getattr(vsp, "STABILITY_OFF", 0))])
+
+        if analysis_method != 0:
+            logger.warning(
+                "analysis_method=%s was requested, but OpenVSP 3.48.2 does not expose "
+                "AnalysisMethod through the Analysis Manager in this environment. "
+                "Proceeding with the model's stored VSPAERO method.",
+                analysis_method,
+            )
+
+        vsp.Update()
 
         prev_dir = os.getcwd()
         try:
             os.chdir(str(working_dir))
-            res_id = vsp.ExecAnalysis(analysis)
+            geom_res_id = vsp.ExecAnalysis(geom_analysis)
+            sweep_res_id = vsp.ExecAnalysis(analysis)
         finally:
             os.chdir(prev_dir)
 
-        if not res_id:
-            raise OpenVSPError(
-                "VSPAEROSweep returned an empty result ID. "
-                "This usually means VSPAERO crashed. "
-                "Check that the OpenVSP installation is complete and "
-                "that vspaero.exe is present in the OpenVSP directory."
-            )
+        errors = self._drain_openvsp_errors()
+        if errors:
+            logger.debug("OpenVSP reported the following messages:\n%s", "\n".join(errors))
 
-        # --- ORIGINAL API CALL ---
-        results = _parse_results_manager(vsp, res_id, mach, re_cref, alpha_npts)
+        if not geom_res_id:
+            raise OpenVSPError("VSPAEROComputeGeometry returned an empty result ID.")
+        if not sweep_res_id:
+            raise OpenVSPError("VSPAEROSweep returned an empty result ID.")
 
-        # ==========================================================
-        # FALLBACK LOGIC: If API returns empty or zeroed data
-        # ==========================================================
-        # Check if the Lift Coefficient (CL) array is empty, all zeros, or all NaNs
+        results = _parse_results_manager(vsp, sweep_res_id, mach, re_cref, alpha_npts)
         api_failed = (
-            len(results.CL) == 0 or 
-            np.all(results.CL == 0) or 
-            np.all(np.isnan(results.CL))
+            len(results.CL) == 0
+            or np.all(results.CL == 0)
+            or np.all(np.isnan(results.CL))
         )
 
         if api_failed:
-            logger.info("API Results Manager failed. Triggering physical .polar file parser...")
-            from vspopt.vspaero import _parse_polar_file_fallback
-            
-            # Construct the path to the .polar file based on the model name
-            model_stem = self._path.stem
-            polar_path = working_dir / f"{model_stem}.polar"
-            
-            # Overwrite the empty results object with data from the text file
+            logger.info("Results Manager returned unusable data. Falling back to the .polar file parser.")
+            polar_path = working_dir / f"{output_stem}.polar"
             results = _parse_polar_file_fallback(polar_path, mach, re_cref)
-        # ==========================================================
-        
-        
-        
+
+        results.case_name = output_stem
+        results.working_dir = working_dir
+        results.model_path = case_model_path
+        results.solver_log_path = working_dir / f"{output_stem}.vspaero.log"
         results.Sref = float(reference_quantities.get("Sref", 0.0))
         results.bref = float(reference_quantities.get("bref", 0.0))
         results.cref = float(reference_quantities.get("cref", 0.0))
         results.mass_properties = mass_properties
 
-        # Validate that sweep has expected number of alpha points
-        expected_npts = int(alpha_npts)
-        actual_npts = len(results.alpha)
-        if actual_npts != expected_npts and actual_npts > 0:
-            logger.warning(
-                "VSPAEROSweep returned %d alpha points but %d were requested. "
-                "This may indicate incomplete results. Check VSPAERO output for errors.",
-                actual_npts,
-                expected_npts,
-            )
-
-        search_dirs = [working_dir, self._path.parent]
-        model_stem = self._path.stem
-
+        search_dirs = [working_dir]
         if parse_history:
-            history_path = find_generated_artifact(search_dirs, model_stem, ".history")
+            history_path = find_generated_artifact(search_dirs, output_stem, ".history")
             if history_path is not None:
                 results.history_path = history_path
                 results.history_table = read_history_file(history_path)
@@ -685,27 +955,82 @@ class VSPWrapper:
                 )
 
         if parse_stability:
-            stab_path = find_generated_artifact(search_dirs, model_stem, ".stab")
+            stab_path = find_generated_artifact(search_dirs, output_stem, ".stab")
             if stab_path is not None:
                 stability_records = parse_stab_file(stab_path)
                 results.stab_path = stab_path
                 results.stability_records = stability_records
                 results.stability_table = stability_records_to_dataframe(stability_records)
 
+                # In stability mode, the `.stab` file is the authoritative
+                # source for the baseline aerodynamic totals at each alpha.
+                # The Results Manager often mixes the perturbed derivative cases
+                # into the output vectors, which makes the alpha/CL/CD arrays
+                # unusable for sweep plots and optimization. We therefore
+                # normalize the aerodynamic arrays from the parsed `.stab`
+                # records whenever that file is available.
+                if stability_records:
+                    logger.info(
+                        "Normalizing aerodynamic totals for case '%s' from the .stab file.",
+                        output_stem,
+                    )
+                    stab_results = results_from_stability_records(stability_records, mach, re_cref)
+                    if len(stab_results.alpha) > 0:
+                        for field_name in (
+                            "alpha",
+                            "CL",
+                            "CD",
+                            "CDi",
+                            "CDo",
+                            "CDsff",
+                            "CM",
+                            "CMx",
+                            "CMz",
+                            "CS",
+                            "LD",
+                            "E",
+                            "CFx",
+                            "CFy",
+                            "CFz",
+                            "n_points",
+                        ):
+                            setattr(results, field_name, getattr(stab_results, field_name))
+
+        results.warnings = results.validate()
+
+        if len(results.alpha) == 0 and not allow_incomplete_results:
+            artifact_names = sorted(path.name for path in working_dir.glob(f"{output_stem}*"))
+            details = "\n".join(errors) if errors else "No OpenVSP API errors were reported."
+            raise OpenVSPError(
+                f"VSPAERO did not return valid aerodynamic data for case '{output_stem}'.\n"
+                f"Artifacts found in {working_dir}:\n  " + "\n  ".join(artifact_names or ["<none>"]) + "\n"
+                f"OpenVSP messages:\n{details}"
+            )
+
+        if require_stability_file and (results.stab_path is None or results.stability_table.empty):
+            raise OpenVSPError(
+                f"Case '{output_stem}' completed without a usable .stab file in {working_dir}. "
+                "This project requires stability derivatives for downstream optimization."
+            )
+
         return results
 
     def update_and_run(
         self,
-        param_dict: dict[tuple[str, str, str], float],
-        sweep_kwargs: dict | None = None,
+        param_dict: Mapping[tuple[str, str, str], float],
+        sweep_kwargs: dict[str, Any] | None = None,
     ) -> "VSPAEROResults":
         """
-        Convenience method: set a batch of parameters and immediately
-        run a VSPAERO sweep. Used by the optimizer callback.
+        Convenience method: set a batch of geometry parameters and immediately
+        run a VSPAERO sweep.
         """
-        sweep_kwargs = sweep_kwargs or {}
+        sweep_kwargs = dict(sweep_kwargs or {})
         self.set_params(param_dict)
         return self.run_vspaero_sweep(**sweep_kwargs)
+
+    # ------------------------------------------------------------------
+    # Context manager and misc
+    # ------------------------------------------------------------------
 
     def __enter__(self) -> "VSPWrapper":
         return self.load()
