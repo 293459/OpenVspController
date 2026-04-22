@@ -11,18 +11,21 @@ readme = "README.md"
 # contro python313.dll. Qualsiasi altra versione causa esattamente l'errore DLL load failed.
 requires-python = ">=3.13,<3.14"
 
+
+# nuova versione in cui è richiesta esplicitamente una versione minima delle dipendenze
+# questa lista di versioni è tarata per OpenVsp 3.48.2
 dependencies = [
-    "numpy",
-    "scipy",
-    "matplotlib",
-    "pandas",
-    "optuna",
-    "plotly",
-    "ipykernel",
-    "nbconvert",      # necessario per run_wrapper.py
-    "jupyter",        # necessario per nbconvert
-    # Puoi aggiungere qui altri pacchetti (optuna, streamlit, plotly...) se li usi nel notebook
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "matplotlib>=3.8",
+    "pandas>=2.0",
+    "optuna>=3.5",
+    "plotly>=5.18",
+    "ipykernel>=6.0",
+    "nbconvert>=5.9",
+    "jupyter>=4.0",
 ]
+# in caso di problemi cambiare la versione (o non richiederla affatto)
 
 [tool.uv]
 managed = true
