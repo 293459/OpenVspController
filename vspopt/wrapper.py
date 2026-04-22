@@ -39,7 +39,7 @@ def _import_vsp():
     except ImportError as exc:
         supported = detect_supported_python_versions()
         supported_msg = format_supported_python_versions(supported)
-        current_msg = f"Python {os.sys.version_info[0]}.{os.sys.version_info[1]}"
+        current_msg = f"Python {sys.version_info[0]}.{sys.version_info[1]}"
         raise ImportError(
             "Cannot import 'openvsp'. Make sure:\n"
             f"  1. You are running a compatible interpreter ({supported_msg}).\n"

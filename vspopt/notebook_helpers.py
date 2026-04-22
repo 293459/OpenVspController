@@ -9,15 +9,26 @@ This module provides utilities for:
 
 from __future__ import annotations
 
+import logging
+from typing import Any, Optional
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from typing import Any, Optional
-import logging
-import plotly.express as px
-import plotly.graph_objects as go
 
 logger = logging.getLogger(__name__)
+
+# plotly is an optional dependency used only by the interactive visualisation
+# helpers (create_hierarchical_treemap, create_conceptual_mindmap).  All other
+# functions in this module work with matplotlib alone.
+try:
+    import plotly.express as px
+    import plotly.graph_objects as go
+    _PLOTLY_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    px = None  # type: ignore[assignment]
+    go = None  # type: ignore[assignment]
+    _PLOTLY_AVAILABLE = False
 
 
 def validate_plot_data(
@@ -356,6 +367,11 @@ def create_hierarchical_treemap(model_wrapper):
     fig : plotly.graph_objects.Figure
         Interactive treemap visualization
     """
+    if not _PLOTLY_AVAILABLE:
+        raise ImportError(
+            "plotly is required for create_hierarchical_treemap. "
+            "Install it with: pip install plotly"
+        )
     treemap_data = []
     root_name = "Aircraft"
     
@@ -455,6 +471,11 @@ def create_conceptual_mindmap(model_wrapper):
     (fig, df_mindmap_params) : (plotly.graph_objects.Figure, pd.DataFrame)
         Tuple of (sunburst visualization, parameters DataFrame with concept mapping)
     """
+    if not _PLOTLY_AVAILABLE:
+        raise ImportError(
+            "plotly is required for create_conceptual_mindmap. "
+            "Install it with: pip install plotly"
+        )
     # Define domain categories
     concept_map = {
         "Aerodynamics": {

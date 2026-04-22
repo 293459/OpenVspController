@@ -279,14 +279,16 @@ def plot_drag_polar(
     all_cl = np.concatenate([r.CL for r in results_list if len(r.CL) > 0])
     if len(all_cd) > 0:
         cd_range = np.linspace(all_cd.min() * 0.8, all_cd.max() * 1.1, 200)
-        ld_max_all = max(r.LD_max for r in results_list if np.isfinite(r.LD_max))
-        for ld_val in np.linspace(5, ld_max_all * 0.95, 5):
-            ax.plot(cd_range, ld_val * cd_range, "--",
-                    color="#BBBBBB", linewidth=0.7, zorder=0)
-            # Label the line near the right edge
-            x_label = cd_range[-1] * 0.9
-            ax.text(x_label, ld_val * x_label, f"L/D={ld_val:.0f}",
-                    fontsize=8, color="#999999", va="bottom")
+        finite_ld_maxima = [r.LD_max for r in results_list if np.isfinite(r.LD_max)]
+        if finite_ld_maxima:
+            ld_max_all = max(finite_ld_maxima)
+            for ld_val in np.linspace(5, ld_max_all * 0.95, 5):
+                ax.plot(cd_range, ld_val * cd_range, "--",
+                        color="#BBBBBB", linewidth=0.7, zorder=0)
+                # Label the line near the right edge
+                x_label = cd_range[-1] * 0.9
+                ax.text(x_label, ld_val * x_label, f"L/D={ld_val:.0f}",
+                        fontsize=8, color="#999999", va="bottom")
 
     ax.set_xlabel("CD (total drag coefficient) [-]")
     ax.set_ylabel("CL (lift coefficient) [-]")

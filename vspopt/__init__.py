@@ -48,6 +48,14 @@ from vspopt.utils          import (
     setup_logging, check_vsp3_integrity, check_openvsp_version,
     check_polar_sanity, results_to_markdown_table, print_banner,
 )
+from vspopt.notebook_helpers import (
+    validate_plot_data, validate_vspaero_results,
+    safe_plot_polar, safe_plot_drag_polar, safe_plot_ld_ratio,
+    print_results_diagnostic,
+    create_complete_parameters_table,
+    create_hierarchical_treemap, create_conceptual_mindmap,
+    print_conceptual_summary, print_conceptual_summary_sample,
+)
 
 __version__ = "0.1.0"
 __all__ = [
@@ -69,4 +77,11 @@ __all__ = [
     "print_case_collection_summary",
     "setup_logging", "check_vsp3_integrity", "check_openvsp_version",
     "check_polar_sanity", "results_to_markdown_table", "print_banner",
+    # notebook helpers
+    "validate_plot_data", "validate_vspaero_results",
+    "safe_plot_polar", "safe_plot_drag_polar", "safe_plot_ld_ratio",
+    "print_results_diagnostic",
+    "create_complete_parameters_table",
+    "create_hierarchical_treemap", "create_conceptual_mindmap",
+    "print_conceptual_summary", "print_conceptual_summary_sample",
 ]
