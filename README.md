@@ -1,100 +1,94 @@
 # OpenVSP Controller
+
 Questo programma ti permette di:
-- Caricare il tuo modello di aereo (file `.vsp3`)
-- Calcolare automaticamente come vola nella configurazione scelta
-- Valutare configurazioni diverse e condurre un processo di ottimizzazione sulle singole variabili di interesse
+
+- Caricare il tuo modello di aereo (file `.vsp3`).
+- Calcolare automaticamente le prestazioni di volo nella configurazione scelta.
+- Valutare configurazioni diverse e condurre un processo di ottimizzazione sulle singole variabili di interesse.
 
 ---
 
-## Requirements
+## Requisiti
 
-| Requirement | Version |
-|---|---|
-| **OS** | Windows 10 / 11 |
-| **Python** | **3.13 exactly** (si crea all'avvio) |
-| **OpenVSP** | `OpenVSP-3.48.2-win64/` is already in the repo |
+| Requisito | Versione |
+| --- | --- |
+| **Sistema Operativo** | Windows 10 / 11 |
+| **Python** | **Esattamente la 3.13** (si crea automaticamente all'avvio) |
+| **OpenVSP** | La cartella `OpenVSP-3.48.2-win64/` è già inclusa nel progetto |
 
-> Python 3.12 or earlier will **not** work with the included binary.
+> **Attenzione:** Versioni di Python 3.12 o precedenti **non** funzioneranno con l'eseguibile incluso.
 
 ---
 
-## Quick start
-
+## Guida Rapida
 
 ### Come avviarlo
 
 1. Apri la cartella del progetto.
-2. **Doppio click** sul file `run_project.bat`
+2. Fai **doppio click** sul file `run_project.bat`.
 3. Aspetta qualche secondo.
 
-Si aprirà automaticamente il quaderno con tutti i risultati (grafici, numeri, tabelle).  
-Non devi installare niente: tutto è già dentro la cartella.
+Si aprirà automaticamente il quaderno di lavoro (notebook) con tutti i risultati (grafici, numeri, tabelle). Non devi installare niente: tutto è già pronto all'interno della cartella.
 
-This single command:
-- copies a compatible Python 3.13 runtime into `interpreter/`
-- creates a local virtual environment in `.venv/`
-- installs all dependencies from `requirements.txt` into `libs/`
-- registers a Jupyter kernel named **OpenVSP Controller (.venv)**
-- runs `scripts/verify_setup.py` to confirm everything is wired correctly
+Questo singolo comando eseguirà in automatico i seguenti passaggi:
 
-### 3 — Open the main notebook
+- Crea un ambiente virtuale locale in `.venv/`.
+- Copia un ambiente Python 3.13 compatibile nella cartella `.venv/interpreter/`.
+- Installa tutte le dipendenze elencate nel file `requirements.txt` all'interno della cartella `.venv/libs/`.
+- Registra un kernel per Jupyter chiamato **OpenVSP Controller (.venv)**.
+- Avvia lo script `scripts/verify_setup.py` per assicurarsi che tutto sia configurato correttamente.
 
+### Apertura del Notebook Principale
 
-JupyterLab opens directly on `notebooks/main_analysis.ipynb`.  
-The first cell bootstraps the environment and verifies the embedded OpenVSP runtime.
-
----
-
-## Other commands
-
-| Command | Description |
-|---|---|
-| `run_project.bat setup` | Bootstrap / repair the local environment |
-| `run_project.bat` | Launch JupyterLab on the main notebook |
-| `run_project.bat verify` | Run `scripts/verify_setup.py` only |
-
+JupyterLab si aprirà direttamente sul file `notebooks/main_analysis.ipynb`.  
+La prima cella di codice ha il compito di avviare l'ambiente e verificare il corretto funzionamento della versione di OpenVSP inclusa.
 
 ---
 
-## Typical notebook workflow
+## Altri Comandi
 
-1. **Environment check** — the bootstrap cell confirms Python version, OpenVSP root, and package availability.
-2. **Load model** — point `MODEL_PATH` to your `.vsp3` file under `models/`.
-3. **Configure baseline** — set Mach, Reynolds, alpha schedule, and stability flags in `BASELINE_ANALYSIS`.
-4. **Run baseline sweep** — a single VSPAERO alpha sweep with optional `.history` convergence and `.stab` stability parsing.
-5. **One-at-a-time sweeps** — explore the effect of tail position and CG shift on static margin and neutral point.
-6. **Optimize** — choose gradient (SLSQP), Bayesian (Optuna TPE), or two-phase optimization.
-7. **Export** — tables are written to `exports/` as `.csv` + `.txt`; figures as `.png`.
+| Comando | Descrizione |
+| --- | --- |
+| `run_project.bat setup` | Crea da zero o ripara l'ambiente di lavoro locale |
+| `run_project.bat` | Avvia JupyterLab aprendo direttamente il notebook principale |
+| `run_project.bat verify` | Esegue solamente lo script di verifica `scripts/verify_setup.py` |
 
 ---
 
-## Placing your aircraft model
+## Flusso di Lavoro Tipico
 
-Drop your `.vsp3` file in the `models/` directory and update `MODEL_PATH` in the notebook:
+1. **Controllo dell'ambiente:** La primissima cella verifica la versione di Python, la posizione di OpenVSP e la corretta installazione dei pacchetti.
+2. **Caricamento del modello:** Modifica la variabile `MODEL_PATH` inserendo il nome del tuo file `.vsp3` salvato dentro `models/`.
+3. **Configurazione di base:** Imposta i valori per Mach, Reynolds, angolo d'attacco (alpha) e i parametri di stabilità all'interno della sezione `BASELINE_ANALYSIS`.
+4. **Analisi di base:** Esegue una singola simulazione in VSPAERO al variare dell'angolo d'attacco, con la possibilità di leggere i file `.history` per la convergenza e `.stab` per la stabilità.
+5. **Analisi delle singole variabili:** Studia in che modo lo spostamento della coda e del baricentro (CG) influenzano il margine statico e il punto neutro.
+6. **Ottimizzazione:** Scegli quale metodo usare tra gradiente (SLSQP), ricerca Bayesiana (Optuna TPE) o un'ottimizzazione in due fasi.
+7. **Esportazione:** I risultati vengono salvati nella cartella `exports/`: le tabelle in formato `.csv` e `.txt`, mentre i grafici come immagini `.png`.
+
+---
+
+## Dove Inserire il Tuo Modello
+
+Metti il tuo file `.vsp3` all'interno della cartella `models/` e aggiorna la variabile `MODEL_PATH` nel notebook in questo modo:
 
 ```python
-MODEL_PATH = REPO_ROOT / "models" / "your_aircraft.vsp3"
-```
+MODEL_PATH = REPO_ROOT / "models" / "il_tuo_aereo.vsp3"
 
----
+## Struttura progetto
 
-## Project layout (top level)
-
-```
 OpenVspController/
-├── run_project.bat          ← main entry point
+├── run_project.bat          ← Punto di accesso principale del programma
 ├── requirements.txt
-├── environment.yml          ← Conda fallback (optional)
-├── vspopt/                  ← Python analysis & optimization package
-├── notebooks/               ← Jupyter notebooks
-├── scripts/                 ← setup & verification helpers
-├── models/                  ← place your .vsp3 files here
-├── exports/                 ← generated tables and figures
-├── OpenVSP-3.48.2-win64/   ← bundled OpenVSP runtime (do not delete)
-|── .venv/                   ← virtual environment (created by setup)
-├── interpreter/             ← local Python 3.13 runtime (created by setup)
-├── libs/                    ← pip-installed packages (created by setup)
-```
+├── environment.yml          ← File opzionale per l'uso con Conda
+├── vspopt/                  ← Codice sorgente Python per analisi e ottimizzazione
+├── notebooks/               ← Cartella dei notebook Jupyter
+├── scripts/                 ← Script utili per l'installazione e la verifica
+├── models/                  ← INSERISCI QUI I TUOI FILE .vsp3
+├── exports/                 ← Qui troverai le tabelle e i grafici generati
+├── OpenVSP-3.48.2-win64/    ← Versione di OpenVSP inclusa (non eliminare!)
+├── .venv/                   ← Ambiente virtuale (creato in automatico dal setup)
+├── interpreter/             ← Python 3.13 locale (creato in automatico dal setup)
+└── libs/                    ← Pacchetti installati (creati in automatico dal setup)
 
 ## License
 
