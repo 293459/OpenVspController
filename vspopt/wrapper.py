@@ -790,6 +790,8 @@ class VSPWrapper:
         """
         from vspopt.postprocess import (
             check_history_convergence,
+            extract_cd0_details,
+            extract_cd0_from_arrays,
             find_generated_artifact,
             parse_stab_file,
             read_history_file,
@@ -997,6 +999,27 @@ class VSPWrapper:
                             setattr(results, field_name, getattr(stab_results, field_name))
 
         results.warnings = results.validate()
+
+        # CD0 is attached after the stability normalization so the fallback fit
+        # always sees the same aerodynamic arrays that downstream users see.
+        polar_path = find_generated_artifact(search_dirs, output_stem, ".polar")
+        cd0_extraction = None
+        if polar_path is not None:
+            results.polar_path = polar_path
+            try:
+                cd0_extraction = extract_cd0_details(polar_path)
+            except Exception as exc:
+                logger.warning("Could not extract CD0 from %s: %s", polar_path, exc)
+
+        if cd0_extraction is None or not np.isfinite(cd0_extraction.cd0):
+            cd0_extraction = extract_cd0_from_arrays(
+                results.alpha,
+                results.CL,
+                results.CD,
+                results.CDo,
+                source=f"{output_stem} aerodynamic arrays",
+            )
+        results.set_cd0_extraction(cd0_extraction)
 
         if len(results.alpha) == 0 and not allow_incomplete_results:
             artifact_names = sorted(path.name for path in working_dir.glob(f"{output_stem}*"))

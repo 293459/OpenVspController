@@ -28,6 +28,8 @@ from vspopt.optimization   import (
     run_two_phase_optimization, compare_results, validate_design_variables,
 )
 from vspopt.postprocess    import (
+    CD0Extraction, cd0_design_driver_table, estimate_cd0,
+    estimate_cd0_breakdown, extract_cd0, extract_cd0_details,
     MassProperties, check_history_convergence, parse_stab_file,
     read_history_file, stability_records_to_dataframe,
 )
@@ -62,10 +64,12 @@ __all__ = [
     "AircraftModel", "WingComponent", "FuselageComponent",
     "VSPWrapper", "OpenVSPError",
     "VSPAEROResults",
-    "MassProperties",
+    "CD0Extraction", "MassProperties",
     "DesignVariable", "ObjectiveSpec", "OptimizationResult",
     "run_gradient_optimization", "run_bayesian_optimization",
     "run_two_phase_optimization", "compare_results", "validate_design_variables",
+    "cd0_design_driver_table", "estimate_cd0", "estimate_cd0_breakdown",
+    "extract_cd0", "extract_cd0_details",
     "check_history_convergence", "parse_stab_file",
     "read_history_file", "stability_records_to_dataframe",
     "plot_polar", "plot_drag_polar", "plot_ld_ratio",

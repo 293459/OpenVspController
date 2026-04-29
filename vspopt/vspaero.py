@@ -17,7 +17,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from vspopt.postprocess import first_finite_value
+from vspopt.postprocess import CD0Extraction, extract_cd0_from_arrays, first_finite_value
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +61,7 @@ class VSPAEROResults:
     model_path: Optional[Path] = None
     solver_log_path: Optional[Path] = None
     warnings: list[str] = field(default_factory=list)
+    polar_path: Optional[Path] = None
     history_path: Optional[Path] = None
     history_table: pd.DataFrame = field(default_factory=pd.DataFrame)
     convergence: dict[str, object] = field(default_factory=dict)
@@ -68,6 +69,14 @@ class VSPAEROResults:
     stability_records: list[dict[str, float]] = field(default_factory=list)
     stability_table: pd.DataFrame = field(default_factory=pd.DataFrame)
     mass_properties: Optional["MassProperties"] = None
+    cd0: float = float("nan")
+    cd0_method: str = ""
+    cd0_source: str = ""
+    cd0_induced_factor: float = float("nan")
+    cd0_fit_r_squared: float = float("nan")
+    cd0_direct_at_alpha0: float = float("nan")
+    cd0_cdo_at_alpha0: float = float("nan")
+    cd0_n_points: int = 0
 
     @property
     def has_stability_data(self) -> bool:
@@ -95,37 +104,62 @@ class VSPAEROResults:
     @property
     def LD_max(self) -> float:
         """Maximum lift-to-drag ratio in the sweep."""
-        if len(self.LD) == 0:
+        if len(self.LD) == 0 or not np.isfinite(self.LD).any():
             return float("nan")
         return float(np.nanmax(self.LD))
+
+    def _ld_max_index(self) -> int | None:
+        """Return the valid index of maximum L/D, or ``None`` when unavailable."""
+        if len(self.LD) == 0:
+            return None
+        finite = np.isfinite(self.LD)
+        if not finite.any():
+            return None
+        return int(np.nanargmax(np.where(finite, self.LD, -np.inf)))
 
     @property
     def alpha_at_LD_max(self) -> float:
         """Angle of attack at maximum lift-to-drag ratio."""
-        if len(self.LD) == 0:
+        idx = self._ld_max_index()
+        if idx is None or idx >= len(self.alpha):
             return float("nan")
-        return float(self.alpha[np.nanargmax(self.LD)])
+        return float(self.alpha[idx])
 
     @property
     def CL_at_LD_max(self) -> float:
         """Lift coefficient at maximum lift-to-drag ratio."""
-        if len(self.LD) == 0:
+        idx = self._ld_max_index()
+        if idx is None or idx >= len(self.CL):
             return float("nan")
-        return float(self.CL[np.nanargmax(self.LD)])
+        return float(self.CL[idx])
 
     @property
     def CD_at_LD_max(self) -> float:
         """Drag coefficient at maximum lift-to-drag ratio."""
-        if len(self.CD) == 0:
+        idx = self._ld_max_index()
+        if idx is None or idx >= len(self.CD):
             return float("nan")
-        return float(self.CD[np.nanargmax(self.LD)])
+        return float(self.CD[idx])
 
     @property
-    def CD0_estimate(self) -> float:
-        """Estimate of zero-lift drag based on the minimum ``CD`` in the sweep."""
+    def CD_min(self) -> float:
+        """Minimum total drag coefficient observed in the sweep."""
         if len(self.CD) == 0:
             return float("nan")
         return float(np.nanmin(self.CD))
+
+    @property
+    def CD0(self) -> float:
+        """Best available zero-lift drag coefficient."""
+        return self.CD0_estimate
+
+    @property
+    def CD0_estimate(self) -> float:
+        """Zero-lift drag from the polar fit, falling back to the current arrays."""
+        if np.isfinite(self.cd0):
+            return float(self.cd0)
+        extraction = extract_cd0_from_arrays(self.alpha, self.CL, self.CD, self.CDo, source="VSPAEROResults arrays")
+        return float(extraction.cd0)
 
     @property
     def oswald_mean(self) -> float:
@@ -147,6 +181,18 @@ class VSPAEROResults:
     def converged(self) -> bool:
         """Convergence flag parsed from the ``.history`` file."""
         return bool(self.convergence.get("converged", False))
+
+    def set_cd0_extraction(self, extraction: CD0Extraction) -> None:
+        """Attach detailed ``CD0`` extraction metadata to this result object."""
+        self.cd0 = float(extraction.cd0)
+        self.cd0_method = extraction.method
+        self.cd0_source = extraction.source
+        self.cd0_induced_factor = float(extraction.induced_factor)
+        self.cd0_fit_r_squared = float(extraction.r_squared)
+        self.cd0_direct_at_alpha0 = float(extraction.cd_at_alpha0)
+        self.cd0_cdo_at_alpha0 = float(extraction.cdo_at_alpha0)
+        self.cd0_n_points = int(extraction.n_points)
+        self.warnings.extend(extraction.warnings)
 
     def interpolate_at_CL(self, cl_target: float) -> dict[str, float]:
         """Interpolate key coefficients at a given ``CL`` value."""
@@ -211,7 +257,10 @@ class VSPAEROResults:
             "alpha @ L/Dmax [deg]": self.alpha_at_LD_max,
             "CL @ L/Dmax": self.CL_at_LD_max,
             "CD @ L/Dmax": self.CD_at_LD_max,
-            "CD0 (min CD)": self.CD0_estimate,
+            "CD_min": self.CD_min,
+            "CD0": self.CD0_estimate,
+            "CD0 method": self.cd0_method,
+            "CD0 fit R^2": self.cd0_fit_r_squared,
             "Oswald e (mean)": self.oswald_mean,
             "alpha points": len(self.alpha),
             "stability rows": len(self.stability_records),
