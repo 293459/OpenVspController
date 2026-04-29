@@ -46,6 +46,12 @@ from vspopt.reporting      import (
     build_case_summary_row, collect_case_tables, export_case_collection,
     print_case_collection_summary,
 )
+from vspopt.analytical_checks import (
+    compare_analytical_to_openvsp, downwash_gradient_datcom,
+    lift_curve_slope_helmbold, neutral_point_location,
+    pitching_moment_slope, run_basic_stability_checks,
+    static_margin, total_lift_curve_slope,
+)
 from vspopt.utils          import (
     setup_logging, check_vsp3_integrity, check_openvsp_version,
     check_polar_sanity, results_to_markdown_table, print_banner,
@@ -79,6 +85,10 @@ __all__ = [
     "format_supported_python_versions", "get_default_openvsp_root",
     "build_case_summary_row", "collect_case_tables", "export_case_collection",
     "print_case_collection_summary",
+    "compare_analytical_to_openvsp", "downwash_gradient_datcom",
+    "lift_curve_slope_helmbold", "neutral_point_location",
+    "pitching_moment_slope", "run_basic_stability_checks",
+    "static_margin", "total_lift_curve_slope",
     "setup_logging", "check_vsp3_integrity", "check_openvsp_version",
     "check_polar_sanity", "results_to_markdown_table", "print_banner",
     # notebook helpers
