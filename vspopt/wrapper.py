@@ -69,6 +69,8 @@ class VSPWrapper:
     # start at SET_FIRST_USER, which is 3 in the bundled 3.48.2 build.
     DEFAULT_THIN_SET = 3
     DEFAULT_THICK_SET = 4
+    MIN_WAKE_ITERATIONS = 3
+    MIN_WAKE_NODES = 3
 
     def __init__(self, vsp3_path: str | Path) -> None:
         self._vsp = _import_vsp()
@@ -814,6 +816,7 @@ class VSPWrapper:
         working_dir = Path(working_dir)
         working_dir.mkdir(parents=True, exist_ok=True)
 
+        requested_wake_iterations = wake_iterations if wake_iterations is not None else wake_iter
         if wake_iterations is None:
             wake_iterations = 5 if wake_iter is None else int(wake_iter)
         elif wake_iter is not None and int(wake_iter) != int(wake_iterations):
@@ -823,7 +826,23 @@ class VSPWrapper:
                 wake_iterations,
             )
         wake_iterations = int(wake_iterations)
+        if wake_iterations < self.MIN_WAKE_ITERATIONS:
+            logger.warning(
+                "wake_iterations=%s is below the OpenVSP/VSPAERO practical minimum; using %s.",
+                wake_iterations,
+                self.MIN_WAKE_ITERATIONS,
+            )
+            wake_iterations = self.MIN_WAKE_ITERATIONS
+
+        requested_wake_nodes = wake_nodes
         wake_nodes = int(wake_iterations if wake_nodes is None else wake_nodes)
+        if wake_nodes < self.MIN_WAKE_NODES:
+            logger.warning(
+                "wake_nodes=%s would create a degenerate wake grid; using %s.",
+                wake_nodes,
+                self.MIN_WAKE_NODES,
+            )
+            wake_nodes = self.MIN_WAKE_NODES
 
         output_stem = output_stem or self._path.stem
         self._cleanup_run_artifacts(working_dir, output_stem)
@@ -962,6 +981,12 @@ class VSPWrapper:
         results.cref = float(reference_quantities.get("cref", 0.0))
         results.wake_iterations = int(wake_iterations)
         results.wake_nodes = int(wake_nodes)
+        results.requested_wake_iterations = (
+            int(requested_wake_iterations) if requested_wake_iterations is not None else int(wake_iterations)
+        )
+        results.requested_wake_nodes = (
+            int(requested_wake_nodes) if requested_wake_nodes is not None else int(wake_nodes)
+        )
         results.mass_properties = mass_properties
 
         search_dirs = [working_dir]

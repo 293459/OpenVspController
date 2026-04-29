@@ -40,6 +40,8 @@ def build_case_summary_row(
         "alpha_points": len(results.alpha),
         "mach": results.mach,
         "re_cref": results.re_cref,
+        "requested_wake_iterations": results.requested_wake_iterations,
+        "requested_wake_nodes": results.requested_wake_nodes,
         "wake_iterations": results.wake_iterations,
         "wake_nodes": results.wake_nodes,
         "ld_max": results.LD_max,

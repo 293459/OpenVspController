@@ -30,6 +30,8 @@ class VSPAEROResults:
     mach: float = 0.0
     re_cref: float = 0.0
     alpha: np.ndarray = field(default_factory=lambda: np.array([]))
+    requested_wake_iterations: int = 0
+    requested_wake_nodes: int = 0
     wake_iterations: int = 0
     wake_nodes: int = 0
 
@@ -232,6 +234,10 @@ class VSPAEROResults:
         df["Sref"] = self.Sref
         df["bref"] = self.bref
         df["cref"] = self.cref
+        if self.requested_wake_iterations:
+            df["requested_wake_iterations"] = self.requested_wake_iterations
+        if self.requested_wake_nodes:
+            df["requested_wake_nodes"] = self.requested_wake_nodes
         if self.wake_iterations:
             df["wake_iterations"] = self.wake_iterations
         if self.wake_nodes:
@@ -254,6 +260,8 @@ class VSPAEROResults:
             "Case": self.case_name or "",
             "Mach": self.mach,
             "Re_cref": self.re_cref,
+            "requested_wake_iterations": self.requested_wake_iterations,
+            "requested_wake_nodes": self.requested_wake_nodes,
             "wake_iterations": self.wake_iterations,
             "wake_nodes": self.wake_nodes,
             "Sref [m^2]": self.Sref,
