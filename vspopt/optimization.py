@@ -31,6 +31,8 @@ _ANALYSIS_INPUT_TO_SWEEP_KWARG = {
     "Xcg": "xcg",
     "Ycg": "ycg",
     "Zcg": "zcg",
+    "WakeNumIter": "wake_iterations",
+    "NumWakeNodes": "wake_nodes",
 }
 
 

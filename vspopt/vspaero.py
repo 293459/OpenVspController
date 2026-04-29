@@ -30,6 +30,8 @@ class VSPAEROResults:
     mach: float = 0.0
     re_cref: float = 0.0
     alpha: np.ndarray = field(default_factory=lambda: np.array([]))
+    wake_iterations: int = 0
+    wake_nodes: int = 0
 
     # Aerodynamic coefficients
     CL: np.ndarray = field(default_factory=lambda: np.array([]))
@@ -230,6 +232,10 @@ class VSPAEROResults:
         df["Sref"] = self.Sref
         df["bref"] = self.bref
         df["cref"] = self.cref
+        if self.wake_iterations:
+            df["wake_iterations"] = self.wake_iterations
+        if self.wake_nodes:
+            df["wake_nodes"] = self.wake_nodes
         if self.case_name:
             df.insert(0, "case_name", self.case_name)
         return df
@@ -248,6 +254,8 @@ class VSPAEROResults:
             "Case": self.case_name or "",
             "Mach": self.mach,
             "Re_cref": self.re_cref,
+            "wake_iterations": self.wake_iterations,
+            "wake_nodes": self.wake_nodes,
             "Sref [m^2]": self.Sref,
             "bref [m]": self.bref,
             "cref [m]": self.cref,

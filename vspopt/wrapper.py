@@ -758,7 +758,9 @@ class VSPWrapper:
         alpha_npts: int = 7,
         mach: float = 0.2,
         re_cref: float = 1e6,
-        wake_iter: int = 5,
+        wake_iter: int | None = None,
+        wake_iterations: int | None = None,
+        wake_nodes: int | None = None,
         analysis_method: int = 0,
         beta: float = 0.0,
         xcg: float | None = None,
@@ -811,6 +813,17 @@ class VSPWrapper:
             working_dir = self._path.parent
         working_dir = Path(working_dir)
         working_dir.mkdir(parents=True, exist_ok=True)
+
+        if wake_iterations is None:
+            wake_iterations = 5 if wake_iter is None else int(wake_iter)
+        elif wake_iter is not None and int(wake_iter) != int(wake_iterations):
+            logger.warning(
+                "Both wake_iter=%s and wake_iterations=%s were provided; using wake_iterations.",
+                wake_iter,
+                wake_iterations,
+            )
+        wake_iterations = int(wake_iterations)
+        wake_nodes = int(wake_iterations if wake_nodes is None else wake_nodes)
 
         output_stem = output_stem or self._path.stem
         self._cleanup_run_artifacts(working_dir, output_stem)
@@ -873,7 +886,11 @@ class VSPWrapper:
         self._set_int_analysis_input(analysis, "BetaNpts", [1])
 
         self._set_double_analysis_input(analysis, "ReCref", [float(re_cref)])
-        self._set_int_analysis_input(analysis, "WakeNumIter", [int(wake_iter)])
+        # OpenVSP 3.48 exposes both a solver wake-iteration count and a wake-node
+        # count. The notebook-level ``wake_iterations`` parameter drives both by
+        # default so convergence studies can vary wake discretisation in one place.
+        self._set_int_analysis_input(analysis, "WakeNumIter", [int(wake_iterations)])
+        self._set_int_analysis_input(analysis, "NumWakeNodes", [int(wake_nodes)])
         self._set_double_analysis_input(analysis, "Sref", [float(reference_quantities.get("Sref", 0.0))])
         self._set_double_analysis_input(analysis, "bref", [float(reference_quantities.get("bref", 0.0))])
         self._set_double_analysis_input(analysis, "cref", [float(reference_quantities.get("cref", 0.0))])
@@ -943,6 +960,8 @@ class VSPWrapper:
         results.Sref = float(reference_quantities.get("Sref", 0.0))
         results.bref = float(reference_quantities.get("bref", 0.0))
         results.cref = float(reference_quantities.get("cref", 0.0))
+        results.wake_iterations = int(wake_iterations)
+        results.wake_nodes = int(wake_nodes)
         results.mass_properties = mass_properties
 
         search_dirs = [working_dir]

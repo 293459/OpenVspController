@@ -36,7 +36,7 @@ from vspopt.postprocess    import (
 from vspopt.plotting       import (
     plot_polar, plot_drag_polar, plot_ld_ratio,
     plot_optimization_history, plot_variable_sensitivity,
-    plot_comparison_bar, plot_sweep_grid, export_all,
+    plot_comparison_bar, plot_sweep_grid, plot_wake_convergence, export_all,
 )
 from vspopt.openvsp_runtime import (
     configure_embedded_openvsp, detect_supported_python_versions,
@@ -74,7 +74,7 @@ __all__ = [
     "read_history_file", "stability_records_to_dataframe",
     "plot_polar", "plot_drag_polar", "plot_ld_ratio",
     "plot_optimization_history", "plot_variable_sensitivity",
-    "plot_comparison_bar", "plot_sweep_grid", "export_all",
+    "plot_comparison_bar", "plot_sweep_grid", "plot_wake_convergence", "export_all",
     "configure_embedded_openvsp", "detect_supported_python_versions",
     "format_supported_python_versions", "get_default_openvsp_root",
     "build_case_summary_row", "collect_case_tables", "export_case_collection",

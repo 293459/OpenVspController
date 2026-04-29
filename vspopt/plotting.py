@@ -667,6 +667,76 @@ def plot_sweep_grid(
 
 
 # ---------------------------------------------------------------------------
+# 9. Wake convergence metric plot
+# ---------------------------------------------------------------------------
+
+def plot_wake_convergence(
+    df: "pd.DataFrame",
+    metric: str = "static_margin",
+    *,
+    x_col: str = "wake_iterations",
+    group_col: str | None = None,
+    title: str | None = None,
+    export_dir: Optional[str | Path] = None,
+    filename: str | None = None,
+) -> plt.Figure:
+    """
+    Plot one stability/aero metric as a function of wake iterations or nodes.
+
+    The function accepts a plain DataFrame so notebook studies can reuse it for
+    baseline convergence, tail-position sweeps, and CG sweeps without creating a
+    new result container.
+    """
+    _apply_style()
+    import pandas as pd
+
+    fig, ax = plt.subplots(figsize=(8, 4.8))
+    plot_title = title or f"{metric} vs {x_col}"
+    ax.set_title(plot_title, fontsize=13)
+
+    if df.empty or x_col not in df.columns or metric not in df.columns:
+        ax.text(
+            0.5,
+            0.5,
+            f"Missing data for {metric} vs {x_col}",
+            ha="center",
+            va="center",
+            transform=ax.transAxes,
+        )
+        ax.axis("off")
+        return _export(fig, filename or f"wake_convergence_{metric}", export_dir)
+
+    if group_col and group_col in df.columns:
+        groups = df.groupby(group_col, dropna=False)
+    else:
+        groups = [(metric, df)]
+
+    for label, group in groups:
+        ordered = group.sort_values(x_col)
+        x_values = pd.to_numeric(ordered[x_col], errors="coerce")
+        y_values = pd.to_numeric(ordered[metric], errors="coerce")
+        mask = np.isfinite(x_values) & np.isfinite(y_values)
+        if mask.sum() == 0:
+            continue
+        ax.plot(
+            x_values[mask],
+            y_values[mask],
+            marker="o",
+            linewidth=1.8,
+            label=str(label),
+        )
+
+    ax.set_xlabel(x_col)
+    ax.set_ylabel(metric)
+    ax.grid(True, linewidth=0.5)
+    if group_col and group_col in df.columns:
+        ax.legend()
+    fig.tight_layout()
+    safe_metric = metric.replace(" ", "_").replace("/", "_")
+    return _export(fig, filename or f"wake_convergence_{safe_metric}", export_dir)
+
+
+# ---------------------------------------------------------------------------
 # Export all figures at once
 # ---------------------------------------------------------------------------
 
