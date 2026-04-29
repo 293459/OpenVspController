@@ -37,6 +37,7 @@ interpreter/
 
 # Output e file temporanei
 exports/
+outputs/
 *.log
 .DS_Store
 
