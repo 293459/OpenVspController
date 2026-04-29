@@ -20,7 +20,7 @@ Quick start
 """
 
 from vspopt.model          import AircraftModel, WingComponent, FuselageComponent
-from vspopt.wrapper        import VSPWrapper, OpenVSPError
+from vspopt.wrapper        import VSPWrapper, OpenVSPError, STLGeometryError
 from vspopt.vspaero        import VSPAEROResults
 from vspopt.optimization   import (
     DesignVariable, ObjectiveSpec, OptimizationResult,
@@ -53,7 +53,7 @@ from vspopt.analytical_checks import (
     static_margin, total_lift_curve_slope,
 )
 from vspopt.utils          import (
-    setup_logging, check_vsp3_integrity, check_openvsp_version,
+    setup_logging, check_model_file_integrity, check_vsp3_integrity, check_openvsp_version,
     check_polar_sanity, results_to_markdown_table, print_banner,
 )
 from vspopt.notebook_helpers import (
@@ -68,7 +68,7 @@ from vspopt.notebook_helpers import (
 __version__ = "0.1.0"
 __all__ = [
     "AircraftModel", "WingComponent", "FuselageComponent",
-    "VSPWrapper", "OpenVSPError",
+    "VSPWrapper", "OpenVSPError", "STLGeometryError",
     "VSPAEROResults",
     "CD0Extraction", "MassProperties",
     "DesignVariable", "ObjectiveSpec", "OptimizationResult",
@@ -89,7 +89,7 @@ __all__ = [
     "lift_curve_slope_helmbold", "neutral_point_location",
     "pitching_moment_slope", "run_basic_stability_checks",
     "static_margin", "total_lift_curve_slope",
-    "setup_logging", "check_vsp3_integrity", "check_openvsp_version",
+    "setup_logging", "check_model_file_integrity", "check_vsp3_integrity", "check_openvsp_version",
     "check_polar_sanity", "results_to_markdown_table", "print_banner",
     # notebook helpers
     "validate_plot_data", "validate_vspaero_results",

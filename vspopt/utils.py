@@ -56,9 +56,13 @@ def setup_logging(level: str = "INFO", log_file: Optional[str | Path] = None) ->
 # File integrity
 # ---------------------------------------------------------------------------
 
-def check_vsp3_integrity(path: str | Path) -> tuple[bool, str]:
+def check_model_file_integrity(path: str | Path) -> tuple[bool, str]:
     """
-    Basic integrity check for a .vsp3 file.
+    Basic integrity check for supported model input files.
+
+    ``.vsp3`` files are native OpenVSP models and can be used by VSPAERO.
+    ``.stl`` files can be imported as mesh geometry for visualisation/export
+    workflows, but they are not native parametric VSPAERO geometry.
 
     Returns
     -------
@@ -69,13 +73,21 @@ def check_vsp3_integrity(path: str | Path) -> tuple[bool, str]:
     if not p.exists():
         return False, f"File not found: '{p.resolve()}'"
 
-    if p.suffix.lower() != ".vsp3":
-        return False, f"Expected .vsp3 extension, got '{p.suffix}'"
+    suffix = p.suffix.lower()
+    if suffix not in {".vsp3", ".stl"}:
+        return False, f"Expected .vsp3 or .stl extension, got '{p.suffix}'"
 
     if p.stat().st_size == 0:
         return False, f"File is empty: '{p}'"
 
-    # VSP3 files are XML-based; minimal check for the XML header
+    if suffix == ".stl":
+        return (
+            True,
+            "OK STL mesh input. Use analysis_mode='mesh'/'visualization' for import; "
+            "VSPAERO requires native .vsp3 geometry.",
+        )
+
+    # VSP3 files are XML-based; minimal check for the XML header.
     try:
         with open(p, "r", encoding="utf-8", errors="replace") as fh:
             header = fh.read(256)
@@ -91,6 +103,11 @@ def check_vsp3_integrity(path: str | Path) -> tuple[bool, str]:
         return False, f"Cannot read file: {exc}"
 
     return True, f"OK (size={p.stat().st_size / 1024:.1f} KB)"
+
+
+def check_vsp3_integrity(path: str | Path) -> tuple[bool, str]:
+    """Backward-compatible wrapper around :func:`check_model_file_integrity`."""
+    return check_model_file_integrity(path)
 
 
 def file_md5(path: str | Path) -> str:

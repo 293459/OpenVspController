@@ -73,6 +73,20 @@ Metti il tuo file `.vsp3` all'interno della cartella `models/` e aggiorna la var
 
 ```python
 MODEL_PATH = REPO_ROOT / "models" / "il_tuo_aereo.vsp3"
+```
+
+### Uso di file STL
+
+Il progetto rileva automaticamente anche file `.stl`, ma questi file vengono importati da OpenVSP come `MeshGeom`.
+Questo va bene per visualizzazione o workflow di mesh/export:
+
+```python
+from vspopt import VSPWrapper
+
+mesh_wrapper = VSPWrapper("models/geometria.stl", analysis_mode="mesh").load()
+```
+
+Non usare un file `.stl` direttamente per analisi VSPAERO, stabilita o ottimizzazione: VSPAERO richiede geometrie native OpenVSP (`Wing`, `Fuselage`, superfici parametriche). In quel caso ricostruisci il modello in `.vsp3`, oppure usa un workflow esterno compatibile con superfici triangolate/Cart3D.
 
 ## Struttura progetto
 

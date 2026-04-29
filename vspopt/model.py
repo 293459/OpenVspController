@@ -131,11 +131,12 @@ class AircraftModel:
     _FUSE_KEYWORDS = ("fuse", "fuselage", "body", "hull")
     _PROP_KEYWORDS = ("prop", "rotor", "propeller", "fan")
 
-    def __init__(self, vsp3_path: str | Path) -> None:
+    def __init__(self, vsp3_path: str | Path, *, analysis_mode: str = "vspaero") -> None:
         from vspopt.wrapper import VSPWrapper
 
-        self._wrapper = VSPWrapper(vsp3_path)
+        self._wrapper = VSPWrapper(vsp3_path, analysis_mode=analysis_mode)
         self.path = Path(vsp3_path)
+        self.analysis_mode = analysis_mode
 
         self.wing: Optional[WingComponent] = None
         self.htp: Optional[WingComponent] = None

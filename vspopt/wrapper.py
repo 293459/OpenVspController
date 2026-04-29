@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -55,14 +56,22 @@ class OpenVSPError(RuntimeError):
     """Raised when an OpenVSP API call fails or returns unexpected data."""
 
 
+class STLGeometryError(OpenVSPError):
+    """Raised when an STL-only geometry is used for an unsupported workflow."""
+
+
 class VSPWrapper:
     """
     Thin, validated wrapper around the OpenVSP Python API.
 
     Parameters
     ----------
-    vsp3_path : str | Path
-        Path to an existing ``.vsp3`` model file.
+    model_path : str | Path
+        Path to an existing ``.vsp3`` or ``.stl`` model file.
+    analysis_mode : str
+        ``"vspaero"`` keeps the existing parametric-analysis behaviour. STL
+        sources are accepted only for mesh/visualisation modes because VSPAERO
+        needs native OpenVSP lifting surfaces and body components.
     """
 
     # OpenVSP reserves low set indices for built-in sets. User-defined sets
@@ -71,10 +80,13 @@ class VSPWrapper:
     DEFAULT_THICK_SET = 4
     MIN_WAKE_ITERATIONS = 3
     MIN_WAKE_NODES = 3
+    STL_IMPORT_MODES = {"mesh", "visualization", "visualisation", "cfd_mesh", "cfd_mesh_export", "export"}
 
-    def __init__(self, vsp3_path: str | Path) -> None:
+    def __init__(self, model_path: str | Path, *, analysis_mode: str = "vspaero") -> None:
         self._vsp = _import_vsp()
-        self._path = self._validate_vsp3_path(vsp3_path)
+        self._path = self._validate_model_path(model_path)
+        self._analysis_mode = analysis_mode.strip().lower()
+        self._source_format = self._path.suffix.lower()
         self._loaded = False
         self._geom_id_cache: dict[str, str] = {}
         self._parm_id_cache: dict[tuple[str, str, str], str] = {}
@@ -88,7 +100,7 @@ class VSPWrapper:
 
     def load(self) -> "VSPWrapper":
         """
-        Load the ``.vsp3`` model into memory. Safe to call multiple times.
+        Load the model into memory. Safe to call multiple times.
 
         Returns
         -------
@@ -104,9 +116,24 @@ class VSPWrapper:
         self._analysis_inputs_cache.clear()
         self.warnings.clear()
 
-        vsp.ReadVSPFile(str(self._path))
+        if self.is_stl_source:
+            if self._analysis_mode not in self.STL_IMPORT_MODES:
+                self._raise_stl_vspaero_error()
+            self.import_stl_file(self._path)
+        else:
+            vsp.ReadVSPFile(str(self._path))
         self._loaded = True
+        self._refresh_geometry_cache()
+        return self
 
+    @property
+    def is_stl_source(self) -> bool:
+        """Return True when the source file is an imported STL mesh."""
+        return self._source_format == ".stl"
+
+    def _refresh_geometry_cache(self) -> None:
+        """Refresh the public geometry-name cache after loading/importing."""
+        vsp = self._vsp
         all_geoms = list(vsp.FindGeoms())
         for geom_id in all_geoms:
             name = vsp.GetGeomName(geom_id)
@@ -144,7 +171,38 @@ class VSPWrapper:
             )
 
         self._duplicate_names_found = actual_count != geom_count
-        return self
+
+    def _raise_stl_vspaero_error(self) -> None:
+        """Explain why STL meshes cannot be sent directly to VSPAERO."""
+        raise STLGeometryError(
+            "STL input was detected, but the requested workflow is VSPAERO. "
+            "OpenVSP imports STL files as MeshGeom components via ImportFile(..., IMPORT_STL, ...). "
+            "Those mesh-only components are useful for visualisation and mesh/export workflows, "
+            "but VSPAERO panel/VLM analyses require native OpenVSP geometry such as Wing and Fuselage components. "
+            "Reconstruct the aircraft as native VSP geometry, or use an external meshing/Cart3D workflow "
+            "for solver paths that accept triangulated surfaces."
+        )
+
+    def import_stl_file(self, stl_path: str | Path | None = None) -> Any:
+        """
+        Import an STL file into the active OpenVSP model as ``MeshGeom``.
+
+        This mirrors the GUI action ``File -> Import -> STL`` and is intended for
+        visualisation or mesh/export workflows, not VSPAERO optimization.
+        """
+        stl_path = self._path if stl_path is None else self._validate_model_path(stl_path)
+        if Path(stl_path).suffix.lower() != ".stl":
+            raise ValueError(f"Expected an STL file for import, got '{Path(stl_path).suffix}'.")
+        import_flag = getattr(self._vsp, "IMPORT_STL", None)
+        if import_flag is None:
+            raise OpenVSPError("The embedded OpenVSP API does not expose IMPORT_STL.")
+        logger.info("Importing STL geometry through OpenVSP ImportFile: %s", stl_path)
+        result = self._vsp.ImportFile(str(stl_path), import_flag, "")
+        self._vsp.Update()
+        errors = self._drain_openvsp_errors()
+        if errors:
+            logger.warning("OpenVSP reported messages during STL import:\n%s", "\n".join(errors))
+        return result
 
     def _ensure_loaded(self) -> None:
         if not self._loaded:
@@ -215,6 +273,8 @@ class VSPWrapper:
         Returns a summary dictionary so notebooks can display what was assigned.
         """
         self._ensure_loaded()
+        if self.is_stl_source:
+            self._raise_stl_vspaero_error()
         vsp = self._vsp
         all_geoms = list(vsp.FindGeoms())
 
@@ -809,6 +869,8 @@ class VSPWrapper:
         )
 
         self._ensure_loaded()
+        if self.is_stl_source:
+            self._raise_stl_vspaero_error()
         vsp = self._vsp
 
         if working_dir is None:
@@ -1110,22 +1172,24 @@ class VSPWrapper:
         self._loaded = False
 
     @staticmethod
-    def _validate_vsp3_path(path: str | Path) -> Path:
+    def _validate_model_path(path: str | Path) -> Path:
         p = Path(path)
         if not p.exists():
             raise FileNotFoundError(
-                f"VSP3 model not found: '{p.resolve()}'\n"
-                "Place your .vsp3 file in the models/ directory and update the path."
+                f"Model file not found: '{p.resolve()}'\n"
+                "Place your .vsp3 or .stl file in the models/ directory and update the path."
             )
-        if p.suffix.lower() != ".vsp3":
+        if p.suffix.lower() not in {".vsp3", ".stl"}:
             raise ValueError(
-                f"Expected a .vsp3 file, got '{p.suffix}'. "
-                "Make sure you are pointing to an OpenVSP model file."
+                f"Expected a .vsp3 or .stl file, got '{p.suffix}'. "
+                "Use .vsp3 for VSPAERO workflows or .stl for mesh/visualisation import."
             )
         if p.stat().st_size == 0:
             raise OpenVSPError(f"The model file '{p}' exists but is empty.")
         return p.resolve()
 
+    _validate_vsp3_path = _validate_model_path
+
     def __repr__(self) -> str:
         state = "loaded" if self._loaded else "not loaded"
-        return f"VSPWrapper(path='{self._path.name}', state={state})"
+        return f"VSPWrapper(path='{self._path.name}', mode='{self._analysis_mode}', state={state})"
